@@ -6,7 +6,7 @@ function getRoutes() {
   const router = express.Router();
 
   // router.use() prefixes our route (i.e. /api/v1/auth)
-  router.use('/list', getListRoutes());
+  router.use('/lists', getListRoutes());
   // app.use(errorHandler);
 
   return router;
