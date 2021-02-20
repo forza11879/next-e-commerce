@@ -3,16 +3,18 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3600",
     "build": "next build",
     "start": "next start"
   },
   "dependencies": {
+    "axios": "^0.21.1",
     "express": "^4.17.1",
     "express-async-errors": "^3.1.1",
     "loglevel": "^1.7.1",
     "next": "10.0.7",
     "react": "17.0.1",
-    "react-dom": "17.0.1"
+    "react-dom": "17.0.1",
+    "react-query": "^3.9.8"
   }
 }
