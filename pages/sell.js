@@ -1,5 +1,8 @@
 import axios from 'axios';
 import { useQuery } from 'react-query';
+import getConfig from 'next/config';
+
+const { publicRuntimeConfig } = getConfig();
 
 export default function SellPage({ response }) {
   const { data, isLoading, error } = useQuery('sells', getPosts, {
@@ -32,9 +35,10 @@ export async function getServerSideProps(context) {
 }
 
 async function getPosts() {
-  console.log('HOST: ', process.env.HOST);
+  // console.log('HOST: ', process.env.HOST);
+  console.log(publicRuntimeConfig.host);
   const { data } = await axios.request({
-    baseURL: process.env.HOST,
+    baseURL: publicRuntimeConfig.host,
     url: '/api/v1/list',
     method: 'get',
   });
