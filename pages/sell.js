@@ -37,8 +37,6 @@ async function getPosts() {
     baseURL: process.env.HOST,
     url: '/api/v1/list',
     method: 'get',
-    // headers,
-    // data,
   });
   return data;
 }
