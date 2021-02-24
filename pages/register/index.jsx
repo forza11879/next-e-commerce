@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import getConfig from 'next/config';
-import { auth } from '../lib/firebase.js';
+import { auth } from '../../lib/firebase.js';
 import { toast } from 'react-toastify';
 
 const { publicRuntimeConfig } = getConfig();
