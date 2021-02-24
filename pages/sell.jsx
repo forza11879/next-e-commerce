@@ -37,8 +37,10 @@ export async function getServerSideProps(context) {
 async function getPosts() {
   // console.log('HOST: ', process.env.HOST);
   console.log(publicRuntimeConfig.host);
+  // console.log(process.env.HOST);
   const { data } = await axios.request({
     baseURL: publicRuntimeConfig.host,
+    // baseURL: process.env.HOST,
     url: '/api/v1/list',
     method: 'get',
   });

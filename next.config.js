@@ -1,5 +1,5 @@
 module.exports = {
   publicRuntimeConfig: {
-    host: 'http://localhost:3500',
+    host: process.env.HOST,
   },
 };
