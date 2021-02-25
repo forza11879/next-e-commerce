@@ -11,6 +11,7 @@ import 'antd/dist/antd.css';
 
 import { auth } from '../lib/firebase.js';
 import { getUserLoggedIn } from '../store/user.js';
+import AuthComponent from '../lib/Auth.js';
 
 import configureAppStore from '../store/configureAppStore.js';
 
@@ -24,32 +25,17 @@ const queryClient = new QueryClient();
 const store = configureAppStore();
 
 function MyApp({ Component, pageProps }) {
-  const dispatch = useDispatch();
-  // to check firebase auth state
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
-      if (user) {
-        const idTokenResult = await user.getIdTokenResult();
-        dispatch(
-          getUserLoggedIn({
-            email: user.email,
-            token: idTokenResult.token,
-          })
-        );
-      }
-    });
-
-    // cleanup
-    return () => unsubscribe();
-  }, []);
   return (
     <>
       <QueryClientProvider client={queryClient}>
         <Provider store={store}>
-          <Header />
-          <ToastContainer />
-          <Component {...pageProps} />
-          <ReactQueryDevtools initialIsOpen={false} />
+          <>
+            <AuthComponent />
+            <Header />
+            <ToastContainer />
+            <Component {...pageProps} />
+            <ReactQueryDevtools initialIsOpen={false} />
+          </>
         </Provider>
       </QueryClientProvider>
     </>
