@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { toast } from 'react-toastify';
 import { auth } from '../../lib/firebase.js';
 
-const RegisterCompletePage = ({ history }) => {
+const RegisterCompletePage = () => {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -32,7 +32,7 @@ const RegisterCompletePage = ({ history }) => {
         email,
         window.location.href
       );
-      //   console.log("RESULT", result);
+      console.log('RESULT', result);
       if (result.user.emailVerified) {
         // remove user email fom local storage
         window.localStorage.removeItem('emailForRegistration');
