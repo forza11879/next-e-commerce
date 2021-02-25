@@ -4,9 +4,9 @@ import * as actions from '../action/saga.js';
 
 function* auth(action) {
   const { email, token, onSuccess, onError } = action.payload;
-  console.log('action.payload saga: ', action.payload);
-  console.log('email saga: ', email);
-  console.log('token saga: ', token);
+  // console.log('action.payload saga: ', action.payload);
+  // console.log('email saga: ', email);
+  // console.log('token saga: ', token);
   try {
     if (onSuccess)
       yield put({
