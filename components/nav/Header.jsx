@@ -21,7 +21,7 @@ const Header = () => {
 
   const dispatch = useDispatch();
   const user = useSelector(selectUser);
-  console.log('user Select:', user);
+  // console.log('user Select:', !!user.email);
 
   const handleClick = (e) => {
     // console.log(e.key);
@@ -40,19 +40,19 @@ const Header = () => {
         <Link href="/">Home</Link>
       </Item>
 
-      {!user && (
+      {!!!user.email && (
         <Item key="register" icon={<UserAddOutlined />} className="float-right">
           <Link href="/register">Register</Link>
         </Item>
       )}
 
-      {!user && (
+      {!!!user.email && (
         <Item key="login" icon={<UserOutlined />} className="float-right">
           <Link href="/login">Login</Link>
         </Item>
       )}
 
-      {user && (
+      {!!user.email && (
         <SubMenu
           icon={<SettingOutlined />}
           title={user.email && user.email.split('@')[0]}
