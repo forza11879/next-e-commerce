@@ -1,16 +1,14 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Router } from 'next/dist/client/router';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
-import { Provider, useDispatch } from 'react-redux';
+import { Provider } from 'react-redux';
 import { ToastContainer } from 'react-toastify';
 import nProgress from 'nprogress';
 import 'react-toastify/dist/ReactToastify.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'antd/dist/antd.css';
 
-import { auth } from '../lib/firebase.js';
-import { getUserLoggedIn } from '../store/user.js';
 import AuthComponent from '../lib/Auth.js';
 
 import configureAppStore from '../store/configureAppStore.js';
