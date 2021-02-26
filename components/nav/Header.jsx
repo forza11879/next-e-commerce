@@ -3,7 +3,11 @@ import Link from 'next/link';
 import firebase from 'firebase';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
-import { userStoreReseted, selectUser } from '../../store/user.js';
+import {
+  userStoreReseted,
+  selectUser,
+  getUserLoggedOut,
+} from '../../store/user.js';
 import { Menu } from 'antd';
 import {
   AppstoreOutlined,
@@ -30,7 +34,7 @@ const Header = () => {
 
   const logout = () => {
     firebase.auth().signOut();
-    dispatch(userStoreReseted());
+    dispatch(getUserLoggedOut());
     router.push(`/login`);
   };
 
@@ -40,19 +44,19 @@ const Header = () => {
         <Link href="/">Home</Link>
       </Item>
 
-      {!!!user.email && (
+      {!Boolean(user.email) && (
         <Item key="register" icon={<UserAddOutlined />} className="float-right">
           <Link href="/register">Register</Link>
         </Item>
       )}
 
-      {!!!user.email && (
+      {!Boolean(user.email) && (
         <Item key="login" icon={<UserOutlined />} className="float-right">
           <Link href="/login">Login</Link>
         </Item>
       )}
 
-      {!!user.email && (
+      {Boolean(user.email) && (
         <SubMenu
           icon={<SettingOutlined />}
           title={user.email && user.email.split('@')[0]}

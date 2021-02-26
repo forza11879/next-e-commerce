@@ -1,5 +1,5 @@
 import { createSlice, createSelector } from '@reduxjs/toolkit';
-import { sagaAuthCallBegan, sagaAuthCallFailed } from './action/saga.js';
+import * as actions from './action/saga.js';
 
 export const initialState = () => ({
   email: '',
@@ -25,19 +25,17 @@ export default slice.reducer;
 
 // Action creators
 export const getUserLoggedIn = ({ email, token }) =>
-  sagaAuthCallBegan({
+  actions.sagaAuthCallBegan({
     email,
     token,
     onSuccess: userLoggedIn.type,
-    onError: sagaAuthCallFailed.type,
+    onError: actions.sagaAuthCallFailed.type,
   });
 
-export const getUserLoggedOut = ({ email, token }) =>
-  sagaAuthCallBegan({
-    email,
-    token,
+export const getUserLoggedOut = () =>
+  actions.sagaLogoutCallBegan({
     onSuccess: userStoreReseted.type,
-    onError: sagaAuthCallFailed.type,
+    onError: actions.sagaLogoutCallFailed.type,
   });
 
 //

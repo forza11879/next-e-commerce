@@ -21,3 +21,19 @@ function* auth(action) {
 export function* watchAuth() {
   yield takeEvery(actions.sagaAuthCallBegan.type, auth);
 }
+
+function* logout(action) {
+  const { onSuccess, onError } = action.payload;
+  try {
+    yield put({
+      type: onSuccess,
+      payload: null,
+    });
+  } catch (error) {
+    if (onError) yield put({ type: onError, payload: error.message });
+  }
+}
+
+export function* watchLogout() {
+  yield takeEvery(actions.sagaLogoutCallBegan.type, logout);
+}
