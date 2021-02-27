@@ -1,12 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import getConfig from 'next/config';
-import { auth } from '../../lib/firebase.js';
 import { toast } from 'react-toastify';
+import { useSelector } from 'react-redux';
+import { useRouter } from 'next/router';
+import { auth } from '../../lib/firebase.js';
+import { selectUser } from '../../store/user.js';
 
 const { publicRuntimeConfig } = getConfig();
 
 function RegisterPage() {
   const [email, setEmail] = useState('');
+
+  const router = useRouter();
+  const user = useSelector(selectUser);
+
+  useEffect(() => {
+    if (user && user.token) router.push(`/`);
+  }, [user]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

@@ -44,19 +44,19 @@ const Header = () => {
         <Link href="/">Home</Link>
       </Item>
 
-      {!Boolean(user.email) && (
+      {!Boolean(user.email && user.token) && (
         <Item key="register" icon={<UserAddOutlined />} className="float-right">
           <Link href="/register">Register</Link>
         </Item>
       )}
 
-      {!Boolean(user.email) && (
+      {!Boolean(user.email && user.token) && (
         <Item key="login" icon={<UserOutlined />} className="float-right">
           <Link href="/login">Login</Link>
         </Item>
       )}
 
-      {Boolean(user.email) && (
+      {Boolean(user.email && user.token) && (
         <SubMenu
           icon={<SettingOutlined />}
           title={user.email && user.email.split('@')[0]}

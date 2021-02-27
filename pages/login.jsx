@@ -1,19 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { auth, googleAuthProvider } from '../lib/firebase.js';
 import { toast } from 'react-toastify';
 import { Button } from 'antd';
 import { MailOutlined, GoogleOutlined } from '@ant-design/icons';
 import { useDispatch } from 'react-redux';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import { getUserLoggedIn } from '../store/user.js';
+import { useSelector } from 'react-redux';
+import { selectUser } from '../store/user.js';
 
-const LoginPage = ({ history }) => {
+const LoginPage = () => {
   const [email, setEmail] = useState('forza1879@gmail.com');
   const [password, setPassword] = useState('test78');
   const [loading, setLoading] = useState(false);
 
   const dispatch = useDispatch();
   const router = useRouter();
+  const user = useSelector(selectUser);
+
+  useEffect(() => {
+    if (user && user.token) router.push(`/`);
+  }, [user]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -120,6 +128,10 @@ const LoginPage = ({ history }) => {
           >
             Login with Google
           </Button>
+
+          <Link href="/forgot/password" className="float-right text-danger">
+            Forgot Password
+          </Link>
         </div>
       </div>
     </div>
