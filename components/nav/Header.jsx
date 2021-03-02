@@ -3,11 +3,7 @@ import Link from 'next/link';
 import firebase from 'firebase';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
-import {
-  userStoreReseted,
-  selectUser,
-  getUserLoggedOut,
-} from '../../store/user.js';
+import { selectUser, getUserLoggedOut } from '../../store/user.js';
 import { Menu } from 'antd';
 import {
   AppstoreOutlined,
