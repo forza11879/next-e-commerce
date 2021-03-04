@@ -27,25 +27,25 @@ export const { userLoggedIn, userStoreReseted } = slice.actions;
 export default slice.reducer;
 
 // Action creators
-// export const getUserLoggedIn = ({ url, method, token }) =>
-//   actions.sagaAuthCallBegan({
-//     url,
-//     method,
-//     token,
-//     onSuccess: userLoggedIn.type,
-//     onError: actions.sagaAuthCallFailed.type,
-//   });
-
-export const getUserLoggedIn = ({ name, email, token, role, _id }) =>
+export const getUserLoggedIn = ({ url, method, token }) =>
   actions.sagaAuthCallBegan({
-    name,
-    email,
+    url,
+    method,
     token,
-    role,
-    _id,
     onSuccess: userLoggedIn.type,
     onError: actions.sagaAuthCallFailed.type,
   });
+
+// export const getUserLoggedIn = ({ name, email, token, role, _id }) =>
+//   actions.sagaAuthCallBegan({
+//     name,
+//     email,
+//     token,
+//     role,
+//     _id,
+//     onSuccess: userLoggedIn.type,
+//     onError: actions.sagaAuthCallFailed.type,
+//   });
 
 export const getUserLoggedOut = () =>
   actions.sagaLogoutCallBegan({

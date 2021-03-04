@@ -23,24 +23,25 @@ const LoginPage = () => {
   const router = useRouter();
   const user = useSelector(selectUser);
 
-  const url = '/user/create-or-update';
+  // const url = '/user/create-or-update';
+  const url = 'http://localhost:3500/api/v1/user/create-or-update';
   const method = 'post';
 
   useEffect(() => {
     if (user && user.token) router.push(`/`);
   }, [user]);
 
-  const createOrUpdateUser = async (authtoken) => {
-    return await axios.post(
-      `${publicRuntimeConfig.api}/user/create-or-update`,
-      {},
-      {
-        headers: {
-          authtoken,
-        },
-      }
-    );
-  };
+  // const createOrUpdateUser = async (authtoken) => {
+  //   return await axios.post(
+  //     `${publicRuntimeConfig.api}/user/create-or-update`,
+  //     {},
+  //     {
+  //       headers: {
+  //         authtoken,
+  //       },
+  //     }
+  //   );
+  // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -52,31 +53,31 @@ const LoginPage = () => {
       const { user } = result;
       const idTokenResult = await user.getIdTokenResult();
 
-      createOrUpdateUser(idTokenResult.token)
-        .then((res) => {
-          dispatch(
-            getUserLoggedIn({
-              name: res.data.name,
-              email: res.data.email,
-              token: idTokenResult.token,
-              role: res.data.role,
-              _id: res.data._id,
-            })
-          );
-          console.log('res: ', res);
-        })
-        .catch();
+      // createOrUpdateUser(idTokenResult.token)
+      //   .then((res) => {
+      //     dispatch(
+      //       getUserLoggedIn({
+      //         name: res.data.name,
+      //         email: res.data.email,
+      //         token: idTokenResult.token,
+      //         role: res.data.role,
+      //         _id: res.data._id,
+      //       })
+      //     );
+      //     console.log('res: ', res);
+      //   })
+      //   .catch();
       // console.log('url: ', url);
       // console.log('method: ', method);
       // console.log('idTokenResult.token: ', idTokenResult.token);
 
-      // dispatch(
-      //   getUserLoggedIn({
-      //     url: url,
-      //     method: method,
-      //     token: idTokenResult.token,
-      //   })
-      // );
+      dispatch(
+        getUserLoggedIn({
+          url: url,
+          method: method,
+          token: idTokenResult.token,
+        })
+      );
       router.push(`/`);
     } catch (error) {
       console.log(error);

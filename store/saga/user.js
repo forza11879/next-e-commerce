@@ -10,16 +10,17 @@ const { publicRuntimeConfig } = getConfig();
 const baseURL = publicRuntimeConfig.api;
 // console.log('baseURL: ', baseURL);
 
-// const fetchApi = async ({ baseURL, url, method, headers }) => {
-//   console.log('headers: ', headers);
-//   return await axios.post(
-//     `${publicRuntimeConfig.api}/user/create-or-update`,
-//     {},
-//     {
-//       headers,
-//     }
-//   );
-// };
+const fetchApi = async ({ baseURL, url, method, token }) => {
+  return await axios.post(
+    // `${publicRuntimeConfig.api}/user/create-or-update`,
+    url,
+    {},
+    {
+      headers: { token },
+    }
+  );
+};
+
 // const fetchApi = async ({ baseURL, url, method, headers }) =>
 //   await axios.request({
 //     baseURL,
@@ -29,36 +30,36 @@ const baseURL = publicRuntimeConfig.api;
 //   });
 
 function* auth(action) {
-  // const { url, method, token, onSuccess, onError } = action.payload;
-  const { name, email, token, role, _id, onSuccess, onError } = action.payload;
+  const { url, method, token, onSuccess, onError } = action.payload;
+  // const { name, email, token, role, _id, onSuccess, onError } = action.payload;
   console.log('action.payload saga: ', action.payload);
-  // const options = {
-  //   baseURL,
-  //   url,
-  //   method,
-  //   headers: { token },
-  // };
-  // console.log('options: ', options);
+  const options = {
+    baseURL,
+    url,
+    method,
+    token,
+  };
+  console.log('options: ', options);
   try {
-    // const res = yield call(fetchApi, options);
-    // console.log('response: ', res);
+    const res = yield call(fetchApi, options);
+    console.log('response: ', res);
     if (onSuccess)
       yield put({
         type: onSuccess,
-        // payload: {
-        //   name: res.data.name,
-        //   email: res.data.email,
-        //   token: token,
-        //   role: res.data.role,
-        //   _id: res.data._id,
-        // },
         payload: {
-          name,
-          email,
-          token,
-          role,
-          _id,
+          name: res.data.name,
+          email: res.data.email,
+          token: token,
+          role: res.data.role,
+          _id: res.data._id,
         },
+        // payload: {
+        //   name,
+        //   email,
+        //   token,
+        //   role,
+        //   _id,
+        // },
       });
   } catch (error) {
     if (onError) yield put({ type: onError, payload: error.message });
