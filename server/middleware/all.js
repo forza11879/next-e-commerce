@@ -1,4 +1,4 @@
-import ncc from 'next-connect';
+import nc from 'next-connect';
 import database from './db.js';
 
 const all = nc();
