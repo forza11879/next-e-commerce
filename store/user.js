@@ -36,17 +36,6 @@ export const getUserLoggedIn = ({ url, method, token }) =>
     onError: actions.sagaAuthCallFailed.type,
   });
 
-// export const getUserLoggedIn = ({ name, email, token, role, _id }) =>
-//   actions.sagaAuthCallBegan({
-//     name,
-//     email,
-//     token,
-//     role,
-//     _id,
-//     onSuccess: userLoggedIn.type,
-//     onError: actions.sagaAuthCallFailed.type,
-//   });
-
 export const getUserLoggedOut = () =>
   actions.sagaLogoutCallBegan({
     onSuccess: userStoreReseted.type,

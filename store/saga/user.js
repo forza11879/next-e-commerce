@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { takeEvery, put } from 'redux-saga/effects';
+import { takeEvery, call, put } from 'redux-saga/effects';
 import getConfig from 'next/config';
 
 import * as actions from '../action/saga.js';
@@ -10,39 +10,25 @@ const { publicRuntimeConfig } = getConfig();
 const baseURL = publicRuntimeConfig.api;
 // console.log('baseURL: ', baseURL);
 
-const fetchApi = async ({ baseURL, url, method, token }) => {
-  return await axios.post(
-    // `${publicRuntimeConfig.api}/user/create-or-update`,
+const fetchApi = async ({ baseURL, url, method, token }) =>
+  await axios.request({
+    baseURL,
     url,
-    {},
-    {
-      headers: { token },
-    }
-  );
-};
-
-// const fetchApi = async ({ baseURL, url, method, headers }) =>
-//   await axios.request({
-//     baseURL,
-//     url,
-//     method,
-//     headers,
-//   });
+    method,
+    headers: { token },
+  });
 
 function* auth(action) {
   const { url, method, token, onSuccess, onError } = action.payload;
-  // const { name, email, token, role, _id, onSuccess, onError } = action.payload;
-  console.log('action.payload saga: ', action.payload);
   const options = {
     baseURL,
     url,
     method,
     token,
   };
-  console.log('options: ', options);
   try {
     const res = yield call(fetchApi, options);
-    console.log('response: ', res);
+    console.log('response back-end saga: ', res);
     if (onSuccess)
       yield put({
         type: onSuccess,
@@ -53,13 +39,6 @@ function* auth(action) {
           role: res.data.role,
           _id: res.data._id,
         },
-        // payload: {
-        //   name,
-        //   email,
-        //   token,
-        //   role,
-        //   _id,
-        // },
       });
   } catch (error) {
     if (onError) yield put({ type: onError, payload: error.message });

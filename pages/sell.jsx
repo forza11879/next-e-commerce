@@ -30,7 +30,7 @@ export async function getServerSideProps(context) {
   }
 
   return {
-    props: { response }, // will be passed to the page component as props
+    props: { response }, // will be passed to the page component as props. always return an object with the props key
   };
 }
 
