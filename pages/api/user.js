@@ -11,6 +11,6 @@ const handler = nc();
 handler.use(all);
 
 handler.post(authCheck, postCreateOrUpdateUser);
-handler.get(getUser);
+// handler.get(getUser);
 
 export default handler;

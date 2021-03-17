@@ -9,7 +9,7 @@ async function database(req, res, next) {
       return;
     }
     const uri = process.env.MONGODB_URL;
-    console.log('uri: ', uri);
+    // console.log('uri: ', uri);
     const options = {
       socketTimeoutMS: 30000,
       keepAlive: true,
@@ -30,6 +30,8 @@ async function database(req, res, next) {
     dbConnections.on('error', (err) => {
       console.error(`🙅 🚫 🙅 🚫 🙅 🚫 🙅 🚫 → ${err.message}`);
     });
+
+    console.log('database connected');
     return next();
   } catch (err) {
     console.error(`Error connectDb: ${err}`);

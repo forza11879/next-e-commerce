@@ -23,4 +23,5 @@ const ParentSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export const User = mongoose.model('User', ParentSchema);
+export const User =
+  mongoose.models.User || mongoose.model('User', ParentSchema);

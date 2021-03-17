@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { auth, googleAuthProvider } from '../lib/firebase.js';
 import { toast } from 'react-toastify';
 import { Button } from 'antd';
@@ -23,8 +22,8 @@ const LoginPage = () => {
   const router = useRouter();
   const user = useSelector(selectUser);
 
-  // const url = '/user/create-or-update';
-  const url = '/user';
+  const url = '/user/create-or-update';
+  // const url = '/user';
   const method = 'post';
 
   useEffect(() => {
@@ -63,7 +62,8 @@ const LoginPage = () => {
         const idTokenResult = await user.getIdTokenResult();
         dispatch(
           getUserLoggedIn({
-            email: user.email,
+            url: url,
+            method: method,
             token: idTokenResult.token,
           })
         );

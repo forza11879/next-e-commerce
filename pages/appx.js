@@ -19,7 +19,9 @@ function MyApp({ Component, pageProps }) {
         const idTokenResult = await user.getIdTokenResult();
         dispatch(
           getUserLoggedIn({
-            email: user.email,
+            // email: user.email,
+            url: url,
+            method: method,
             token: idTokenResult.token,
           })
         );
