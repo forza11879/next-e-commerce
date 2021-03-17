@@ -1,7 +1,7 @@
 import { createOrUpdateUser } from '../Models/User/index.js';
 
 export const postUser = async (req, res) => {
-  console.log('postUser from api/user routee');
+  console.log('postUser from api/user route');
 };
 
 export const getUser = async (req, res) => {
