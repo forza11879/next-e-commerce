@@ -10,7 +10,7 @@ export const getUser = async (req, res) => {
 };
 
 export const postCreateOrUpdateUser = async (req, res) => {
-  console.log('postCreateOrUpdateUser from api/user route');
+  console.log('postCreateOrUpdateUserss from api/user route');
   const { name, picture, email } = req.user;
   const args = { name, picture, email };
   const user = await createOrUpdateUser(args);

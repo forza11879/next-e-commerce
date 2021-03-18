@@ -16,13 +16,10 @@ function MyApp({ Component, pageProps }) {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
-        const idTokenResult = await user.getIdTokenResult();
+        const { token } = await user.getIdTokenResult();
         dispatch(
           getUserLoggedIn({
-            // email: user.email,
-            url: url,
-            method: method,
-            token: idTokenResult.token,
+            token: token,
           })
         );
       }

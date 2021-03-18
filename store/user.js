@@ -27,10 +27,8 @@ export const { userLoggedIn, userStoreReseted } = slice.actions;
 export default slice.reducer;
 
 // Action creators
-export const getUserLoggedIn = ({ url, method, token }) =>
+export const getUserLoggedIn = ({ token }) =>
   actions.sagaAuthCallBegan({
-    url,
-    method,
     token,
     onSuccess: userLoggedIn.type,
     onError: actions.sagaAuthCallFailed.type,

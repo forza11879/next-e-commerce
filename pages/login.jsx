@@ -22,9 +22,9 @@ const LoginPage = () => {
   const router = useRouter();
   const user = useSelector(selectUser);
 
-  const url = '/user/create-or-update';
-  // const url = '/user';
-  const method = 'post';
+  // const url = '/user/create-or-update';
+  // // const url = '/user';
+  // const method = 'post';
 
   useEffect(() => {
     if (user && user.token) router.push(`/`);
@@ -34,16 +34,12 @@ const LoginPage = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const result = await auth.signInWithEmailAndPassword(email, password);
-      console.log(result);
-      const { user } = result;
-      const idTokenResult = await user.getIdTokenResult();
+      const { user } = await auth.signInWithEmailAndPassword(email, password);
+      const { token } = await user.getIdTokenResult();
 
       dispatch(
         getUserLoggedIn({
-          url: url,
-          method: method,
-          token: idTokenResult.token,
+          token: token,
         })
       );
       router.push(`/`);
@@ -57,14 +53,11 @@ const LoginPage = () => {
   const googleLogin = async () => {
     auth
       .signInWithPopup(googleAuthProvider)
-      .then(async (result) => {
-        const { user } = result;
-        const idTokenResult = await user.getIdTokenResult();
+      .then(async ({ user }) => {
+        const { token } = await user.getIdTokenResult();
         dispatch(
           getUserLoggedIn({
-            url: url,
-            method: method,
-            token: idTokenResult.token,
+            token: token,
           })
         );
         router.push(`/`);

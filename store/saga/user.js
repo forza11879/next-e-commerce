@@ -4,13 +4,12 @@ import getConfig from 'next/config';
 
 import * as actions from '../action/saga.js';
 const { publicRuntimeConfig } = getConfig();
-
-// const port = process.env.REACT_APP_PORT;
-// const hostname = process.env.REACT_APP_LOCALHOST;
 const baseURL = publicRuntimeConfig.api;
-// console.log('baseURL: ', baseURL);
+// const url = '/user/create-or-update';
+const url = '/user';
+const method = 'post';
 
-const fetchApi = async ({ baseURL, url, method, token }) =>
+const fetchApi = async (token) =>
   await axios.request({
     baseURL,
     url,
@@ -19,25 +18,19 @@ const fetchApi = async ({ baseURL, url, method, token }) =>
   });
 
 function* auth(action) {
-  const { url, method, token, onSuccess, onError } = action.payload;
-  const options = {
-    baseURL,
-    url,
-    method,
-    token,
-  };
+  const { token, onSuccess, onError } = action.payload;
   try {
-    const res = yield call(fetchApi, options);
-    console.log('response back-end saga: ', res);
+    const { data } = yield call(fetchApi, token);
+    // console.log('response back-end saga: ', res);
     if (onSuccess)
       yield put({
         type: onSuccess,
         payload: {
-          name: res.data.name,
-          email: res.data.email,
+          name: data.name,
+          email: data.email,
           token: token,
-          role: res.data.role,
-          _id: res.data._id,
+          role: data.role,
+          _id: data._id,
         },
       });
   } catch (error) {

@@ -1,6 +1,7 @@
 import admin from '../firebase/index.js';
 
 const authCheck = async (req, res, next) => {
+  // console.log('authCheck middelware: '); // token
   // console.log(req.headers); // token
   // console.log(req.headers.token); // token
   try {
@@ -15,4 +16,4 @@ const authCheck = async (req, res, next) => {
   }
 };
 
-export { authCheck };
+export default authCheck;
