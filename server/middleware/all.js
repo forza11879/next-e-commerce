@@ -1,10 +1,6 @@
 import dbMiddleware from './db';
 import nextConnect from 'next-connect';
 
-export const post = (middleware) => {
-  return nextConnect().post(middleware);
-};
-
 const apiRoute = nextConnect({
   onError(error, req, res) {
     res
