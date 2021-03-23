@@ -1,17 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { auth, googleAuthProvider } from '../lib/firebase.js';
+import { auth, googleAuthProvider } from '@/lib/firebase';
 import { toast } from 'react-toastify';
 import { Button } from 'antd';
 import { MailOutlined, GoogleOutlined } from '@ant-design/icons';
 import { useDispatch } from 'react-redux';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import getConfig from 'next/config';
-import { getUserLoggedIn } from '../store/user.js';
+import { getUserLoggedIn } from '@/store/user';
 import { useSelector } from 'react-redux';
-import { selectUser } from '../store/user.js';
-
-const { publicRuntimeConfig } = getConfig();
+import { selectUser } from '@/store/user';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('forza11879@gmail.com');
@@ -21,10 +18,6 @@ const LoginPage = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const user = useSelector(selectUser);
-
-  // const url = '/user/create-or-update';
-  // // const url = '/user';
-  // const method = 'post';
 
   useEffect(() => {
     if (user && user.token) router.push(`/`);

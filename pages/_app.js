@@ -9,11 +9,9 @@ import 'react-toastify/dist/ReactToastify.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'antd/dist/antd.css';
 
-import AuthComponent from '../lib/Auth.js';
-
-import configureAppStore from '../store/configureAppStore.js';
-
-import Header from '../components/nav/Header.jsx';
+import AuthComponent from '@/lib/auth';
+import configureAppStore from '@/store/configureAppStore';
+import Header from '@/components/nav/header';
 
 Router.events.on('routeChangeStart', nProgress.start);
 Router.events.on('routeChangeComplete', nProgress.done);
