@@ -3,8 +3,8 @@ import getConfig from 'next/config';
 import { toast } from 'react-toastify';
 import { useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
-import { auth } from '../../lib/firebase.js';
-import { selectUser } from '../../store/user.js';
+import { auth } from '@/lib/firebase.js';
+import { selectUser } from '@/store/user.js';
 
 const { publicRuntimeConfig } = getConfig();
 

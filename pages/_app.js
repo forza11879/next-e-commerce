@@ -11,7 +11,7 @@ import 'antd/dist/antd.css';
 
 import AuthComponent from '@/lib/auth';
 import configureAppStore from '@/store/configureAppStore';
-import Header from '@/components/nav/header';
+import Header from '@/components/nav/Header';
 
 Router.events.on('routeChangeStart', nProgress.start);
 Router.events.on('routeChangeComplete', nProgress.done);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { toast } from 'react-toastify';
-import { auth } from '../../lib/firebase.js';
+import { auth } from '@/lib/firebase.js';
 
 const RegisterCompletePage = () => {
   const router = useRouter();

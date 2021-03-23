@@ -6,7 +6,7 @@ import { getUserLoggedIn } from '../store/user.js';
 
 import configureAppStore from '../store/configureAppStore.js';
 
-import Header from '../components/nav/header.jsx';
+import Header from '../components/nav/Header.jsx';
 
 const store = configureAppStore();
 
