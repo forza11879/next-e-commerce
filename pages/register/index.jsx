@@ -6,8 +6,6 @@ import { useRouter } from 'next/router';
 import { auth } from '@/lib/firebase.js';
 import { selectUser } from '@/store/user.js';
 
-const { publicRuntimeConfig } = getConfig();
-
 function RegisterPage() {
   const [email, setEmail] = useState('');
 
@@ -21,7 +19,7 @@ function RegisterPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const config = {
-      url: publicRuntimeConfig.registerRedirectUrl, // e-mail link send to the client e-mail to complete the registration
+      url: process.env.registerRedirectUrl, // e-mail link send to the client e-mail to complete the registration
       handleCodeInApp: true,
     };
 

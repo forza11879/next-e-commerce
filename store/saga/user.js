@@ -3,8 +3,8 @@ import { takeEvery, call, put } from 'redux-saga/effects';
 import getConfig from 'next/config';
 
 import * as actions from '../action/saga.js';
-const { publicRuntimeConfig } = getConfig();
-const baseURL = publicRuntimeConfig.api;
+const baseURL = process.env.api;
+
 // const url = '/user/create-or-update';
 const url = '/user';
 const method = 'post';

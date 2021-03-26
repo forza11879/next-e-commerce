@@ -6,8 +6,6 @@ import { useRouter } from 'next/router';
 import { auth } from '@/lib/firebase.js';
 import { selectUser } from '@/store/user.js';
 
-const { publicRuntimeConfig } = getConfig();
-
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
@@ -22,12 +20,9 @@ const ForgotPasswordPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    console.log(
-      'publicRuntimeConfig.forgotPasswordRedirect: ',
-      publicRuntimeConfig.forgotPasswordRedirect
-    );
+    console.log('forgotPasswordRedirect: ', process.env.forgotPasswordRedirect);
     const config = {
-      url: publicRuntimeConfig.forgotPasswordRedirect,
+      url: process.env.forgotPasswordRedirect,
       handleCodeInApp: true,
     };
 
@@ -72,3 +67,5 @@ const ForgotPasswordPage = () => {
 };
 
 export default ForgotPasswordPage;
+
+process.env;
