@@ -26,11 +26,12 @@ function MyApp({ Component, pageProps }) {
       <QueryClientProvider client={queryClient}>
         <Provider store={store}>
           <>
-            <AuthComponent />
-            <Header />
-            <ToastContainer />
-            <Component {...pageProps} />
-            <ReactQueryDevtools initialIsOpen={false} />
+            <AuthComponent>
+              <Header />
+              <ToastContainer />
+              <Component {...pageProps} />
+              <ReactQueryDevtools initialIsOpen={false} />
+            </AuthComponent>
           </>
         </Provider>
       </QueryClientProvider>

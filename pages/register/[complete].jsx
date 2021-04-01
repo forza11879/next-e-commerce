@@ -1,12 +1,18 @@
 import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
 import { toast } from 'react-toastify';
 import { auth } from '@/lib/firebase.js';
+import { selectUser } from '@/store/user';
+import { getUserLoggedIn } from '@/store/user';
 
 const RegisterCompletePage = () => {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  // const user = useSelector(selectUser);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     setEmail(window.localStorage.getItem('emailForRegistration'));
@@ -32,16 +38,21 @@ const RegisterCompletePage = () => {
         email,
         window.location.href
       );
-      console.log('RESULT', result);
+      // console.log('RESULT', result);
       if (result.user.emailVerified) {
         // remove user email fom local storage
         window.localStorage.removeItem('emailForRegistration');
         // get user id token
-        let user = auth.currentUser;
+        const user = auth.currentUser;
         await user.updatePassword(password);
-        const idTokenResult = await user.getIdTokenResult();
-        // redux store
-        console.log('user', user, 'idTokenResult', idTokenResult);
+        // const { token } = await user.getIdTokenResult();
+        // // redux store
+        // console.log('user', user, 'token', { token });
+        // dispatch(
+        //   getUserLoggedIn({
+        //     token: token,
+        //   })
+        // );
         // redirect
         router.push(`/`);
       }

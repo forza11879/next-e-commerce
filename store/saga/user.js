@@ -44,6 +44,7 @@ export function* watchAuth() {
 
 function* logout(action) {
   const { onSuccess, onError } = action.payload;
+
   try {
     yield put({
       type: onSuccess,

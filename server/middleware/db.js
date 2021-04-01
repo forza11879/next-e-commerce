@@ -23,10 +23,11 @@ export function jsonify(obj) {
 
 export default async function dbMiddleware(req, res, next) {
   try {
-    if (!global.mongoose) {
-      global.mongoose == (await dbConnect());
-      console.log('database connected');
-    }
+    // if (!global.mongoose) {
+    //   global.mongoose == (await dbConnect());
+    //   console.log('database connected');
+    // }
+    await dbConnect();
   } catch (e) {
     console.error('mongoDB error:', e);
     res.status(500).json({ message: 'Connecting to database failed' });

@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { auth, googleAuthProvider } from '@/lib/firebase';
+import { useDispatch, useSelector } from 'react-redux';
+// import { useSelector } from 'react-redux';
+import { useRouter } from 'next/router';
+import Link from 'next/link';
 import { toast } from 'react-toastify';
 import { Button } from 'antd';
 import { MailOutlined, GoogleOutlined } from '@ant-design/icons';
-import { useDispatch } from 'react-redux';
-import { useRouter } from 'next/router';
-import Link from 'next/link';
+import { auth, googleAuthProvider } from '@/lib/firebase';
 import { getUserLoggedIn } from '@/store/user';
-import { useSelector } from 'react-redux';
 import { selectUser } from '@/store/user';
 
 const LoginPage = () => {
@@ -28,13 +28,13 @@ const LoginPage = () => {
     setLoading(true);
     try {
       const { user } = await auth.signInWithEmailAndPassword(email, password);
-      const { token } = await user.getIdTokenResult();
+      // const { token } = await user.getIdTokenResult();
 
-      dispatch(
-        getUserLoggedIn({
-          token: token,
-        })
-      );
+      // dispatch(
+      //   getUserLoggedIn({
+      //     token: token,
+      //   })
+      // );
       router.push(`/`);
     } catch (error) {
       console.log(error);
@@ -46,19 +46,21 @@ const LoginPage = () => {
   const googleLogin = async () => {
     auth
       .signInWithPopup(googleAuthProvider)
-      .then(async ({ user }) => {
-        const { token } = await user.getIdTokenResult();
-        dispatch(
-          getUserLoggedIn({
-            token: token,
-          })
-        );
-        router.push(`/`);
-      })
+      // .then(async ({ user }) => {
+      //   const { token } = await user.getIdTokenResult();
+      //   dispatch(
+      //     getUserLoggedIn({
+      //       token: token,
+      //     })
+      //   );
+      //   router.push(`/`);
+      // })
       .catch((err) => {
         console.log(err);
         toast.error(err.message);
       });
+
+    router.push(`/`);
   };
 
   const loginForm = () => (
