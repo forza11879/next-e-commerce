@@ -1,15 +1,10 @@
 import axios from 'axios';
 import { takeEvery, call, put } from 'redux-saga/effects';
-import getConfig from 'next/config';
 
 import * as actions from '../action/saga.js';
 const baseURL = process.env.api;
 
-// const url = '/user/create-or-update';
-const url = '/user';
-const method = 'post';
-
-const fetchApi = async (token) =>
+const fetchApi = async ({ url, method, token }) =>
   await axios.request({
     baseURL,
     url,
@@ -18,19 +13,25 @@ const fetchApi = async (token) =>
   });
 
 function* auth(action) {
-  const { token, onSuccess, onError } = action.payload;
+  const { url, method, token, onSuccess, onError } = action.payload;
+  const options = {
+    url,
+    method,
+    token,
+  };
   try {
-    const { data } = yield call(fetchApi, token);
-    // console.log('response back-end saga: ', res);
+    const { data } = yield call(fetchApi, options);
+    console.log('response back-end saga: ', data);
+    const { user } = data;
     if (onSuccess)
       yield put({
         type: onSuccess,
         payload: {
-          name: data.name,
-          email: data.email,
+          name: user.name,
+          email: user.email,
           token: token,
-          role: data.role,
-          _id: data._id,
+          role: user.role,
+          _id: user._id,
         },
       });
   } catch (error) {

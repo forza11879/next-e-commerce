@@ -1,7 +1,7 @@
 import { handler, authCheck } from '@/middleware/index';
-import { postCreateOrUpdateUser, getUser } from '@/controllers/user';
+import { postCreateOrUpdateUser, getCurrentUser } from '@/controllers/user';
 
-handler.get(getUser);
+handler.get(authCheck, getCurrentUser);
 handler.post(authCheck, postCreateOrUpdateUser);
 
 export default handler;

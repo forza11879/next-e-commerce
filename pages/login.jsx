@@ -7,7 +7,6 @@ import { toast } from 'react-toastify';
 import { Button } from 'antd';
 import { MailOutlined, GoogleOutlined } from '@ant-design/icons';
 import { auth, googleAuthProvider } from '@/lib/firebase';
-import { getUserLoggedIn } from '@/store/user';
 import { selectUser } from '@/store/user';
 
 const LoginPage = () => {

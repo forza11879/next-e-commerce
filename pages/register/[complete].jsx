@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { toast } from 'react-toastify';
 import { auth } from '@/lib/firebase.js';
 import { selectUser } from '@/store/user';
-import { getUserLoggedIn } from '@/store/user';
+import { getHttpRequest } from '@/store/user';
 
 const RegisterCompletePage = () => {
   const router = useRouter();
@@ -45,14 +45,16 @@ const RegisterCompletePage = () => {
         // get user id token
         const user = auth.currentUser;
         await user.updatePassword(password);
-        // const { token } = await user.getIdTokenResult();
-        // // redux store
-        // console.log('user', user, 'token', { token });
-        // dispatch(
-        //   getUserLoggedIn({
-        //     token: token,
-        //   })
-        // );
+        const { token } = await user.getIdTokenResult();
+        // redux store
+        console.log('user', user, 'token', { token });
+        dispatch(
+          getHttpRequest({
+            url: '/user',
+            method: 'post',
+            token: token,
+          })
+        );
         // redirect
         router.push(`/`);
       }

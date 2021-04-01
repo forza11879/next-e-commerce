@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { useSelector } from 'react-redux';
-import getConfig from 'next/config';
 import { useRouter } from 'next/router';
 import { auth } from '@/lib/firebase.js';
 import { selectUser } from '@/store/user.js';
