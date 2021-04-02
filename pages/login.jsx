@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-// import { useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { toast } from 'react-toastify';
@@ -8,33 +7,46 @@ import { Button } from 'antd';
 import { MailOutlined, GoogleOutlined } from '@ant-design/icons';
 import { auth, googleAuthProvider } from '@/lib/firebase';
 import { selectUser } from '@/store/user';
+import { fetchApi } from '@/store/saga/user';
+
+const roleBasedRedirect = (user, router) => {
+  if (user.role === 'admin') {
+    router.push(`/admin/dashboard`);
+  } else {
+    router.push('/user/history');
+  }
+};
+
+function redirect(token, router) {
+  const options = {
+    url: '/user',
+    method: 'get',
+    token: token,
+  };
+  fetchApi(options).then(({ data: { user } }) => {
+    roleBasedRedirect(user, router);
+  });
+}
 
 const LoginPage = () => {
   const [email, setEmail] = useState('forza11879@gmail.com');
   const [password, setPassword] = useState('test78');
   const [loading, setLoading] = useState(false);
 
-  const dispatch = useDispatch();
   const router = useRouter();
-  const user = useSelector(selectUser);
+  const userResult = useSelector(selectUser);
 
   useEffect(() => {
-    if (user && user.token) router.push(`/`);
-  }, [user]);
+    if (userResult && userResult.token) router.push(`/`);
+  }, [userResult]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
       const { user } = await auth.signInWithEmailAndPassword(email, password);
-      // const { token } = await user.getIdTokenResult();
-
-      // dispatch(
-      //   getUserLoggedIn({
-      //     token: token,
-      //   })
-      // );
-      router.push(`/`);
+      const { token } = await user.getIdTokenResult();
+      redirect(token, router);
     } catch (error) {
       console.log(error);
       toast.error(error.message);
@@ -43,23 +55,14 @@ const LoginPage = () => {
   };
 
   const googleLogin = async () => {
-    auth
-      .signInWithPopup(googleAuthProvider)
-      // .then(async ({ user }) => {
-      //   const { token } = await user.getIdTokenResult();
-      //   dispatch(
-      //     getUserLoggedIn({
-      //       token: token,
-      //     })
-      //   );
-      //   router.push(`/`);
-      // })
-      .catch((err) => {
-        console.log(err);
-        toast.error(err.message);
-      });
-
-    router.push(`/`);
+    try {
+      const { user } = await auth.signInWithPopup(googleAuthProvider);
+      const { token } = await user.getIdTokenResult();
+      redirect(token, router);
+    } catch (error) {
+      console.log('googleLogin error: ', error);
+      toast.error(error.message);
+    }
   };
 
   const loginForm = () => (

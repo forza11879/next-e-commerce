@@ -31,7 +31,7 @@ const Header = () => {
   const logout = () => {
     firebase.auth().signOut();
     dispatch(getUserLoggedOut());
-    router.push(`/login`);
+    // router.push(`/login`);
   };
 
   return (

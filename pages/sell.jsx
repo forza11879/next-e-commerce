@@ -1,6 +1,5 @@
 import axios from 'axios';
 import { useQuery } from 'react-query';
-import getConfig from 'next/config';
 
 export default function SellPage({ response }) {
   const { data, isLoading, error } = useQuery('sells', getPosts, {

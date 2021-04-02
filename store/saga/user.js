@@ -4,7 +4,7 @@ import { takeEvery, call, put } from 'redux-saga/effects';
 import * as actions from '../action/saga.js';
 const baseURL = process.env.api;
 
-const fetchApi = async ({ url, method, token }) =>
+export const fetchApi = async ({ url, method, token }) =>
   await axios.request({
     baseURL,
     url,
