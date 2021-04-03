@@ -21,7 +21,7 @@ function* auth(action) {
   };
   try {
     const { data } = yield call(fetchApi, options);
-    console.log('response back-end saga: ', data);
+    // console.log('response back-end saga: ', data);
     const { user } = data;
     if (onSuccess)
       yield put({

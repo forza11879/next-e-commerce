@@ -4,9 +4,12 @@
       "paths": {
         "@/components/*": ["components/*"],
         "@/lib/*": ["lib/*"],
+        "@/store/*":["store/*"],
         "@/middleware/*": ["server/middleware/*"],
         "@/controllers/*":["server/controllers/*"],
-        "@/store/*":["store/*"]
+        "@/Models/*":["server/Models/*"],
            }
     }
-  }
+}
+
+  

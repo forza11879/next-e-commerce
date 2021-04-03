@@ -1,4 +1,4 @@
-import { User } from './User.js';
+import { User } from './User';
 
 const createOrUpdateUser = async ({ name, picture, email }) => {
   const query = { email };

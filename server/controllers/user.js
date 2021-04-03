@@ -1,4 +1,4 @@
-import { createOrUpdateUser, currentUser } from '../Models/User/index.js';
+import { createOrUpdateUser, currentUser } from '@/Models/User/index';
 
 export const postUser = async (req, res) => {
   console.log('postUser from api/user route');
@@ -6,7 +6,6 @@ export const postUser = async (req, res) => {
 
 export const getCurrentUser = async (req, res) => {
   const { email } = req.user;
-  console.log('getCurrentUser from api/user route');
   try {
     const user = await currentUser(email);
     console.log('user: ', user);
@@ -17,7 +16,6 @@ export const getCurrentUser = async (req, res) => {
 };
 
 export const postCreateOrUpdateUser = async (req, res) => {
-  console.log('postCreateOrUpdateUserss from api/user route');
   const { name, picture, email } = req.user;
   const args = { name, picture, email };
   try {
