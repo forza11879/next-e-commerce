@@ -8,6 +8,7 @@
         "@/middleware/*": ["server/middleware/*"],
         "@/controllers/*":["server/controllers/*"],
         "@/Models/*":["server/Models/*"],
+        "@/firebase/*":["server/firebase/*"],
            }
     }
 }

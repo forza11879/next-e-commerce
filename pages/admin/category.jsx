@@ -1,12 +1,13 @@
 import React from 'react';
-// import nookies, { parseCookies, setCookie, destroyCookie } from 'nookies';
+import nookies from 'nookies';
 import AdminRoute from '@/components/lib/AdminRoute';
 import AdminNav from '@/components/nav/AdminNav';
+import admin from '@/firebase/index';
+import { currentUser } from '@/Models/User/index';
 
-const AdminCategory = ({ token }) => {
-  // console.log('token AdminCategory: ', token);
+const AdminCategory = ({ isAdmin }) => {
   return (
-    <AdminRoute token={token}>
+    <AdminRoute isAdmin={isAdmin}>
       <div className="container-fluid">
         <div className="row">
           <div className="col-md-2">
@@ -20,25 +21,38 @@ const AdminCategory = ({ token }) => {
 };
 
 export async function getServerSideProps(context) {
-  const { req, res } = context;
-  // const { appToken } = nookies.get(context);
-  // console.log('cookies nookies appToken: ', appToken);
-  // console.log('getServerSideProps req.headers: ', req);
-  // const { token } = req.token;
-  console.log('getServerSideProps token: ', req.token);
-  // const { token } = req.headers;
-  // console.log('getServerSideProps token: ', token);
-  // const response = await getPosts();
-  // console.log('response', response);
-  // if (!response) {
+  // const { req, res } = context;
+  const { appToken } = nookies.get(context);
+  let isAdmin;
+  try {
+    const { email } = await admin.auth().verifyIdToken(appToken);
+    const user = await currentUser(email);
+    console.log('user getServerSideProps: ', user);
+
+    if (user.role !== 'admin') {
+      isAdmin = true;
+    }
+    console.log('isAdmin getServerSideProps: ', isAdmin);
+    return {
+      props: { isAdmin: isAdmin }, // will be passed to the page component as props. always return an object with the props key
+    };
+  } catch (error) {
+    console.log('error FIREBASsE: ', error.errorInfo.message);
+    if (error) {
+      return {
+        notFound: true,
+      };
+    }
+  }
+
+  // Destroy
+  // nookies.destroy(context, 'appToken');
+
+  // if (!firebaseUser) {
   //   return {
   //     notFound: true,
   //   };
   // }
-
-  return {
-    props: { token: 'sfd' }, // will be passed to the page component as props. always return an object with the props key
-  };
 }
 
 export default AdminCategory;
