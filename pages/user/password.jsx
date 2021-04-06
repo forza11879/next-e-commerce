@@ -51,7 +51,7 @@ const Password = () => {
     </form>
   );
 
-  return user.email && user.token ? (
+  return Boolean(user.email && user.token) ? (
     <div className="container-fluid">
       <div className="row">
         <div className="col-md-2">

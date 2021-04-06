@@ -15,11 +15,14 @@ async function isAdmin(token) {
   return user;
 }
 
-const AdminRoute = ({ children }) => {
+const AdminRoute = ({ children, token }) => {
   const user = useSelector(selectUser);
   const [ok, setOk] = useState(false);
+  // console.log('token AdminRoute: ', token);
+  // console.log('user.token AdminRoute: ', user.token);
 
   useEffect(() => {
+    // console.log('props AdminRoute: ', username);
     if (Boolean(user.email && user.token)) {
       isAdmin(user.token)
         .then((res) => {
@@ -37,5 +40,23 @@ const AdminRoute = ({ children }) => {
 
   return ok ? <>{children}</> : <LoadingToRedirect />;
 };
+
+// export async function getServerSideProps(context) {
+//   const { req, res } = context;
+//   console.log('getServerSideProps req: ', req);
+//   // const { token } = req.headers;
+//   // console.log('getServerSideProps token: ', token);
+//   // const response = await getPosts();
+//   // console.log('response', response);
+//   // if (!response) {
+//   //   return {
+//   //     notFound: true,
+//   //   };
+//   // }
+
+//   return {
+//     props: { username: 'max' }, // will be passed to the page component as props. always return an object with the props key
+//   };
+// }
 
 export default AdminRoute;

@@ -8,7 +8,7 @@ export const getCurrentUser = async (req, res) => {
   const { email } = req.user;
   try {
     const user = await currentUser(email);
-    console.log('user: ', user);
+    // console.log('user: ', user);
     res.status(200).json({ user: user });
   } catch (error) {
     console.log('getCurrentUser error:', error);

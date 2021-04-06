@@ -7,7 +7,7 @@ const createOrUpdateUser = async ({ name, picture, email }) => {
   try {
     const user = await User.findOneAndUpdate(query, update, options);
     if (user) {
-      console.log('USER UPDATED', user);
+      // console.log('USER UPDATED', user);
       return user;
     } else {
       const newUser = await User.create({
@@ -15,7 +15,7 @@ const createOrUpdateUser = async ({ name, picture, email }) => {
         name: email.split('@')[0],
         picture,
       });
-      console.log('USER CREATED', newUser);
+      // console.log('USER CREATED', newUser);
       return newUser;
     }
   } catch (error) {

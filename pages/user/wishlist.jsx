@@ -6,7 +6,7 @@ import UserNav from '@/components/nav/UserNav';
 
 const Wishlist = () => {
   const user = useSelector(selectUser);
-  return user.email && user.token ? (
+  return Boolean(user.email && user.token) ? (
     <div className="container-fluid">
       <div className="row">
         <div className="col-md-2">
