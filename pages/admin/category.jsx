@@ -28,8 +28,10 @@ export async function getServerSideProps(context) {
     const { email } = await admin.auth().verifyIdToken(appToken);
     const user = await currentUser(email);
     console.log('user getServerSideProps: ', user);
+    console.log(typeof user.role);
+    console.log('user.role getServerSideProps: ', user.role);
 
-    if (user.role !== 'admin') {
+    if (user.role === 'admin') {
       isAdmin = true;
     }
     console.log('isAdmin getServerSideProps: ', isAdmin);

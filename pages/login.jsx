@@ -10,6 +10,7 @@ import { selectUser } from '@/store/user';
 import { fetchApi } from '@/store/saga/user';
 
 const roleBasedRedirect = (user, router) => {
+  console.log('user roleBasedRedirect: ', user);
   if (user.role === 'admin') {
     router.push(`/admin/dashboard`);
   } else {

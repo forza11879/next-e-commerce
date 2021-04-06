@@ -1,6 +1,9 @@
 import React from 'react';
+import nookies from 'nookies';
 import AdminRoute from '@/components/lib/AdminRoute';
 import AdminNav from '@/components/nav/AdminNav';
+import admin from '@/firebase/index';
+import { currentUser } from '@/Models/User/index';
 
 const AdminDashboard = ({ isAdmin }) => {
   return (
@@ -25,8 +28,10 @@ export async function getServerSideProps(context) {
     const { email } = await admin.auth().verifyIdToken(appToken);
     const user = await currentUser(email);
     console.log('user getServerSideProps: ', user);
+    console.log(typeof user.role);
+    console.log('user.role getServerSideProps: ', user.role);
 
-    if (user.role !== 'admin') {
+    if (user.role === 'admin') {
       isAdmin = true;
     }
     console.log('isAdmin getServerSideProps: ', isAdmin);
