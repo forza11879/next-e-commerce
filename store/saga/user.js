@@ -12,6 +12,15 @@ export const fetchApi = async ({ url, method, token }) =>
     headers: { token },
   });
 
+export const fetchApiData = async (data = {}, { url, method, token }) =>
+  await axios.request({
+    baseURL,
+    url,
+    method,
+    data,
+    headers: { token },
+  });
+
 function* auth(action) {
   const { url, method, token, onSuccess, onError } = action.payload;
   const options = {
@@ -45,12 +54,18 @@ export function* watchAuth() {
 
 function* logout(action) {
   const { onSuccess, onError } = action.payload;
+  // const options = {
+  //   url,
+  //   method,
+  // };
 
   try {
-    yield put({
-      type: onSuccess,
-      payload: null,
-    });
+    // yield call(fetchApi, options);
+    if (onSuccess)
+      yield put({
+        type: onSuccess,
+        payload: null,
+      });
   } catch (error) {
     if (onError) yield put({ type: onError, payload: error.message });
   }

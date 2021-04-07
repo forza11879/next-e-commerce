@@ -1,22 +1,22 @@
 import React from 'react';
-import nookies from 'nookies';
 import AdminRoute from '@/components/lib/AdminRoute';
 import AdminNav from '@/components/nav/AdminNav';
+import nookies from 'nookies';
 import admin from '@/firebase/index';
 import { currentUser } from '@/Models/User/index';
 
 const AdminDashboard = ({ isAdmin }) => {
   return (
-    <AdminRoute isAdmin={isAdmin}>
-      <div className="container-fluid">
+    <div className="container-fluid">
+      <AdminRoute isAdmin={isAdmin}>
         <div className="row">
           <div className="col-md-2">
             <AdminNav />
           </div>
           <div className="col">admin dashbaord page</div>
         </div>
-      </div>
-    </AdminRoute>
+      </AdminRoute>
+    </div>
   );
 };
 
@@ -27,14 +27,16 @@ export async function getServerSideProps(context) {
   try {
     const { email } = await admin.auth().verifyIdToken(appToken);
     const user = await currentUser(email);
-    console.log('user getServerSideProps: ', user);
-    console.log(typeof user.role);
-    console.log('user.role getServerSideProps: ', user.role);
+    // console.log('user getServerSideProps: ', user);
+    // console.log(typeof user.role);
+    // console.log('user.role getServerSideProps: ', user.role);
 
     if (user.role === 'admin') {
       isAdmin = true;
+    } else {
+      isAdmin = false;
     }
-    console.log('isAdmin getServerSideProps: ', isAdmin);
+    // console.log('isAdmin getServerSideProps: ', isAdmin);
     return {
       props: { isAdmin: isAdmin }, // will be passed to the page component as props. always return an object with the props key
     };
@@ -46,15 +48,6 @@ export async function getServerSideProps(context) {
       };
     }
   }
-
-  // Destroy
-  // nookies.destroy(context, 'appToken');
-
-  // if (!firebaseUser) {
-  //   return {
-  //     notFound: true,
-  //   };
-  // }
 }
 
 export default AdminDashboard;

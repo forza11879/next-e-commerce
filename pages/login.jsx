@@ -37,9 +37,9 @@ const LoginPage = () => {
   const router = useRouter();
   const userResult = useSelector(selectUser);
 
-  useEffect(() => {
-    if (userResult && userResult.token) router.push(`/`);
-  }, [userResult]);
+  // useEffect(() => {
+  //   if (userResult && userResult.token) router.push(`/`);
+  // }, [userResult]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

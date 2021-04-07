@@ -2,6 +2,7 @@ import { Category } from './Category';
 import slugify from 'slugify';
 
 const create = async (name) => {
+  console.log('name: ', name);
   try {
     const newCategory = await Category.create({
       name: name,

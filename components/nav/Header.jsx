@@ -3,7 +3,6 @@ import Link from 'next/link';
 import firebase from 'firebase';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
-import { selectUser, getUserLoggedOut } from '@/store/user';
 import { Menu } from 'antd';
 import {
   AppstoreOutlined,
@@ -12,6 +11,8 @@ import {
   UserAddOutlined,
   LogoutOutlined,
 } from '@ant-design/icons';
+import { parseCookies, setCookie, destroyCookie } from 'nookies';
+import { selectUser, getUserLoggedOut } from '@/store/user';
 
 const { SubMenu, Item } = Menu;
 
@@ -31,6 +32,7 @@ const Header = () => {
   const logout = () => {
     firebase.auth().signOut();
     dispatch(getUserLoggedOut());
+
     // router.push(`/login`);
   };
 
