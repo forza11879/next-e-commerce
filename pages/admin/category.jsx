@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import nookies from 'nookies';
+import axios from 'axios';
 import { toast } from 'react-toastify';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import Link from 'next/link';
+import { QueryClient, useQuery } from 'react-query';
+import { dehydrate } from 'react-query/hydration';
 import AdminRoute from '@/components/lib/AdminRoute';
 import AdminNav from '@/components/nav/AdminNav';
 import { fetchApiData, fetchDeleteApiData } from '@/store/saga/user';
@@ -32,10 +35,24 @@ const removeCategory = async (slug, options) => {
   }
 };
 
-const CategoryCreate = ({ token, isAdmin, data }) => {
+async function getPosts() {
+  console.log(process.env.host);
+  // console.log(process.env.HOST);
+  const { data } = await axios.request({
+    baseURL: process.env.api,
+    url: '/category/all',
+    method: 'get',
+  });
+  return data;
+}
+
+const CategoryCreate = ({ token, isAdmin, categoryList }) => {
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState([]);
+  const { data, isLoading, error } = useQuery('categoryList', getPosts, {
+    initialData: categoryList,
+  });
 
   useEffect(() => {
     setCategories(JSON.parse(data));
@@ -53,11 +70,11 @@ const CategoryCreate = ({ token, isAdmin, data }) => {
     };
 
     try {
-      const data = await createCategory(name, options);
+      const categoryData = await createCategory(name, options);
       // console.log('data.category.name: ', data.category.name);
       setLoading(false);
       setName('');
-      toast.success(`"${data.category.name}" is created`);
+      toast.success(`"${categoryData.category.name}" is created`);
     } catch (error) {
       console.log('handleSubmit CategoryCreate error: ', error);
       setLoading(false);
@@ -74,10 +91,10 @@ const CategoryCreate = ({ token, isAdmin, data }) => {
     if (window.confirm('Delete?')) {
       setLoading(true);
       try {
-        const data = await removeCategory(slug, options);
+        const removeCategoryData = await removeCategory(slug, options);
 
         setLoading(false);
-        toast.error(`${data.deleted.name} deleted`);
+        toast.error(`${removeCategoryData.deleted.name} deleted`);
         // loadCategories();
       } catch (error) {
         setLoading(false);
@@ -150,6 +167,9 @@ export async function getServerSideProps(context) {
   const { appToken } = nookies.get(context);
   let isAdmin;
   try {
+    // const queryClient = new QueryClient();
+    // await queryClient.prefetchQuery('categoryList', list);
+
     const { email } = await admin.auth().verifyIdToken(appToken);
 
     const user = currentUser(email);
@@ -170,7 +190,8 @@ export async function getServerSideProps(context) {
       props: {
         token: appToken,
         isAdmin: isAdmin,
-        data: JSON.stringify(categoryListResult.value),
+        categoryList: JSON.stringify(categoryListResult.value),
+        // dehydratedState: dehydrate(queryClient),
       }, // will be passed to the page component as props. always return an object with the props key
     };
   } catch (error) {
