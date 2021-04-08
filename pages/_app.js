@@ -18,27 +18,27 @@ import Header from '@/components/nav/Header';
 // Router.events.on('routeChangeComplete', nProgress.done);
 // Router.events.on('routeChangeError', nProgress.done);
 
-const queryClient = new QueryClient();
+// const queryClient = new QueryClient();
 const store = configureAppStore();
 
 function MyApp({ Component, pageProps }) {
-  // const queryClientRef = useRef();
-  // if (!queryClientRef.current) {
-  //   queryClientRef.current = new QueryClient();
-  // }
+  const queryClientRef = useRef();
+  if (!queryClientRef.current) {
+    queryClientRef.current = new QueryClient();
+  }
   return (
     <>
-      <QueryClientProvider client={queryClient}>
-        {/* <Hydrate state={pageProps.dehydratedState}> */}
-        <Provider store={store}>
-          <AuthComponent>
-            <Header />
-            <ToastContainer />
-            <Component {...pageProps} />
-            <ReactQueryDevtools initialIsOpen={false} />
-          </AuthComponent>
-        </Provider>
-        {/* </Hydrate> */}
+      <QueryClientProvider client={queryClientRef.current}>
+        <Hydrate state={pageProps.dehydratedState}>
+          <Provider store={store}>
+            <AuthComponent>
+              <Header />
+              <ToastContainer />
+              <Component {...pageProps} />
+              <ReactQueryDevtools initialIsOpen={false} />
+            </AuthComponent>
+          </Provider>
+        </Hydrate>
       </QueryClientProvider>
     </>
   );

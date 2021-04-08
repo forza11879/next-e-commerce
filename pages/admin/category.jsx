@@ -27,6 +27,7 @@ const createCategory = async (name, options) => {
 const removeCategory = async (slug, options) => {
   try {
     const { data } = await fetchDeleteApiData({ slug }, options);
+    console.log('removeCategory data: ', data);
     return data;
   } catch (error) {
     console.log('removeCategory error: ', error);
@@ -36,27 +37,31 @@ const removeCategory = async (slug, options) => {
 };
 
 async function getPosts() {
-  console.log(process.env.host);
+  console.log(`${process.env.api}/category/all`);
   // console.log(process.env.HOST);
   const { data } = await axios.request({
     baseURL: process.env.api,
     url: '/category/all',
     method: 'get',
   });
-  return data;
+  const { list } = data;
+  console.log('list getPosts: ', list);
+  return list;
 }
 
 const CategoryCreate = ({ token, isAdmin, categoryList }) => {
+  console.log('JSON.parse(categoryList): ', JSON.parse(categoryList));
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState([]);
   const { data, isLoading, error } = useQuery('categoryList', getPosts, {
-    initialData: categoryList,
+    initialData: JSON.parse(categoryList),
+    // initialStale: true,
   });
 
   useEffect(() => {
-    setCategories(JSON.parse(data));
-  }, []);
+    setCategories(data);
+  }, [data]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -167,9 +172,6 @@ export async function getServerSideProps(context) {
   const { appToken } = nookies.get(context);
   let isAdmin;
   try {
-    // const queryClient = new QueryClient();
-    // await queryClient.prefetchQuery('categoryList', list);
-
     const { email } = await admin.auth().verifyIdToken(appToken);
 
     const user = currentUser(email);
@@ -186,12 +188,15 @@ export async function getServerSideProps(context) {
       isAdmin = false;
     }
 
+    const queryClient = new QueryClient();
+    await queryClient.prefetchQuery('categoryList', list());
+
     return {
       props: {
         token: appToken,
         isAdmin: isAdmin,
         categoryList: JSON.stringify(categoryListResult.value),
-        // dehydratedState: dehydrate(queryClient),
+        dehydratedState: dehydrate(queryClient),
       }, // will be passed to the page component as props. always return an object with the props key
     };
   } catch (error) {
