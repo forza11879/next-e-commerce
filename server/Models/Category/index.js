@@ -18,6 +18,7 @@ const list = async () => {
   try {
     const query = {};
     const categoryList = await Category.find(query).sort({ createdAt: -1 });
+    console.log('categoryList model index: ', categoryList);
     return categoryList;
   } catch (error) {
     console.log('list model error: ', error);
