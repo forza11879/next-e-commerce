@@ -21,6 +21,14 @@ export const fetchApiData = async (data = {}, { url, method, token }) =>
     headers: { token },
   });
 
+export const fetchDeleteApiData = async (data = {}, { url, token }) =>
+  await axios.delete(url, {
+    headers: {
+      token,
+    },
+    data: data,
+  });
+
 function* auth(action) {
   const { url, method, token, onSuccess, onError } = action.payload;
   const options = {

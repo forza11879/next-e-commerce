@@ -1,12 +1,36 @@
 import React, { useState, useEffect } from 'react';
 import nookies from 'nookies';
 import { toast } from 'react-toastify';
+import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import Link from 'next/link';
 import AdminRoute from '@/components/lib/AdminRoute';
 import AdminNav from '@/components/nav/AdminNav';
-import { fetchApiData } from '@/store/saga/user';
+import { fetchApiData, fetchDeleteApiData } from '@/store/saga/user';
 import admin from '@/firebase/index';
 import { currentUser } from '@/Models/User/index';
 import { list } from '@/Models/Category/index';
+
+const createCategory = async (name, options) => {
+  try {
+    const { data } = await fetchApiData({ name }, options);
+    return data;
+  } catch (error) {
+    console.log('createCategory error: ', error);
+    if (error.response.status === 400) toast.error(error.response.data);
+    if (error.response.status === 401) toast.error(error.response.data);
+  }
+};
+
+const removeCategory = async (slug, options) => {
+  try {
+    const { data } = await fetchDeleteApiData({ slug }, options);
+    return data;
+  } catch (error) {
+    console.log('removeCategory error: ', error);
+    // if (error.response.status === 400) toast.error(error.response.data);
+    // if (error.response.status === 401) toast.error(error.response.data);
+  }
+};
 
 const CategoryCreate = ({ token, isAdmin, data }) => {
   const [name, setName] = useState('');
@@ -15,9 +39,7 @@ const CategoryCreate = ({ token, isAdmin, data }) => {
 
   useEffect(() => {
     setCategories(JSON.parse(data));
-    // console.log('data: ', JSON.parse(data));
-    console.log('token: ', token);
-  }, [data]);
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,21 +47,45 @@ const CategoryCreate = ({ token, isAdmin, data }) => {
     setLoading(true);
 
     const options = {
-      url: 'category',
+      url: '/category',
       method: 'post',
       token: token,
     };
 
     try {
-      const { data } = await fetchApiData({ name }, options);
+      const data = await createCategory(name, options);
       // console.log('data.category.name: ', data.category.name);
       setLoading(false);
       setName('');
       toast.success(`"${data.category.name}" is created`);
     } catch (error) {
-      console.log(error);
+      console.log('handleSubmit CategoryCreate error: ', error);
       setLoading(false);
-      if (error.response.status === 400) toast.error(error.response.data);
+      // if (error.response.status === 400) toast.error(error.response.data);
+    }
+  };
+
+  const handleRemove = async (slug) => {
+    const options = {
+      url: `${process.env.api}/category/${slug}`,
+      token: token,
+    };
+
+    if (window.confirm('Delete?')) {
+      setLoading(true);
+      try {
+        const data = await removeCategory(slug, options);
+
+        setLoading(false);
+        toast.error(`${data.deleted.name} deleted`);
+        // loadCategories();
+      } catch (error) {
+        setLoading(false);
+        console.log('handleRemove error: ', error);
+        // if (err.response.status === 400) {
+        // toast.error(error.response.data);
+        // }
+      }
     }
   };
 
@@ -76,7 +122,22 @@ const CategoryCreate = ({ token, isAdmin, data }) => {
             )}
             {categoryForm()}
             <hr />
-            {JSON.stringify(categories)}
+            {categories.map((c) => (
+              <div className="alert alert-secondary" key={c._id}>
+                {c.name}
+                <span
+                  onClick={() => handleRemove(c.slug)}
+                  className="btn btn-sm float-right"
+                >
+                  <DeleteOutlined className="text-danger" />
+                </span>
+                <Link href={`/admin/category/${c.slug}`}>
+                  <span className="btn btn-sm float-right">
+                    <EditOutlined className="text-warning" />
+                  </span>
+                </Link>
+              </div>
+            ))}
           </div>
         </div>
       </AdminRoute>
@@ -90,24 +151,26 @@ export async function getServerSideProps(context) {
   let isAdmin;
   try {
     const { email } = await admin.auth().verifyIdToken(appToken);
-    const user = await currentUser(email);
-    // console.log('user getServerSideProps: ', user);
-    // console.log(typeof user.role);
-    // console.log('user.role getServerSideProps: ', user.role);
 
-    if (user.role === 'admin') {
+    const user = currentUser(email);
+    const categoryList = list();
+
+    const promises = [user, categoryList];
+
+    const [userResult, categoryListResult] = await Promise.allSettled(promises);
+    const { role } = userResult.value;
+
+    if (role === 'admin') {
       isAdmin = true;
     } else {
       isAdmin = false;
     }
-    // console.log('isAdmin getServerSideProps: ', isAdmin);
-    const categoryList = await list();
-    // console.log('categoryList: ', categoryList);
+
     return {
       props: {
         token: appToken,
         isAdmin: isAdmin,
-        data: JSON.stringify(categoryList),
+        data: JSON.stringify(categoryListResult.value),
       }, // will be passed to the page component as props. always return an object with the props key
     };
   } catch (error) {
