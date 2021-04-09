@@ -44,7 +44,12 @@ export async function getServerSideProps(context) {
     console.log('error FIREBASsE: ', error.errorInfo.message);
     if (error) {
       return {
-        notFound: true,
+        // notFound: true,
+        redirect: {
+          destination: '/login',
+          permanent: false,
+          // statusCode - In some rare cases, you might need to assign a custom status code for older HTTP Clients to properly redirect. In these cases, you can use the statusCode property instead of the permanent property, but not both.
+        },
       };
     }
   }

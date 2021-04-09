@@ -12,6 +12,7 @@ import { fetchApi, fetchApiData, fetchDeleteApiData } from '@/store/saga/user';
 import admin from '@/firebase/index';
 import { currentUser } from '@/Models/User/index';
 import { list } from '@/Models/Category/index';
+import ColumnGroup from 'antd/lib/table/ColumnGroup';
 
 const createCategory = async (name, options) => {
   try {
@@ -37,12 +38,6 @@ const removeCategory = async (slug, options) => {
 };
 
 async function getPosts() {
-  // const options = {
-  //   url: '/category/all',
-  //   method: 'post',
-  //   token: token,
-  // };
-  // onst { data } = await fetchApiData(options);
   console.log(`${process.env.api}/category/all`);
   const {
     data: { list },
@@ -55,18 +50,19 @@ async function getPosts() {
   return list;
 }
 
-const CategoryCreate = ({ token, isAdmin, categoryList }) => {
-  console.log('JSON.parse(categoryList): ', JSON.parse(categoryList));
+const CategoryCreate = ({ token, isAdmin }) => {
+  // console.log('JSON.parse(categoryList): ', JSON.parse(categoryList));
   const [name, setName] = useState('');
-  // const [categories, setCategories] = useState([]);
-  const { data, isLoading, error } = useQuery('categoryList', getPosts, {
-    initialData: JSON.parse(categoryList),
-    // initialStale: true,
-  });
-
-  // useEffect(() => {
-  //   setCategories(data);
-  // }, [data]);
+  const { data, isLoading, error } = useQuery(
+    'categoryList',
+    getPosts
+    // ,
+    //  {
+    //   initialData: JSON.parse(categoryList),
+    //   initialStale: true,
+    // }
+  );
+  console.log('data hydration: ', data);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -142,22 +138,26 @@ const CategoryCreate = ({ token, isAdmin, categoryList }) => {
             )}
             {categoryForm()}
             <hr />
-            {data.map((c) => (
-              <div className="alert alert-secondary" key={c._id}>
-                {c.name}
-                <span
-                  onClick={() => handleRemove(c.slug)}
-                  className="btn btn-sm float-right"
-                >
-                  <DeleteOutlined className="text-danger" />
-                </span>
-                <Link href={`/admin/category/${c.slug}`}>
-                  <span className="btn btn-sm float-right">
-                    <EditOutlined className="text-warning" />
+            {data ? (
+              data.map((c) => (
+                <div className="alert alert-secondary" key={c._id}>
+                  {c.name}
+                  <span
+                    onClick={() => handleRemove(c.slug)}
+                    className="btn btn-sm float-right"
+                  >
+                    <DeleteOutlined className="text-danger" />
                   </span>
-                </Link>
-              </div>
-            ))}
+                  <Link href={`/admin/category/${c.slug}`}>
+                    <span className="btn btn-sm float-right">
+                      <EditOutlined className="text-warning" />
+                    </span>
+                  </Link>
+                </div>
+              ))
+            ) : (
+              <p>No data</p>
+            )}
           </div>
         </div>
       </AdminRoute>
@@ -168,33 +168,23 @@ const CategoryCreate = ({ token, isAdmin, categoryList }) => {
 export async function getServerSideProps(context) {
   // const { req, res } = context;
   const { appToken } = nookies.get(context);
-  let isAdmin;
+  let isAdmin = false;
   try {
     const { email } = await admin.auth().verifyIdToken(appToken);
+    const { role } = await currentUser(email);
 
-    const user = await currentUser(email);
-    const categoryList = await list();
+    if (role === 'admin') isAdmin = true;
 
-    const promises = [user, categoryList];
-
-    const [userResult, categoryListResult] = await Promise.allSettled(promises);
-    const { role } = userResult.value;
-
-    if (role === 'admin') {
-      isAdmin = true;
-    } else {
-      isAdmin = false;
-    }
-
-    // const queryClient = new QueryClient();
-    // await queryClient.prefetchQuery('categoryList', list());
+    // Using Hydration
+    const queryClient = new QueryClient();
+    await queryClient.prefetchQuery('categoryList', list());
 
     return {
       props: {
         token: appToken,
         isAdmin: isAdmin,
-        categoryList: JSON.stringify(categoryListResult.value),
-        // dehydratedState: dehydrate(queryClient),
+        // categoryList: JSON.stringify(categoryListResult.value),
+        dehydratedState: dehydrate(queryClient),
       }, // will be passed to the page component as props. always return an object with the props key
     };
   } catch (error) {
@@ -204,7 +194,12 @@ export async function getServerSideProps(context) {
     );
     if (error) {
       return {
-        notFound: true,
+        // notFound: true,
+        redirect: {
+          destination: '/login',
+          permanent: false,
+          // statusCode - In some rare cases, you might need to assign a custom status code for older HTTP Clients to properly redirect. In these cases, you can use the statusCode property instead of the permanent property, but not both.
+        },
       };
     }
   }
