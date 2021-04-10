@@ -1,6 +1,19 @@
-import { handler } from '@/middleware/index';
+// import { handler } from '@/middleware/index';
 import { getLogOutUser } from '@/controllers/user';
 
-handler.get(getLogOutUser);
+export default async function userHandler(req, res, next) {
+  const { method } = req;
 
-export default handler;
+  switch (method) {
+    case 'GET':
+      await getLogOutUser(req, res);
+      break;
+    default:
+      res.setHeader('Allow', ['GET']);
+      res.status(405).end(`Method ${method} Not Allowed`);
+  }
+}
+
+// handler.get(getLogOutUser);
+
+// export default handler;

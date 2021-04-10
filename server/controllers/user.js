@@ -1,4 +1,5 @@
 import { createOrUpdateUser, currentUser, logOut } from '@/Models/User/index';
+import dbMiddleware from '@/middleware/db';
 
 export const postUser = async (req, res) => {
   console.log('postUser from api/user route');

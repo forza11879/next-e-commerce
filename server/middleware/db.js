@@ -1,6 +1,8 @@
 import mongoose from 'mongoose';
-
+import initMiddleware from '@/middleware/init-middelware';
 export async function dbConnect() {
+  // check if we have a connection to the database or if it's currently
+  // connecting or disconnecting (readyState 1, 2 and 3)
   if (mongoose.connection.readyState >= 1) return;
 
   const uri = process.env.MONGODB_URL;
@@ -21,7 +23,7 @@ export function jsonify(obj) {
   return JSON.parse(JSON.stringify(obj));
 }
 
-export default async function dbMiddleware(req, res, next) {
+async function dbMiddleware(req, res, next) {
   try {
     // if (!global.mongoose) {
     //   global.mongoose == (await dbConnect());
@@ -36,3 +38,5 @@ export default async function dbMiddleware(req, res, next) {
 
   return next();
 }
+
+export default initMiddleware(dbMiddleware);

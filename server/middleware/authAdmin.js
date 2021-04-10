@@ -1,3 +1,4 @@
+import initMiddleware from '@/middleware/init-middelware';
 import { currentUser } from '@/Models/User/index';
 
 const adminCheck = async (req, res, next) => {
@@ -18,4 +19,4 @@ const adminCheck = async (req, res, next) => {
   }
 };
 
-export default adminCheck;
+export default initMiddleware(adminCheck);

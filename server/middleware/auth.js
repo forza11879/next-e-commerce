@@ -1,4 +1,6 @@
-import admin from '../firebase/index.js';
+import initMiddleware from '@/middleware/init-middelware';
+import admin from '@/firebase/index';
+
 import nookies from 'nookies';
 
 const authCheck = async (req, res, next) => {
@@ -24,4 +26,4 @@ const authCheck = async (req, res, next) => {
   }
 };
 
-export default authCheck;
+export default initMiddleware(authCheck);

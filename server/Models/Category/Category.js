@@ -21,5 +21,8 @@ const ParentSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export const Category =
-  mongoose.models[MODEL_NAME] || mongoose.model(MODEL_NAME, ParentSchema);
+// export const Category =
+//   mongoose.models[MODEL_NAME] || mongoose.model(MODEL_NAME, ParentSchema);
+
+export default mongoose.models.Category ||
+  mongoose.model('Category', ParentSchema);

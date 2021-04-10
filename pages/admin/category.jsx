@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import nookies from 'nookies';
 import axios from 'axios';
 import { toast } from 'react-toastify';
@@ -12,7 +12,7 @@ import { fetchApi, fetchApiData, fetchDeleteApiData } from '@/store/saga/user';
 import admin from '@/firebase/index';
 import { currentUser } from '@/Models/User/index';
 import { list } from '@/Models/Category/index';
-import ColumnGroup from 'antd/lib/table/ColumnGroup';
+import db from '@/middleware/db';
 
 const createCategory = async (name, options) => {
   try {
@@ -39,6 +39,7 @@ const removeCategory = async (slug, options) => {
 
 async function getPosts() {
   console.log(`${process.env.api}/category/all`);
+  // await new Promise((resolve) => setTimeout(resolve, 5000));
   const {
     data: { list },
   } = await axios.request({
@@ -46,13 +47,26 @@ async function getPosts() {
     url: '/category/all',
     method: 'get',
   });
-  console.log('list getPosts: ', list);
+  console.log('useQuery getPosts: ', list);
+  return list;
+}
+
+async function getPostss() {
+  console.log(`${process.env.api}/category/all`);
+  await new Promise((resolve) => setTimeout(resolve, 5000));
+  const {
+    data: { list },
+  } = await axios.request({
+    baseURL: process.env.api,
+    url: '/category/all',
+    method: 'get',
+  });
+  console.log('server getPosts: ', list);
   return list;
 }
 
 const CategoryCreate = ({ token, isAdmin }) => {
-  // console.log('JSON.parse(categoryList): ', JSON.parse(categoryList));
-  const [name, setName] = useState('');
+  const nameInputRef = useRef();
   const { data, isLoading, error } = useQuery(
     'categoryList',
     getPosts
@@ -66,7 +80,7 @@ const CategoryCreate = ({ token, isAdmin }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // console.log(name);
+    const enteredName = nameInputRef.current.value;
 
     const options = {
       url: '/category',
@@ -75,9 +89,7 @@ const CategoryCreate = ({ token, isAdmin }) => {
     };
 
     try {
-      const categoryData = await createCategory(name, options);
-      // console.log('data.category.name: ', data.category.name);
-      setName('');
+      const categoryData = await createCategory(enteredName, options);
       toast.success(`"${categoryData.category.name}" is created`);
     } catch (error) {
       console.log('handleSubmit CategoryCreate error: ', error);
@@ -112,8 +124,7 @@ const CategoryCreate = ({ token, isAdmin }) => {
         <input
           type="text"
           className="form-control"
-          onChange={(e) => setName(e.target.value)}
-          value={name}
+          ref={nameInputRef}
           autoFocus
           required
         />
@@ -170,6 +181,7 @@ export async function getServerSideProps(context) {
   const { appToken } = nookies.get(context);
   let isAdmin = false;
   try {
+    // await db(req, res, next);
     const { email } = await admin.auth().verifyIdToken(appToken);
     const { role } = await currentUser(email);
 
@@ -178,6 +190,7 @@ export async function getServerSideProps(context) {
     // Using Hydration
     const queryClient = new QueryClient();
     await queryClient.prefetchQuery('categoryList', list());
+    // await queryClient.prefetchQuery('categoryList', getPostss());
 
     return {
       props: {
@@ -190,7 +203,8 @@ export async function getServerSideProps(context) {
   } catch (error) {
     console.log(
       'error CategoryCreate getServerSideProps: ',
-      error.errorInfo.message
+      // error.errorInfo.message
+      error
     );
     if (error) {
       return {

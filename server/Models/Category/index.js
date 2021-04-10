@@ -1,4 +1,4 @@
-import { Category } from './Category';
+import Category from './Category';
 import slugify from 'slugify';
 
 const create = async (name) => {
@@ -18,7 +18,6 @@ const list = async () => {
   try {
     const query = {};
     const categoryList = await Category.find(query).sort({ createdAt: -1 });
-    // console.log('categoryList model index: ', categoryList);
     return categoryList;
   } catch (error) {
     console.log('list model error: ', error);
@@ -29,7 +28,6 @@ const read = async (slug) => {
   try {
     const query = { slug: slug };
     const category = await Category.findOne(query);
-    console.log('read Modal index: ', category);
     return category;
   } catch (error) {
     console.log('read model error: ', error);
