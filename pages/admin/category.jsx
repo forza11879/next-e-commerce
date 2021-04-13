@@ -4,8 +4,9 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import Link from 'next/link';
-import { QueryClient, useQuery } from 'react-query';
+import { isError, QueryClient } from 'react-query';
 import { dehydrate } from 'react-query/hydration';
+import { useQueryFn } from '@/hooks/useQuery';
 import AdminRoute from '@/components/lib/AdminRoute';
 import AdminNav from '@/components/nav/AdminNav';
 import { fetchApi, fetchApiData, fetchDeleteApiData } from '@/store/saga/user';
@@ -39,7 +40,10 @@ const removeCategory = async (slug, options) => {
 
 async function getPosts() {
   console.log(`${process.env.api}/category/all`);
-  // await new Promise((resolve) => setTimeout(resolve, 5000));
+  // await new Promise((resolve) => setTimeout(resolve, 1000));
+  // if (true) {
+  //   throw new Error('Test error!');
+  // }
   const {
     data: { list },
   } = await axios.request({
@@ -47,36 +51,18 @@ async function getPosts() {
     url: '/category/all',
     method: 'get',
   });
-  console.log('useQuery getPosts: ', list);
-  return list;
-}
-
-async function getPostss() {
-  console.log(`${process.env.api}/category/all`);
-  await new Promise((resolve) => setTimeout(resolve, 5000));
-  const {
-    data: { list },
-  } = await axios.request({
-    baseURL: process.env.api,
-    url: '/category/all',
-    method: 'get',
-  });
-  console.log('server getPosts: ', list);
+  console.log('useQuery getPosts: ');
   return list;
 }
 
 const CategoryCreate = ({ token, isAdmin }) => {
+  const formRef = useRef();
   const nameInputRef = useRef();
-  const { data, isLoading, error } = useQuery(
+  const { data, isLoading, isError, error, isFetching } = useQueryFn(
     'categoryList',
     getPosts
-    // ,
-    //  {
-    //   initialData: JSON.parse(categoryList),
-    //   initialStale: true,
-    // }
   );
-  console.log('data hydration: ', data);
+  // console.log('data hydration: ', data);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -91,6 +77,7 @@ const CategoryCreate = ({ token, isAdmin }) => {
     try {
       const categoryData = await createCategory(enteredName, options);
       toast.success(`"${categoryData.category.name}" is created`);
+      formRef.current.reset();
     } catch (error) {
       console.log('handleSubmit CategoryCreate error: ', error);
       // if (error.response.status === 400) toast.error(error.response.data);
@@ -118,7 +105,7 @@ const CategoryCreate = ({ token, isAdmin }) => {
   };
 
   const categoryForm = () => (
-    <form onSubmit={handleSubmit}>
+    <form ref={formRef} onSubmit={handleSubmit}>
       <div className="form-group">
         <label>Name</label>
         <input
@@ -144,13 +131,18 @@ const CategoryCreate = ({ token, isAdmin }) => {
           <div className="col">
             {isLoading ? (
               <h4 className="text-danger">Loading..</h4>
+            ) : isFetching ? (
+              <h4 className="text-danger">Updating...</h4>
             ) : (
               <h4>Create category</h4>
             )}
+            {/* {isFetching ? <h4 className="text-danger">Updating...</h4> : null} */}
             {categoryForm()}
             <hr />
-            {data ? (
-              data.map((c) => (
+            {isError ? (
+              <h4 className="text-danger">{error.message}</h4>
+            ) : (
+              JSON.parse(data).map((c) => (
                 <div className="alert alert-secondary" key={c._id}>
                   {c.name}
                   <span
@@ -166,8 +158,6 @@ const CategoryCreate = ({ token, isAdmin }) => {
                   </Link>
                 </div>
               ))
-            ) : (
-              <p>No data</p>
             )}
           </div>
         </div>
@@ -189,8 +179,7 @@ export async function getServerSideProps(context) {
 
     // Using Hydration
     const queryClient = new QueryClient();
-    await queryClient.prefetchQuery('categoryList', list());
-    // await queryClient.prefetchQuery('categoryList', getPostss());
+    await queryClient.prefetchQuery('categoryList', list);
 
     return {
       props: {

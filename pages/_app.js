@@ -18,7 +18,7 @@ import Header from '@/components/nav/Header';
 // Router.events.on('routeChangeComplete', nProgress.done);
 // Router.events.on('routeChangeError', nProgress.done);
 
-const queryClient = new QueryClient();
+// const queryClient = new QueryClient();
 const store = configureAppStore();
 
 function MyApp({ Component, pageProps }) {
