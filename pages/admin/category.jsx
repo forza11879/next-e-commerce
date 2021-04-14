@@ -1,10 +1,10 @@
-import React, { useState, useRef } from 'react';
+import React, { useRef } from 'react';
 import nookies from 'nookies';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import Link from 'next/link';
-import { isError, QueryClient } from 'react-query';
+import { QueryClient, useMutation, useQueryClient } from 'react-query';
 import { dehydrate } from 'react-query/hydration';
 import { useQueryFn } from '@/hooks/useQuery';
 import AdminRoute from '@/components/lib/AdminRoute';
@@ -58,11 +58,71 @@ async function getPosts() {
 const CategoryCreate = ({ token, isAdmin }) => {
   const formRef = useRef();
   const nameInputRef = useRef();
+  const queryClient = useQueryClient();
+
   const { data, isLoading, isError, error, isFetching } = useQueryFn(
     'categoryList',
     getPosts
   );
-  // console.log('data hydration: ', data);
+
+  const mutationCreateCategory = useMutation(
+    ({ enteredName, options }) => createCategory(enteredName, options),
+    {
+      onSuccess: (data, variables, context) => {
+        // Runs only there is a success
+        // toast.success(`"${data.category.name}" is created`);
+        // queryClient.invalidateQueries('categoryList');
+        // console.log('data: ', data);
+      },
+      onError: (error, variables, context) => {
+        // Runs on error
+        toast.error(error.response.data.message);
+        // console.log(`rolling back optimistic update with id ${context.id}`)
+      },
+      onSettled: (data, error, variables, context) => {
+        // Runs on either success or error. It is better to run invalidateQueries
+        // onSettled in case there is an error to re-fetch the request
+        toast.success(`"${data.category.name}" is created`);
+        // optimistic re-fetch. it is prefered because you are getting the latest data
+        // from the server
+        // queryClient.invalidateQueries('categoryList');
+
+        // saves http trip to the back-end
+        const queryData = queryClient.getQueryData('categoryList');
+        const queryClientArray = JSON.parse(queryData);
+        queryClientArray.unshift(data.category);
+        queryClient.setQueryData(
+          'categoryList',
+          JSON.stringify(queryClientArray)
+        );
+      },
+    }
+  );
+
+  const mutationRemoveCategory = useMutation(
+    ({ slug, options }) => removeCategory(slug, options),
+    {
+      onSuccess: (data, variables, context) => {
+        // Runs only there is a success
+        // toast.success(`"${data.category.name}" is created`);
+        // queryClient.invalidateQueries('categoryList');
+        // console.log('data: ', data);
+      },
+      onError: (error, variables, context) => {
+        // Runs on error
+        toast.error(error.response.data.message);
+        // console.log(`rolling back optimistic update with id ${context.id}`)
+      },
+      onSettled: (data, error, variables, context) => {
+        // Runs on either success or error. It is better to run invalidateQueries
+        // onSettled in case there is an error to re-fetch the request
+        // toast.success(`"${data.category.name}" is created`);
+        toast.error(`${data.deleted.name} deleted`);
+        queryClient.invalidateQueries('categoryList');
+        console.log('data: ', data);
+      },
+    }
+  );
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -75,8 +135,7 @@ const CategoryCreate = ({ token, isAdmin }) => {
     };
 
     try {
-      const categoryData = await createCategory(enteredName, options);
-      toast.success(`"${categoryData.category.name}" is created`);
+      mutationCreateCategory.mutate({ enteredName, options });
       formRef.current.reset();
     } catch (error) {
       console.log('handleSubmit CategoryCreate error: ', error);
@@ -92,9 +151,10 @@ const CategoryCreate = ({ token, isAdmin }) => {
 
     if (window.confirm('Delete?')) {
       try {
-        const removeCategoryData = await removeCategory(slug, options);
-        toast.error(`${removeCategoryData.deleted.name} deleted`);
-        await getPosts();
+        // const removeCategoryData = await removeCategory(slug, options);
+        mutationRemoveCategory.mutate({ slug, options });
+        // toast.error(`${removeCategoryData.deleted.name} deleted`);
+        // await getPosts();
       } catch (error) {
         console.log('handleRemove error: ', error);
         // if (err.response.status === 400) {
@@ -116,7 +176,18 @@ const CategoryCreate = ({ token, isAdmin }) => {
           required
         />
         <br />
-        <button className="btn btn-outline-primary">Save</button>
+        <button className="btn btn-outline-primary">
+          {mutationCreateCategory.isLoading
+            ? 'Saving...'
+            : mutationCreateCategory.isError
+            ? 'Error'
+            : mutationCreateCategory.isSuccess
+            ? 'Save'
+            : 'Save'}
+        </button>
+        {mutationCreateCategory.isError ? (
+          <pre>{mutationCreateCategory.error.response.data.message}</pre>
+        ) : null}
       </div>
     </form>
   );
@@ -141,7 +212,7 @@ const CategoryCreate = ({ token, isAdmin }) => {
             <hr />
             {isError ? (
               <h4 className="text-danger">{error.message}</h4>
-            ) : (
+            ) : JSON.parse(data).length ? (
               JSON.parse(data).map((c) => (
                 <div className="alert alert-secondary" key={c._id}>
                   {c.name}
@@ -158,6 +229,8 @@ const CategoryCreate = ({ token, isAdmin }) => {
                   </Link>
                 </div>
               ))
+            ) : (
+              <p>No Data</p>
             )}
           </div>
         </div>
@@ -179,7 +252,9 @@ export async function getServerSideProps(context) {
 
     // Using Hydration
     const queryClient = new QueryClient();
-    await queryClient.prefetchQuery('categoryList', list);
+    await queryClient.prefetchQuery('categoryList', list, null, {
+      // force: true, // forced prefetch regadless if the data is stale(forced prefetching)
+    });
 
     return {
       props: {
