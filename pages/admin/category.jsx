@@ -13,7 +13,7 @@ import { fetchApi, fetchApiData, fetchDeleteApiData } from '@/store/saga/user';
 import admin from '@/firebase/index';
 import { currentUser } from '@/Models/User/index';
 import { list } from '@/Models/Category/index';
-import db from '@/middleware/db';
+import db, { jsonify } from '@/middleware/db';
 
 const createCategory = async (name, options) => {
   try {
@@ -83,18 +83,15 @@ const CategoryCreate = ({ token, isAdmin }) => {
         // Runs on either success or error. It is better to run invalidateQueries
         // onSettled in case there is an error to re-fetch the request
         toast.success(`"${data.category.name}" is created`);
-        // optimistic re-fetch. it is prefered because you are getting the latest data
-        // from the server
-        // queryClient.invalidateQueries('categoryList');
-
         // saves http trip to the back-end
-        const queryData = queryClient.getQueryData('categoryList');
-        const queryClientArray = JSON.parse(queryData);
-        queryClientArray.unshift(data.category);
-        queryClient.setQueryData(
-          'categoryList',
-          JSON.stringify(queryClientArray)
-        );
+        queryClient.setQueryData('categoryList', (oldQueryData) => {
+          const oldQueryDataArray = JSON.parse(oldQueryData);
+          oldQueryDataArray.unshift(data.category);
+          return JSON.stringify(oldQueryDataArray);
+        });
+
+        // optimistic re-fetch. it is prefered after using setQueryData because you are getting the latest data from the server
+        queryClient.invalidateQueries('categoryList');
       },
     }
   );
