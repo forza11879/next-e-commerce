@@ -16,26 +16,27 @@ import { list } from '@/Models/Category/index';
 import db, { jsonify } from '@/middleware/db';
 
 const createCategory = async (name, options) => {
-  try {
-    const { data } = await fetchApiData({ name }, options);
-    return data;
-  } catch (error) {
-    console.log('createCategory error: ', error);
-    if (error.response.status === 400) toast.error(error.response.data);
-    if (error.response.status === 401) toast.error(error.response.data);
-  }
+  // try {
+  //no trycatch to get the error to onError
+  const { data } = await fetchApiData({ name }, options);
+  return data;
+  // } catch (error) {
+  //   console.log('createCategory error.response: ', error.response);
+  //   if (error.response.status === 400) toast.error(error.response.data.error);
+  //   if (error.response.status === 401) toast.error(error.response.data.error);
+  // }
 };
 
 const removeCategory = async (slug, options) => {
-  try {
-    const { data } = await fetchDeleteApiData({ slug }, options);
-    console.log('removeCategory data: ', data);
-    return data;
-  } catch (error) {
-    console.log('removeCategory error: ', error);
-    // if (error.response.status === 400) toast.error(error.response.data);
-    // if (error.response.status === 401) toast.error(error.response.data);
-  }
+  // try {
+  const { data } = await fetchDeleteApiData({ slug }, options);
+  console.log('removeCategory data: ', data);
+  return data;
+  // } catch (error) {
+  //   console.log('removeCategory error: ', error);
+  //   // if (error.response.status === 400) toast.error(error.response.data);
+  //   // if (error.response.status === 401) toast.error(error.response.data);
+  // }
 };
 
 async function getPosts() {
@@ -68,29 +69,52 @@ const CategoryCreate = ({ token, isAdmin }) => {
   const mutationCreateCategory = useMutation(
     ({ enteredName, options }) => createCategory(enteredName, options),
     {
+      onMutate: ({ enteredName }) => {
+        // Cancel any outgoing refetches (so they don't overwrite(race condition) our optimistic update)
+        queryClient.cancelQueries('categoryList');
+
+        // Snapshot the previous value
+        const previousQueryDataArray = queryClient.getQueryData('categoryList');
+        // In an optimistic update the UI behaves as though a change was successfully completed before receiving confirmation from the server that it actually was - it is being optimistic that it will eventually get the confirmation rather than an error. This allows for a more responsive user experience.
+        const newObject = {
+          _id: Date.now(),
+          name: enteredName,
+        };
+        queryClient.setQueryData('categoryList', (oldQueryData) => {
+          const oldQueryDataArray = JSON.parse(oldQueryData);
+          const newQueryDataArray = [newObject, ...oldQueryDataArray];
+          console.log('newQueryDataArray: ', newQueryDataArray);
+          return JSON.stringify(newQueryDataArray);
+        });
+        // return will pass the function or the value to the onError third argument:
+        return () =>
+          queryClient.setQueryData('categoryList', previousQueryDataArray);
+      },
+      onError: (error, variables, rollback) => {
+        //   If there is an errror, then we will rollback
+        console.log('error onError: ', error);
+        // Runs on error
+        // console.log(`rolling back optimistic update with context ${context}`);
+        if (rollback) {
+          console.log('rollback');
+          rollback();
+        }
+      },
       onSuccess: (data, variables, context) => {
         // Runs only there is a success
-        // toast.success(`"${data.category.name}" is created`);
-        // queryClient.invalidateQueries('categoryList');
-        // console.log('data: ', data);
-      },
-      onError: (error, variables, context) => {
-        // Runs on error
-        toast.error(error.response.data.message);
-        // console.log(`rolling back optimistic update with id ${context.id}`)
-      },
-      onSettled: (data, error, variables, context) => {
-        // Runs on either success or error. It is better to run invalidateQueries
-        // onSettled in case there is an error to re-fetch the request
         toast.success(`"${data.category.name}" is created`);
         // saves http trip to the back-end
         queryClient.setQueryData('categoryList', (oldQueryData) => {
           const oldQueryDataArray = JSON.parse(oldQueryData);
-          oldQueryDataArray.unshift(data.category);
-          return JSON.stringify(oldQueryDataArray);
+          const newQueryDataArray = [data.category, ...oldQueryDataArray];
+          return JSON.stringify(newQueryDataArray);
         });
+      },
+      onSettled: (data, error, variables, context) => {
+        // Runs on either success or error. It is better to run invalidateQueries
+        // onSettled in case there is an error to re-fetch the request
 
-        // optimistic re-fetch. it is prefered after using setQueryData because you are getting the latest data from the server
+        // it is prefered after using setQueryData inside onSuccess: because you are getting the latest data from the server
         queryClient.invalidateQueries('categoryList');
       },
     }
