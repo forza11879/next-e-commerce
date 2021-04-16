@@ -8,6 +8,7 @@ const create = async (name) => {
       name: name,
       slug: slugify(name),
     });
+    console.log('newCategory: ', newCategory);
     return newCategory;
   } catch (error) {
     console.log('create model error: ', error);
@@ -18,8 +19,7 @@ const list = async () => {
   try {
     const query = {};
     const categoryList = await Category.find(query).sort({ createdAt: -1 });
-    console.log('categoryList: ', categoryList);
-    return JSON.stringify(categoryList);
+    return categoryList;
   } catch (error) {
     console.log('list model error: ', error);
   }

@@ -9,35 +9,11 @@ import { dehydrate } from 'react-query/hydration';
 import { useQueryFn } from '@/hooks/useQuery';
 import AdminRoute from '@/components/lib/AdminRoute';
 import AdminNav from '@/components/nav/AdminNav';
-import { fetchApi, fetchApiData, fetchDeleteApiData } from '@/store/saga/user';
 import admin from '@/firebase/index';
 import { currentUser } from '@/Models/User/index';
-import { list } from '@/Models/Category/index';
-import db, { jsonify } from '@/middleware/db';
+// import { list } from '@/Models/Category/index';
 
-const createCategory = async (name, options) => {
-  // try {
-  //no trycatch to get the error to onError
-  const { data } = await fetchApiData({ name }, options);
-  return data;
-  // } catch (error) {
-  //   console.log('createCategory error.response: ', error.response);
-  //   if (error.response.status === 400) toast.error(error.response.data.error);
-  //   if (error.response.status === 401) toast.error(error.response.data.error);
-  // }
-};
-
-const removeCategory = async (slug, options) => {
-  // try {
-  const { data } = await fetchDeleteApiData({ slug }, options);
-  console.log('removeCategory data: ', data);
-  return data;
-  // } catch (error) {
-  //   console.log('removeCategory error: ', error);
-  //   // if (error.response.status === 400) toast.error(error.response.data);
-  //   // if (error.response.status === 401) toast.error(error.response.data);
-  // }
-};
+const baseURL = process.env.api;
 
 async function getPosts() {
   console.log(`${process.env.api}/category/all`);
@@ -45,15 +21,13 @@ async function getPosts() {
   // if (true) {
   //   throw new Error('Test error!');
   // }
-  const {
-    data: { list },
-  } = await axios.request({
-    baseURL: process.env.api,
+  const { data } = await axios.request({
+    baseURL: 'http://localhost:3000/api',
     url: '/category/all',
     method: 'get',
   });
-  console.log('useQuery getPosts: ');
-  return list;
+
+  return JSON.stringify(data);
 }
 
 const CategoryCreate = ({ token, isAdmin }) => {
@@ -66,25 +40,39 @@ const CategoryCreate = ({ token, isAdmin }) => {
     getPosts
   );
 
+  const dataList = JSON.parse(data);
+  console.log('dataList use query: ', dataList);
+
   const mutationCreateCategory = useMutation(
-    ({ enteredName, options }) => createCategory(enteredName, options),
+    async ({ enteredName, options: { url, method, token } }) =>
+      axios.request({
+        baseURL: baseURL,
+        url,
+        method,
+        data: { name: enteredName },
+        headers: { token },
+      }),
     {
-      onMutate: ({ enteredName }) => {
+      onMutate: ({ enteredName, options }) => {
         // Cancel any outgoing refetches (so they don't overwrite(race condition) our optimistic update)
         queryClient.cancelQueries('categoryList');
 
         // Snapshot the previous value
         const previousQueryDataArray = queryClient.getQueryData('categoryList');
+        // console.log('previousQueryDataArray: ', previousQueryDataArray);
         // In an optimistic update the UI behaves as though a change was successfully completed before receiving confirmation from the server that it actually was - it is being optimistic that it will eventually get the confirmation rather than an error. This allows for a more responsive user experience.
         const newObject = {
           _id: Date.now(),
           name: enteredName,
         };
+        // console.log('newObject: ', newObject);
         queryClient.setQueryData('categoryList', (oldQueryData) => {
+          console.log('oldQueryData: ', oldQueryData);
           const oldQueryDataArray = JSON.parse(oldQueryData);
-          const newQueryDataArray = [newObject, ...oldQueryDataArray];
-          console.log('newQueryDataArray: ', newQueryDataArray);
-          return JSON.stringify(newQueryDataArray);
+          oldQueryDataArray.unshift(newObject);
+          // const newQueryDataArray = [newObject, ...oldQueryDataArray];
+          console.log('oldQueryDataArray onMutate: ', oldQueryDataArray);
+          return JSON.stringify(oldQueryDataArray);
         });
         // return will pass the function or the value to the onError third argument:
         return () =>
@@ -100,47 +88,91 @@ const CategoryCreate = ({ token, isAdmin }) => {
           rollback();
         }
       },
-      onSuccess: (data, variables, context) => {
+      onSuccess: ({ data }, variables, context) => {
+        // console.log('onSuccess data: ', data);
         // Runs only there is a success
-        toast.success(`"${data.category.name}" is created`);
+        // toast.success(`"${data.category.name}" is created`);
         // saves http trip to the back-end
-        queryClient.setQueryData('categoryList', (oldQueryData) => {
-          const oldQueryDataArray = JSON.parse(oldQueryData);
-          const newQueryDataArray = [data.category, ...oldQueryDataArray];
-          return JSON.stringify(newQueryDataArray);
-        });
+        if (data) {
+          queryClient.setQueryData('categoryList', (oldQueryData) => {
+            const oldQueryDataArray = JSON.parse(oldQueryData);
+            // console.log('oldQueryDataArray before filter: ', oldQueryDataArray);
+            const newQueryDataArray = oldQueryDataArray.filter(
+              (item) => item.name !== data.name
+            );
+            // console.log('newQueryDataArray after filter: ', newQueryDataArray);
+            newQueryDataArray.unshift(data);
+            // console.log('newQueryDataArray onSuccess: ', newQueryDataArray);
+            return JSON.stringify(newQueryDataArray);
+          });
+        }
       },
-      onSettled: (data, error, variables, context) => {
+      onSettled: ({ data }, error, variables, context) => {
         // Runs on either success or error. It is better to run invalidateQueries
         // onSettled in case there is an error to re-fetch the request
-
         // it is prefered after using setQueryData inside onSuccess: because you are getting the latest data from the server
         queryClient.invalidateQueries('categoryList');
       },
     }
   );
 
+  // console.log('mutationCreateCategory: ', mutationCreateCategory.error);
+
   const mutationRemoveCategory = useMutation(
-    ({ slug, options }) => removeCategory(slug, options),
+    ({ slug, options: { url, token } }) =>
+      axios.delete(url, {
+        headers: {
+          token,
+        },
+        data: { slug },
+      }),
     {
+      onMutate: ({ slug, options }) => {
+        // Cancel any outgoing refetches (so they don't overwrite(race condition) our optimistic update)
+        queryClient.cancelQueries('categoryList', { exact: true });
+        // Snapshot the previous value
+        const previousQueryDataArray = queryClient.getQueryData('categoryList');
+        // In an optimistic update the UI behaves as though a change was successfully completed before receiving confirmation from the server that it actually was - it is being optimistic that it will eventually get the confirmation rather than an error. This allows for a more responsive user experience.
+        queryClient.setQueryData('categoryList', (oldQueryData) => {
+          const oldQueryDataArray = JSON.parse(oldQueryData);
+          const newQueryDataArray = oldQueryDataArray.filter(
+            (item) => item.slug !== slug
+          );
+          console.log('newQueryDataArray: ', newQueryDataArray);
+          return JSON.stringify(newQueryDataArray);
+        });
+        // return will pass the function or the value to the onError third argument:
+        return () =>
+          queryClient.setQueryData('categoryList', previousQueryDataArray);
+      },
+      onError: (error, variables, rollback) => {
+        // Runs on error
+        // toast.error(error.response.data.message);
+        if (rollback) {
+          rollback();
+          console.log('delete rollback');
+        }
+      },
       onSuccess: (data, variables, context) => {
         // Runs only there is a success
-        // toast.success(`"${data.category.name}" is created`);
-        // queryClient.invalidateQueries('categoryList');
-        // console.log('data: ', data);
-      },
-      onError: (error, variables, context) => {
-        // Runs on error
-        toast.error(error.response.data.message);
-        // console.log(`rolling back optimistic update with id ${context.id}`)
+        console.log('data deleted: ', data);
+        if (data.deleted) {
+          // toast.error(`${data.deleted.name} deleted`);
+          console.log('data deleted: ', data);
+        }
+
+        // queryClient.setQueryData('categoryList', (oldQueryData) => {
+        //   const oldQueryDataArray = JSON.parse(oldQueryData);
+        //   const newQueryDataArray = oldQueryDataArray.filter(
+        //     (item) => item.slug !== data.deleted.slug
+        //   );
+        //   return JSON.stringify(newQueryDataArray);
+        // });
       },
       onSettled: (data, error, variables, context) => {
         // Runs on either success or error. It is better to run invalidateQueries
         // onSettled in case there is an error to re-fetch the request
-        // toast.success(`"${data.category.name}" is created`);
-        toast.error(`${data.deleted.name} deleted`);
-        queryClient.invalidateQueries('categoryList');
-        console.log('data: ', data);
+        // queryClient.invalidateQueries('categoryList');
       },
     }
   );
@@ -172,10 +204,7 @@ const CategoryCreate = ({ token, isAdmin }) => {
 
     if (window.confirm('Delete?')) {
       try {
-        // const removeCategoryData = await removeCategory(slug, options);
         mutationRemoveCategory.mutate({ slug, options });
-        // toast.error(`${removeCategoryData.deleted.name} deleted`);
-        // await getPosts();
       } catch (error) {
         console.log('handleRemove error: ', error);
         // if (err.response.status === 400) {
@@ -207,7 +236,7 @@ const CategoryCreate = ({ token, isAdmin }) => {
             : 'Save'}
         </button>
         {mutationCreateCategory.isError ? (
-          <pre>{mutationCreateCategory.error.response.data.message}</pre>
+          <pre>{console.log(mutationCreateCategory.error)}</pre>
         ) : null}
       </div>
     </form>
@@ -233,8 +262,8 @@ const CategoryCreate = ({ token, isAdmin }) => {
             <hr />
             {isError ? (
               <h4 className="text-danger">{error.message}</h4>
-            ) : JSON.parse(data).length ? (
-              JSON.parse(data).map((c) => (
+            ) : dataList.length ? (
+              dataList.map((c) => (
                 <div className="alert alert-secondary" key={c._id}>
                   {c.name}
                   <span
@@ -264,6 +293,17 @@ export async function getServerSideProps(context) {
   // const { req, res } = context;
   const { appToken } = nookies.get(context);
   let isAdmin = false;
+  const list = async () => {
+    const { data } = await axios.request({
+      baseURL: 'http://localhost:3000/api',
+      url: '/category/all',
+      method: 'get',
+    });
+    // console.log('data axios typeof: ', typeof data);
+    // console.log('data axios: ', data);
+    return JSON.stringify(data);
+  };
+
   try {
     // await db(req, res, next);
     const { email } = await admin.auth().verifyIdToken(appToken);
@@ -276,6 +316,8 @@ export async function getServerSideProps(context) {
     await queryClient.prefetchQuery('categoryList', list, null, {
       // force: true, // forced prefetch regadless if the data is stale(forced prefetching)
     });
+    // const QueryDataObj = queryClient.getQueryData('categoryList');
+    // console.log('queryClient: ', typeof QueryDataObj);
 
     return {
       props: {

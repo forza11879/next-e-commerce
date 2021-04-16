@@ -5,8 +5,9 @@ export const createController = async (req, res) => {
     const { name } = req.body;
     console.log('name: ', name);
     const newCategory = await create(name);
+    res.status(201).json(newCategory);
 
-    res.status(201).json({ category: newCategory });
+    // res.status(201).json({ category: newCategory });
   } catch (error) {
     console.log('create controller error: ', error);
     res.status(400).json(`Create category failed.`);
@@ -16,7 +17,7 @@ export const createController = async (req, res) => {
 export const listController = async (req, res) => {
   try {
     const categoryList = await list();
-    res.status(200).json({ list: categoryList });
+    res.status(200).json(categoryList);
   } catch (error) {
     console.log('list controller error: ', error);
     res.status(400).json('Fetch list request failed');
