@@ -41,7 +41,7 @@ const CategoryCreate = ({ token, isAdmin }) => {
   );
 
   const dataList = JSON.parse(data);
-  console.log('dataList use query: ', dataList);
+  // console.log('dataList use query: ', dataList);
 
   const mutationCreateCategory = useMutation(
     async ({ enteredName, options: { url, method, token } }) =>
@@ -67,11 +67,11 @@ const CategoryCreate = ({ token, isAdmin }) => {
         };
         // console.log('newObject: ', newObject);
         queryClient.setQueryData('categoryList', (oldQueryData) => {
-          console.log('oldQueryData: ', oldQueryData);
+          // console.log('oldQueryData: ', oldQueryData);
           const oldQueryDataArray = JSON.parse(oldQueryData);
           oldQueryDataArray.unshift(newObject);
           // const newQueryDataArray = [newObject, ...oldQueryDataArray];
-          console.log('oldQueryDataArray onMutate: ', oldQueryDataArray);
+          // console.log('oldQueryDataArray onMutate: ', oldQueryDataArray);
           return JSON.stringify(oldQueryDataArray);
         });
         // return will pass the function or the value to the onError third argument:
@@ -155,24 +155,26 @@ const CategoryCreate = ({ token, isAdmin }) => {
       },
       onSuccess: (data, variables, context) => {
         // Runs only there is a success
-        console.log('data deleted: ', data);
-        if (data.deleted) {
+        if (data.data.deleted) {
           // toast.error(`${data.deleted.name} deleted`);
-          console.log('data deleted: ', data);
+          console.log('data.data.deleted: ', data.data.deleted);
+          queryClient.setQueryData('categoryList', (oldQueryData) => {
+            const oldQueryDataArray = JSON.parse(oldQueryData);
+            const newQueryDataArray = oldQueryDataArray.filter(
+              (item) => item.slug !== data.data.deleted.slug
+            );
+            console.log(
+              'RemoveCategory newQueryDataArray onSuccess : ',
+              newQueryDataArray
+            );
+            return JSON.stringify(newQueryDataArray);
+          });
         }
-
-        // queryClient.setQueryData('categoryList', (oldQueryData) => {
-        //   const oldQueryDataArray = JSON.parse(oldQueryData);
-        //   const newQueryDataArray = oldQueryDataArray.filter(
-        //     (item) => item.slug !== data.deleted.slug
-        //   );
-        //   return JSON.stringify(newQueryDataArray);
-        // });
       },
-      onSettled: (data, error, variables, context) => {
+      onSettled: (data, variables, context) => {
         // Runs on either success or error. It is better to run invalidateQueries
         // onSettled in case there is an error to re-fetch the request
-        // queryClient.invalidateQueries('categoryList');
+        queryClient.invalidateQueries('categoryList');
       },
     }
   );

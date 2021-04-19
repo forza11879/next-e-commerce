@@ -5,4 +5,7 @@ module.exports = {
     forgotPasswordRedirect: process.env.FORGOT_PASSWORD_REDIRECT,
     api: process.env.API,
   },
+  future: {
+    webpack5: true,
+  },
 };
