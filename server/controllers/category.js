@@ -4,13 +4,13 @@ export const createController = async (req, res) => {
   try {
     const { name } = req.body;
     console.log('name: ', name);
-    const newCategory = await create(name);
+    const newCategory = await create(name, req, res);
     res.status(201).json(newCategory);
 
     // res.status(201).json({ category: newCategory });
   } catch (error) {
     console.log('create controller error: ', error);
-    res.status(400).json(`Create category failed.`);
+    res.status(400).json(`Create category failed. ${error}`);
   }
 };
 

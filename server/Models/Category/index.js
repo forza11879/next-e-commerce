@@ -3,16 +3,16 @@ import slugify from 'slugify';
 
 const create = async (name) => {
   console.log('name: ', name);
-  try {
-    const newCategory = await Category.create({
-      name: name,
-      slug: slugify(name),
-    });
-    console.log('newCategory: ', newCategory);
-    return newCategory;
-  } catch (error) {
-    console.log('create model error: ', error);
-  }
+  // try {
+  const newCategory = await Category.create({
+    name: name,
+    slug: slugify(name),
+  });
+  console.log('newCategory: ', newCategory);
+  return newCategory;
+  // } catch (error) {
+  //   console.log('create model error: ', error);
+  // }
 };
 
 const list = async () => {
