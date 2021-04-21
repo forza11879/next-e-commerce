@@ -4,7 +4,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import Link from 'next/link';
-import { QueryClient, useMutation, useQueryClient } from 'react-query';
+import { QueryClient, useQueryClient } from 'react-query';
 import { dehydrate } from 'react-query/hydration';
 import {
   useQueryFn,
@@ -20,7 +20,7 @@ import { list } from '@/Models/Category/index';
 const baseURL = process.env.api;
 
 async function getPosts() {
-  await new Promise((resolve) => setTimeout(resolve, 100));
+  await new Promise((resolve) => setTimeout(resolve, 5000));
   console.log(`${process.env.api}/category/all`);
   // if (true) {
   //   throw new Error('Test error!');
@@ -43,9 +43,6 @@ const CategoryCreate = ({ token, isAdmin }) => {
     'categoryList',
     getPosts
   );
-
-  const dataList = JSON.parse(data);
-  // console.log('dataList use query: ', dataList);
 
   const {
     mutate: mutateCreateCategory,
@@ -144,17 +141,17 @@ const CategoryCreate = ({ token, isAdmin }) => {
             <hr />
             {isError ? (
               <h4 className="text-danger">{error.message}</h4>
-            ) : dataList.length ? (
-              dataList.map((c) => (
-                <div className="alert alert-secondary" key={c._id}>
-                  {c.name}
+            ) : JSON.parse(data).length ? (
+              JSON.parse(data).map((item) => (
+                <div className="alert alert-secondary" key={item._id}>
+                  {item.name}
                   <span
-                    onClick={() => handleRemove(c.slug)}
+                    onClick={() => handleRemove(item.slug)}
                     className="btn btn-sm float-right"
                   >
                     <DeleteOutlined className="text-danger" />
                   </span>
-                  <Link href={`/admin/category/${c.slug}`}>
+                  <Link href={`/admin/category/${item.slug}`}>
                     <span className="btn btn-sm float-right">
                       <EditOutlined className="text-warning" />
                     </span>

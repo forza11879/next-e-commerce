@@ -28,7 +28,7 @@ export const readController = async (req, res) => {
   const { slug } = req.query;
   try {
     const category = await read(slug);
-    res.status(200).json({ category: category });
+    res.status(200).json(category);
   } catch (error) {
     console.log('read controller error: ', error);
     res.status(400).json('reead request failed');
@@ -40,7 +40,8 @@ export const updateController = async (req, res) => {
   const { slug } = req.query;
   try {
     const updated = await update(slug, name);
-    res.status(200).json({ updated: updated });
+    console.log('updated: ', updated);
+    res.status(200).json(updated);
   } catch (error) {
     console.log('update controller error: ', error);
     res.status(400).json('Create update failed');
