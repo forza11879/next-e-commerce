@@ -4,7 +4,7 @@ import {
   readController,
   updateController,
   removeController,
-} from '@/controllers/category';
+} from '@/controllers/subcategory';
 
 export default async function userHandler(req, res, next) {
   const { method } = req;
@@ -28,9 +28,3 @@ export default async function userHandler(req, res, next) {
       res.status(405).end(`Method ${method} Not Allowed`);
   }
 }
-
-// handler.get(readController);
-// handler.use(authCheck).use(adminCheck).put(updateController);
-// handler.use(authCheck).use(adminCheck).delete(removeController);
-
-// export default handler;

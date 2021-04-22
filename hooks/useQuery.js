@@ -180,25 +180,18 @@ export const useMutationUpdateCategory = (queryClient) => {
 
         // Snapshot the previous value
         const previousQueryDataArray = queryClient.getQueryData('categoryList');
-        // console.log('previousQueryDataArray: ', previousQueryDataArray);
         // In an optimistic update the UI behaves as though a change was successfully completed before receiving confirmation from the server that it actually was - it is being optimistic that it will eventually get the confirmation rather than an error. This allows for a more responsive user experience.
         const newObject = {
           _id: Date.now(),
           name: name,
         };
-        console.log('slug onMutate: ', slug);
         queryClient.setQueryData('categoryList', (oldQueryData) => {
           const oldQueryDataArray = JSON.parse(oldQueryData);
-          console.log('oldQueryDataArray onMutate: ', oldQueryDataArray);
           const newQueryDataArray = oldQueryDataArray.filter(
             (item) => item.slug !== slug
           );
-          console.log('newQueryDataArray onMutate: ', newQueryDataArray);
           newQueryDataArray.unshift(newObject);
-          console.log(
-            'newQueryDataArray onMutate unshift: ',
-            newQueryDataArray
-          );
+
           return JSON.stringify(newQueryDataArray);
         });
         // return will pass the function or the value to the onError third argument:
@@ -207,45 +200,32 @@ export const useMutationUpdateCategory = (queryClient) => {
       },
       onError: (error, variables, rollback) => {
         //   If there is an errror, then we will rollback
-        // console.log('CreateCategory onError error: ', error.response.data);
         if (rollback) {
           rollback();
           console.log('rollback');
         }
+
         if (error) {
-          toast.error(error.response.data);
+          toast.error(error.response.data.error);
         }
       },
       onSuccess: ({ data }, { slug }, context) => {
         // Runs only there is a success
         // saves http trip to the back-end
-        console.log('data onSuccess: ', data);
-        console.log('name onSuccess: ', name);
         if (data) {
           queryClient.setQueryData('categoryList', (oldQueryData) => {
             const oldQueryDataArray = JSON.parse(oldQueryData);
-            console.log('oldQueryDataArray onSuccess: ', oldQueryDataArray);
             const newQueryDataArray = oldQueryDataArray.filter(
               (item) => item.slug !== slug
             );
-            console.log('newQueryDataArray onSuccess: ', newQueryDataArray);
             newQueryDataArray.unshift(data);
-            console.log(
-              'newQueryDataArray onSuccess unshift: ',
-              newQueryDataArray
-            );
             return JSON.stringify(newQueryDataArray);
           });
           toast.success(`"${data.name}" is created`);
         }
       },
       onSettled: ({ data }, error, variables, context) => {
-        // console.log('data onSettled: ', data);
         if (error) {
-          // console.log(
-          //   'CreateCategory onSettled error: ',
-          //   error.response.data.error
-          // );
           toast.error(error.response.data.error);
         }
         // Runs on either success or error. It is better to run invalidateQueries

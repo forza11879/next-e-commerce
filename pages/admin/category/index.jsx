@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import nookies from 'nookies';
 import axios from 'axios';
 import { toast } from 'react-toastify';
@@ -13,6 +13,8 @@ import {
 } from '@/hooks/useQuery';
 import AdminRoute from '@/components/lib/AdminRoute';
 import AdminNav from '@/components/nav/AdminNav';
+import CategoryForm from '@/components/forms/CategoryForm';
+import LocalSearch from '@/components/forms/LocalSearch';
 import admin from '@/firebase/index';
 import { currentUser } from '@/Models/User/index';
 import { list } from '@/Models/Category/index';
@@ -20,7 +22,7 @@ import { list } from '@/Models/Category/index';
 const baseURL = process.env.api;
 
 async function getPosts() {
-  await new Promise((resolve) => setTimeout(resolve, 5000));
+  await new Promise((resolve) => setTimeout(resolve, 500));
   console.log(`${process.env.api}/category/all`);
   // if (true) {
   //   throw new Error('Test error!');
@@ -35,6 +37,7 @@ async function getPosts() {
 }
 
 const CategoryCreate = ({ token, isAdmin }) => {
+  const [keyword, setKeyword] = useState('');
   const formRef = useRef();
   const nameInputRef = useRef();
   const queryClient = useQueryClient();
@@ -44,17 +47,9 @@ const CategoryCreate = ({ token, isAdmin }) => {
     getPosts
   );
 
-  const {
-    mutate: mutateCreateCategory,
-    isLoading: isLoadingCreateCategory,
-    isError: isErrorCreateCategory,
-    isSuccess: isSuccessCreateCategory,
-    error: errorCreateCategory,
-  } = useMutationCreateCategory(queryClient);
+  const mutationCreateCategory = useMutationCreateCategory(queryClient);
 
-  const { mutate: mutateRemoveCategory } = useMutationRemoveCategory(
-    queryClient
-  );
+  const mutationRemoveCategory = useMutationRemoveCategory(queryClient);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -67,7 +62,7 @@ const CategoryCreate = ({ token, isAdmin }) => {
     };
 
     try {
-      mutateCreateCategory({ enteredName, options });
+      mutationCreateCategory.mutate({ enteredName, options });
       formRef.current.reset();
     } catch (error) {
       console.log('handleSubmit CategoryCreate error: ', error);
@@ -83,7 +78,7 @@ const CategoryCreate = ({ token, isAdmin }) => {
 
     if (window.confirm('Delete?')) {
       try {
-        mutateRemoveCategory({ slug, options });
+        mutationRemoveCategory.mutate({ slug, options });
       } catch (error) {
         console.log('handleRemove error: ', error);
         // if (err.response.status === 400) {
@@ -93,33 +88,8 @@ const CategoryCreate = ({ token, isAdmin }) => {
     }
   };
 
-  const categoryForm = () => (
-    <form ref={formRef} onSubmit={handleSubmit}>
-      <div className="form-group">
-        <label>Name</label>
-        <input
-          type="text"
-          className="form-control"
-          ref={nameInputRef}
-          autoFocus
-          required
-        />
-        <br />
-        <button className="btn btn-outline-primary">
-          {isLoadingCreateCategory
-            ? 'Saving...'
-            : isErrorCreateCategory
-            ? 'Error'
-            : isSuccessCreateCategory
-            ? 'Save'
-            : 'Save'}
-        </button>
-        {isErrorCreateCategory ? (
-          <pre>{console.log(errorCreateCategory)}</pre>
-        ) : null}
-      </div>
-    </form>
-  );
+  const searched = (keyword) => (item) =>
+    item.name.toLowerCase().includes(keyword);
 
   return (
     <div className="container-fluid">
@@ -137,27 +107,36 @@ const CategoryCreate = ({ token, isAdmin }) => {
               <h4>Create category</h4>
             )}
             {/* {isFetching ? <h4 className="text-danger">Updating...</h4> : null} */}
-            {categoryForm()}
-            <hr />
+            {/* {categoryForm()} */}
+            <CategoryForm
+              formRef={formRef}
+              nameInputRef={nameInputRef}
+              mutation={mutationCreateCategory}
+              handleSubmit={handleSubmit}
+            />
+            <LocalSearch keyword={keyword} setKeyword={setKeyword} />
+
             {isError ? (
               <h4 className="text-danger">{error.message}</h4>
             ) : JSON.parse(data).length ? (
-              JSON.parse(data).map((item) => (
-                <div className="alert alert-secondary" key={item._id}>
-                  {item.name}
-                  <span
-                    onClick={() => handleRemove(item.slug)}
-                    className="btn btn-sm float-right"
-                  >
-                    <DeleteOutlined className="text-danger" />
-                  </span>
-                  <Link href={`/admin/category/${item.slug}`}>
-                    <span className="btn btn-sm float-right">
-                      <EditOutlined className="text-warning" />
+              JSON.parse(data)
+                .filter(searched(keyword))
+                .map((item) => (
+                  <div className="alert alert-secondary" key={item._id}>
+                    {item.name}
+                    <span
+                      onClick={() => handleRemove(item.slug)}
+                      className="btn btn-sm float-right"
+                    >
+                      <DeleteOutlined className="text-danger" />
                     </span>
-                  </Link>
-                </div>
-              ))
+                    <Link href={`/admin/category/${item.slug}`}>
+                      <span className="btn btn-sm float-right">
+                        <EditOutlined className="text-warning" />
+                      </span>
+                    </Link>
+                  </div>
+                ))
             ) : (
               <p>No Data</p>
             )}

@@ -5,7 +5,7 @@ import nookies from 'nookies';
 import admin from '@/firebase/index';
 import { currentUser } from '@/Models/User/index';
 
-const AdminSub = ({ isAdmin }) => {
+const SubCreate = ({ isAdmin }) => {
   return (
     <div className="container-fluid">
       <AdminRoute isAdmin={isAdmin}>
@@ -13,7 +13,7 @@ const AdminSub = ({ isAdmin }) => {
           <div className="col-md-2">
             <AdminNav />
           </div>
-          <div className="col">admin Sub Category page</div>
+          <div className="col-md-10">admin Sub Category page</div>
         </div>
       </AdminRoute>
     </div>
@@ -55,4 +55,4 @@ export async function getServerSideProps(context) {
   }
 }
 
-export default AdminSub;
+export default SubCreate;
