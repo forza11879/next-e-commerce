@@ -1,11 +1,13 @@
 import SubCategory from './SubCategory';
 import slugify from 'slugify';
 
-const create = async (name) => {
+const create = async (name, parent) => {
   console.log('name: ', name);
+  console.log('parent: ', parent);
   // try {
   const newSubCategory = await SubCategory.create({
     name: name,
+    parent: parent,
     slug: slugify(name),
   });
   console.log('newSubCategory: ', newSubCategory);
@@ -15,7 +17,7 @@ const create = async (name) => {
   // }
 };
 
-const list = async () => {
+const listSubCategory = async () => {
   try {
     const query = {};
     const subCategoryList = await SubCategory.find(query).sort({
@@ -60,4 +62,4 @@ const remove = async (slug) => {
   }
 };
 
-export { create, list, read, update, remove };
+export { create, listSubCategory, read, update, remove };

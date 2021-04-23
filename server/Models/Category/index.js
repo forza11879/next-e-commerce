@@ -15,7 +15,7 @@ const create = async (name) => {
   // }
 };
 
-const list = async () => {
+const listCategory = async () => {
   try {
     const query = {};
     const categoryList = await Category.find(query).sort({ createdAt: -1 });
@@ -58,4 +58,4 @@ const remove = async (slug) => {
   }
 };
 
-export { create, list, read, update, remove };
+export { create, listCategory, read, update, remove };

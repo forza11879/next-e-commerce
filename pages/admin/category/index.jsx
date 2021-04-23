@@ -17,18 +17,18 @@ import CategoryForm from '@/components/forms/CategoryForm';
 import LocalSearch from '@/components/forms/LocalSearch';
 import admin from '@/firebase/index';
 import { currentUser } from '@/Models/User/index';
-import { list } from '@/Models/Category/index';
+import { listCategory } from '@/Models/Category/index';
 
 const baseURL = process.env.api;
 
 async function getPosts() {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  console.log(`${process.env.api}/category/all`);
+  // await new Promise((resolve) => setTimeout(resolve, 300));
+  console.log(`${baseURL}/category/all`);
   // if (true) {
   //   throw new Error('Test error!');
   // }
   const { data } = await axios.request({
-    baseURL: 'http://localhost:3000/api',
+    baseURL,
     url: '/category/all',
     method: 'get',
   });
@@ -59,10 +59,11 @@ const CategoryCreate = ({ token, isAdmin }) => {
       url: '/category',
       method: 'post',
       token: token,
+      data: { name: enteredName },
     };
 
     try {
-      mutationCreateCategory.mutate({ enteredName, options });
+      mutationCreateCategory.mutate(options);
       formRef.current.reset();
     } catch (error) {
       console.log('handleSubmit CategoryCreate error: ', error);
@@ -74,11 +75,12 @@ const CategoryCreate = ({ token, isAdmin }) => {
     const options = {
       url: `${process.env.api}/category/${slug}`,
       token: token,
+      data: { slug },
     };
 
     if (window.confirm('Delete?')) {
       try {
-        mutationRemoveCategory.mutate({ slug, options });
+        mutationRemoveCategory.mutate(options);
       } catch (error) {
         console.log('handleRemove error: ', error);
         // if (err.response.status === 400) {
@@ -153,7 +155,7 @@ export async function getServerSideProps(context) {
   let isAdmin = false;
 
   const categoryList = async () => {
-    const result = await list();
+    const result = await listCategory();
     return JSON.stringify(result);
   };
 

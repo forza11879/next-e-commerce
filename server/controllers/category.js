@@ -1,4 +1,10 @@
-import { create, list, read, update, remove } from '@/Models/Category/index';
+import {
+  create,
+  listCategory,
+  read,
+  update,
+  remove,
+} from '@/Models/Category/index';
 
 export const createController = async (req, res) => {
   try {
@@ -16,7 +22,7 @@ export const createController = async (req, res) => {
 
 export const listController = async (req, res) => {
   try {
-    const categoryList = await list();
+    const categoryList = await listCategory();
     res.status(200).json(categoryList);
   } catch (error) {
     console.log('list controller error: ', error);
