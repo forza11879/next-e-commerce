@@ -106,7 +106,7 @@ const CategoryCreate = ({ token, isAdmin }) => {
             ) : isFetching ? (
               <h4 className="text-danger">Updating...</h4>
             ) : (
-              <h4>Create category</h4>
+              <h4>Create Category</h4>
             )}
             {/* {isFetching ? <h4 className="text-danger">Updating...</h4> : null} */}
             {/* {categoryForm()} */}

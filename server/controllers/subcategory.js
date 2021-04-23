@@ -42,11 +42,10 @@ export const readController = async (req, res) => {
 };
 
 export const updateController = async (req, res) => {
-  const { name } = req.body;
+  const { name, parent } = req.body;
   const { slug } = req.query;
   try {
-    const updated = await update(slug, name);
-    console.log('updated: ', updated);
+    const updated = await update(slug, name, parent);
     res.status(200).json(updated);
   } catch (error) {
     console.log('update controller error: ', error);

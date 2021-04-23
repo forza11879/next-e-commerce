@@ -1,7 +1,6 @@
 import React, { useRef } from 'react';
 import axios from 'axios';
-import uniqid from 'uniqid';
-import { useQuery, QueryClient, useQueryClient } from 'react-query';
+import { QueryClient, useQueryClient } from 'react-query';
 import { dehydrate } from 'react-query/hydration';
 import nookies from 'nookies';
 import { toast } from 'react-toastify';
@@ -47,9 +46,9 @@ const CategoryUpdate = ({ id, token, slug }) => {
     const options = {
       url: `/category/${slug}`,
       method: 'put',
-      name: enteredName,
       token: token,
       slug: slug,
+      data: { name: enteredName },
     };
 
     try {
@@ -75,7 +74,7 @@ const CategoryUpdate = ({ id, token, slug }) => {
           {isLoading ? (
             <h4 className="text-danger">Loading..</h4>
           ) : (
-            <h4>Update category</h4>
+            <h4>Update Category</h4>
           )}
           {/* {categoryForm()} */}
           <CategoryForm

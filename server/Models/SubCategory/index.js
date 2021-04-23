@@ -39,16 +39,16 @@ const read = async (slug) => {
   }
 };
 
-const update = async (slug, name) => {
+const update = async (slug, name, parent) => {
   const query = { slug };
-  const update = { name: name, slug: slugify(name) };
+  const update = { name: name, parent: parent, slug: slugify(name) };
   const options = { new: true };
-  try {
-    const updated = await SubCategory.findOneAndUpdate(query, update, options);
-    return updated;
-  } catch (error) {
-    console.log('update model error subCategory: ', error);
-  }
+  // try {
+  const updated = await SubCategory.findOneAndUpdate(query, update, options);
+  return updated;
+  // } catch (error) {
+  //   console.log('update model error subCategory: ', error);
+  // }
 };
 
 const remove = async (slug) => {

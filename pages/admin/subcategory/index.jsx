@@ -9,7 +9,7 @@ import nookies from 'nookies';
 import {
   useQueryFn,
   useMutationCreateSubCategory,
-  useMutationRemoveCategory,
+  useMutationRemoveSubCategory,
 } from '@/hooks/useQuery';
 import AdminRoute from '@/components/lib/AdminRoute';
 import AdminNav from '@/components/nav/AdminNav';
@@ -23,7 +23,7 @@ import { listCategory } from '@/Models/Category/index';
 const baseURL = process.env.api;
 
 async function getPostsCategory() {
-  await new Promise((resolve) => setTimeout(resolve, 500));
+  // await new Promise((resolve) => setTimeout(resolve, 500));
   console.log(`${baseURL}/category/all`);
   // if (true) {
   //   throw new Error('Test error!');
@@ -38,7 +38,7 @@ async function getPostsCategory() {
 }
 
 async function getPostsSubCategory() {
-  await new Promise((resolve) => setTimeout(resolve, 500));
+  // await new Promise((resolve) => setTimeout(resolve, 500));
   console.log(`${baseURL}/subcategory/all`);
   // if (true) {
   //   throw new Error('Test error!');
@@ -64,7 +64,7 @@ const SubCreate = ({ token, isAdmin }) => {
   const subCategoryQuery = useQueryFn('subCategoryList', getPostsSubCategory);
 
   const mutationCreateSubCategory = useMutationCreateSubCategory(queryClient);
-  const mutationRemoveSubCategory = useMutationRemoveCategory(queryClient);
+  const mutationRemoveSubCategory = useMutationRemoveSubCategory(queryClient);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -80,31 +80,18 @@ const SubCreate = ({ token, isAdmin }) => {
       },
     };
 
-    // const dataLoad = {
-    //   name: enteredName,
-    //   parent: category,
-    // };
-
     mutationCreateSubCategory.mutate(options);
-    // mutationCreateSubCategory.mutate({ enteredName, category, options });
     formRef.current.reset();
-    // toast.success(`"${res.data.name}" is created`);
-    // if (err.response.status === 400) toast.error(err.response.data);
   };
 
   const handleRemove = async (slug) => {
     const options = {
       url: `${process.env.api}/subcategory/${slug}`,
       token: token,
+      data: { slug },
     };
-    // let answer = window.confirm("Delete?");
-    // console.log(answer, slug);
     if (window.confirm('Delete?')) {
-      mutationRemoveSubCategory.mutate({ slug, options });
-      //   toast.error(`${res.data.name} deleted`);
-      //   if (err.response.status === 400) {
-      //     toast.error(err.response.data);
-      //   }
+      mutationRemoveSubCategory.mutate(options);
     }
   };
 
@@ -121,8 +108,10 @@ const SubCreate = ({ token, isAdmin }) => {
           <div className="col">
             {subCategoryQuery.isLoading ? (
               <h4 className="text-danger">Loading..</h4>
+            ) : subCategoryQuery.isFetching ? (
+              <h4 className="text-danger">Updating...</h4>
             ) : (
-              <h4>Create sub category</h4>
+              <h4>Create Subcategory</h4>
             )}
 
             <div className="form-group">
@@ -142,10 +131,6 @@ const SubCreate = ({ token, isAdmin }) => {
               </select>
             </div>
 
-            {/* {category} */}
-
-            {JSON.stringify(categoryQuery.data)}
-
             <CategoryForm
               formRef={formRef}
               nameInputRef={nameInputRef}
@@ -153,28 +138,32 @@ const SubCreate = ({ token, isAdmin }) => {
               handleSubmit={handleSubmit}
             />
 
-            {/* step 2 and step 3 */}
             <LocalSearch keyword={keyword} setKeyword={setKeyword} />
 
-            {JSON.stringify(subCategoryQuery.data)}
-
-            {/* step 5 */}
-            {/* {categories.filter(searched(keyword)).map((c) => (
-            <div className="alert alert-secondary" key={c._id}>
-              {c.name}
-              <span
-                onClick={() => handleRemove(c.slug)}
-                className="btn btn-sm float-right"
-              >
-                <DeleteOutlined className="text-danger" />
-              </span>
-              <Link to={`/admin/category/${c.slug}`}>
-                <span className="btn btn-sm float-right">
-                  <EditOutlined className="text-warning" />
-                </span>
-              </Link>
-            </div>
-          ))} */}
+            {subCategoryQuery.isError ? (
+              <h4 className="text-danger">{error.message}</h4>
+            ) : JSON.parse(subCategoryQuery.data).length ? (
+              JSON.parse(subCategoryQuery.data)
+                .filter(searched(keyword))
+                .map((item) => (
+                  <div className="alert alert-secondary" key={item._id}>
+                    {item.name}
+                    <span
+                      onClick={() => handleRemove(item.slug)}
+                      className="btn btn-sm float-right"
+                    >
+                      <DeleteOutlined className="text-danger" />
+                    </span>
+                    <Link href={`/admin/subcategory/${item.slug}`}>
+                      <span className="btn btn-sm float-right">
+                        <EditOutlined className="text-warning" />
+                      </span>
+                    </Link>
+                  </div>
+                ))
+            ) : (
+              <p>No Data</p>
+            )}
           </div>
         </div>
       </AdminRoute>
