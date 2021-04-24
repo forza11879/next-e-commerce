@@ -10,7 +10,7 @@ export const createController = async (req, res) => {
   try {
     const { name } = req.body;
     console.log('name: ', name);
-    const newCategory = await create(name, req, res);
+    const newCategory = await create(name);
     res.status(201).json(newCategory);
 
     // res.status(201).json({ category: newCategory });

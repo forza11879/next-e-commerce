@@ -1,7 +1,6 @@
 import React, { useRef, useState } from 'react';
 import nookies from 'nookies';
 import axios from 'axios';
-import { toast } from 'react-toastify';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { QueryClient, useQueryClient } from 'react-query';
