@@ -2,7 +2,7 @@ import Product from './Product';
 import slugify from 'slugify';
 
 const create = async (values) => {
-  console.log('values: ', values);
+  // console.log('values: ', values);
 
   // const {
   //   title,

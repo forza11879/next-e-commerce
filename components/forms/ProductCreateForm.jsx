@@ -3,9 +3,12 @@ import React from 'react';
 const ProductCreateForm = ({
   handleSubmit,
   handleChange,
+  handleCatagoryChange,
   values,
   refOptions,
   mutation,
+  subOptions,
+  showSub,
 }) => {
   const {
     title,
@@ -118,7 +121,7 @@ const ProductCreateForm = ({
         <select
           name="category"
           className="form-control"
-          onChange={handleChange}
+          onChange={handleCatagoryChange}
         >
           <option>Please select</option>
           {categories.length > 0 &&
@@ -129,7 +132,8 @@ const ProductCreateForm = ({
             ))}
         </select>
       </div>
-
+      {subOptions ? subOptions.length : 'no subs yet'}
+      <br />
       <button className="btn btn-outline-info">
         {mutation.isLoading
           ? 'Saving...'

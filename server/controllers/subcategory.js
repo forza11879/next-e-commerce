@@ -4,6 +4,7 @@ import {
   read,
   update,
   remove,
+  getSubCategories,
 } from '@/Models/SubCategory/index';
 
 export const createController = async (req, res) => {
@@ -61,5 +62,16 @@ export const removeController = async (req, res) => {
   } catch (error) {
     console.log('remove controller error: ', error);
     res.status(400).send('Delete request failed');
+  }
+};
+
+export const getSubCategoriesController = async (req, res) => {
+  const { id } = req.query;
+  try {
+    const subCategoriesList = await getSubCategories(id);
+    res.status(200).json(subCategoriesList);
+  } catch (error) {
+    console.log('getSubCategoriesController error: ', error);
+    res.status(400).send('getSubCategoriesController request failed');
   }
 };

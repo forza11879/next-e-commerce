@@ -62,4 +62,14 @@ const remove = async (slug) => {
   }
 };
 
-export { create, listSubCategory, read, update, remove };
+const getSubCategories = async (id) => {
+  const query = { parent: id };
+  try {
+    const subCategoriesList = await SubCategory.find(query);
+    return subCategoriesList;
+  } catch (error) {
+    console.log('SubCategories model getSubCategories error: ', error);
+  }
+};
+
+export { create, listSubCategory, read, update, remove, getSubCategories };

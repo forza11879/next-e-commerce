@@ -25,6 +25,10 @@ export function useQueryFn(queryKey, queryFn) {
     // onSettled: (data, error) => {},
   });
 }
+
+export function useQueryFnById(queryKey, queryFn) {
+  return useQuery(queryKey, queryFn, { staleTime: Infinity });
+}
 // Category Mutations
 export const useMutationCreateCategory = (queryClient) => {
   return useMutation(

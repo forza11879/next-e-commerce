@@ -3,7 +3,6 @@ import { create, listProduct } from '@/Models/Product/index';
 export const createController = async (req, res) => {
   try {
     const { values } = req.body;
-    console.log('values createController: ', values);
     const newProduct = await create(values);
     res.status(201).json(newProduct);
   } catch (error) {

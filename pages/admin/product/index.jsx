@@ -6,7 +6,7 @@ import { dehydrate } from 'react-query/hydration';
 import AdminRoute from '@/components/lib/AdminRoute';
 import AdminNav from '@/components/nav/AdminNav';
 import ProductCreateForm from '@/components/forms/ProductCreateForm';
-import { useQueryFn, useMutationCreateProduct } from '@/hooks/useQuery';
+import { useQueryFnById, useMutationCreateProduct } from '@/hooks/useQuery';
 import admin from '@/firebase/index';
 import { currentUser } from '@/Models/User/index';
 import { listCategory } from '@/Models/Category/index';
@@ -50,16 +50,41 @@ async function getPosts() {
   // if (true) {
   //   throw new Error('Test error!');
   // }
-  const { data } = await axios.request({
-    baseURL,
-    url: '/category/all',
-    method: 'get',
-  });
+  try {
+    const { data } = await axios.request({
+      baseURL,
+      url: '/category/all',
+      method: 'get',
+    });
 
-  return JSON.stringify(data);
+    return JSON.stringify(data);
+  } catch (error) {
+    console.log('getPosts error:', error);
+  }
+}
+
+async function getSubCategoryListByCategoryId(id) {
+  // await new Promise((resolve) => setTimeout(resolve, 300));
+  console.log(`${baseURL}/category/subcategories/${id}`);
+  // if (true) {
+  //   throw new Error('Test error!');
+  // }
+  try {
+    const { data } = await axios.request({
+      baseURL,
+      url: `/category/subcategories/${id}`,
+      method: 'get',
+    });
+
+    return data;
+  } catch (error) {
+    console.log('getSubCategoryListByCategoryId error:', error);
+  }
 }
 const ProductCreate = ({ token, isAdmin }) => {
   const [values, setValues] = useState(initialState);
+  const [subOptions, setSubOptions] = useState([]);
+  const [showSub, setShowSub] = useState(false);
 
   const formRef = useRef();
 
@@ -80,8 +105,7 @@ const ProductCreate = ({ token, isAdmin }) => {
     'categoryList',
     getPosts,
     {
-      staleTime: false,
-      initialStale: false,
+      staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
     }
   );
 
@@ -125,6 +149,16 @@ const ProductCreate = ({ token, isAdmin }) => {
     // if (err.response.status === 400) toast.error(err.response.data);
   };
 
+  const handleCatagoryChange = async (e) => {
+    e.preventDefault();
+    // console.log('CLICKED CATEGORY', e.target.value);
+    setValues({ ...values, category: e.target.value });
+
+    const data = await getSubCategoryListByCategoryId(e.target.value);
+
+    setSubOptions(data);
+  };
+
   const handleChange = (e) => {
     setValues({ ...values, [e.target.name]: e.target.value });
     console.log(e.target.name, ' ----- ', e.target.value);
@@ -146,6 +180,9 @@ const ProductCreate = ({ token, isAdmin }) => {
               mutation={mutationCreateProduct}
               handleSubmit={handleSubmit}
               handleChange={handleChange}
+              handleCatagoryChange={handleCatagoryChange}
+              subOptions={subOptions}
+              showSub={showSub}
             />
           </div>
         </div>
