@@ -40,4 +40,14 @@ const create = async (values) => {
   }
 };
 
-export { create };
+const listProduct = async () => {
+  try {
+    const query = {};
+    const productList = await Product.find(query).sort({ createdAt: -1 });
+    return productList;
+  } catch (error) {
+    console.log('product list model error: ', error);
+  }
+};
+
+export { create, listProduct };
