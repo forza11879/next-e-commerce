@@ -5,6 +5,7 @@ import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { QueryClient, useQueryClient } from 'react-query';
 import { dehydrate } from 'react-query/hydration';
+import serialize from 'serialize-javascript';
 import {
   useQueryFn,
   useMutationCreateCategory,
@@ -155,7 +156,8 @@ export async function getServerSideProps(context) {
 
   const categoryList = async () => {
     const result = await listCategory();
-    return JSON.stringify(result);
+    // return JSON.stringify(result);
+    return serialize(result, { isJSON: true });
   };
 
   try {

@@ -48,8 +48,7 @@ const SubUpdate = ({ id, token, slug }) => {
   const router = useRouter();
 
   const categoryQuery = useQueryFn('categoryList', getPostsCategory);
-  const slugSubCategoryQuery = useQueryFn(
-    ['subCategorySlug', id],
+  const slugSubCategoryQuery = useQueryFn(['subCategorySlug', id], () =>
     getPostSubCategory(slug)
   );
 

@@ -19,7 +19,7 @@ const initialState = {
   price: '45000',
   categories: [],
   category: '',
-  subs: [],
+  subcategories: [],
   shipping: '',
   quantity: '50',
   images: [],
@@ -34,7 +34,7 @@ const initialState = {
 //   price: '',
 //   categories: [],
 //   category: '',
-//   subs: [],
+//   subcategories: [],
 //   shipping: '',
 //   quantity: '',
 //   images: [],
@@ -47,9 +47,6 @@ const initialState = {
 async function getPosts() {
   // await new Promise((resolve) => setTimeout(resolve, 300));
   console.log(`${baseURL}/category/all`);
-  // if (true) {
-  //   throw new Error('Test error!');
-  // }
   try {
     const { data } = await axios.request({
       baseURL,
@@ -66,16 +63,13 @@ async function getPosts() {
 async function getSubCategoryListByCategoryId(id) {
   // await new Promise((resolve) => setTimeout(resolve, 300));
   console.log(`${baseURL}/category/subcategories/${id}`);
-  // if (true) {
-  //   throw new Error('Test error!');
-  // }
   try {
     const { data } = await axios.request({
       baseURL,
       url: `/category/subcategories/${id}`,
       method: 'get',
     });
-
+    console.log('data getSubCategoryListByCategoryId index: ', data);
     return data;
   } catch (error) {
     console.log('getSubCategoryListByCategoryId error:', error);
@@ -85,6 +79,8 @@ const ProductCreate = ({ token, isAdmin }) => {
   const [values, setValues] = useState(initialState);
   const [subOptions, setSubOptions] = useState([]);
   const [showSub, setShowSub] = useState(false);
+
+  const queryClient = useQueryClient();
 
   const formRef = useRef();
 
@@ -113,10 +109,13 @@ const ProductCreate = ({ token, isAdmin }) => {
 
   useEffect(() => {
     setValues({ ...values, categories: dataList });
-    console.log('dataList: ', dataList);
-  }, []);
 
-  const queryClient = useQueryClient();
+    dataList.map((item) => {
+      queryClient.prefetchQuery(['subCategoryListByCategoryId', item._id], () =>
+        getSubCategoryListByCategoryId(item._id)
+      );
+    });
+  }, []);
 
   const mutationCreateProduct = useMutationCreateProduct(queryClient);
 
@@ -153,15 +152,14 @@ const ProductCreate = ({ token, isAdmin }) => {
     e.preventDefault();
     // console.log('CLICKED CATEGORY', e.target.value);
     setValues({ ...values, category: e.target.value });
+    // console.log(e.target.name, ' ----- ', e.target.value);
 
-    const data = await getSubCategoryListByCategoryId(e.target.value);
-
-    setSubOptions(data);
+    setShowSub(true);
   };
 
   const handleChange = (e) => {
     setValues({ ...values, [e.target.name]: e.target.value });
-    console.log(e.target.name, ' ----- ', e.target.value);
+    // console.log(e.target.name, ' ----- ', e.target.value);
   };
 
   return (
@@ -174,14 +172,15 @@ const ProductCreate = ({ token, isAdmin }) => {
           <div className="col-md-10">
             <h4>Product create</h4>
             <hr />
+
             <ProductCreateForm
               values={values}
+              setValues={setValues}
               refOptions={refOptions}
               mutation={mutationCreateProduct}
               handleSubmit={handleSubmit}
               handleChange={handleChange}
               handleCatagoryChange={handleCatagoryChange}
-              subOptions={subOptions}
               showSub={showSub}
             />
           </div>

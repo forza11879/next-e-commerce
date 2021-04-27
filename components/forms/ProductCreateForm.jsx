@@ -1,13 +1,14 @@
 import React from 'react';
+import SelectOption from '@/components/forms/SelectOption';
 
 const ProductCreateForm = ({
   handleSubmit,
   handleChange,
   handleCatagoryChange,
+  setValues,
   values,
   refOptions,
   mutation,
-  subOptions,
   showSub,
 }) => {
   const {
@@ -16,7 +17,7 @@ const ProductCreateForm = ({
     price,
     categories,
     category,
-    subs,
+    subcategories,
     shipping,
     quantity,
     images,
@@ -121,6 +122,7 @@ const ProductCreateForm = ({
         <select
           name="category"
           className="form-control"
+          // onMouseEnter={handleCatagoryChange}
           onChange={handleCatagoryChange}
         >
           <option>Please select</option>
@@ -132,7 +134,16 @@ const ProductCreateForm = ({
             ))}
         </select>
       </div>
-      {subOptions ? subOptions.length : 'no subs yet'}
+
+      {showSub && (
+        <SelectOption
+          setValues={setValues}
+          subcategories={subcategories}
+          category={category}
+          values={values}
+        />
+      )}
+
       <br />
       <button className="btn btn-outline-info">
         {mutation.isLoading

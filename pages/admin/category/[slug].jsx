@@ -32,7 +32,7 @@ const CategoryUpdate = ({ id, token, slug }) => {
 
   const { data, isLoading, isError, error, isFetching } = useQueryFn(
     ['categorySlug', id],
-    getPost(slug)
+    () => getPost(slug)
   );
 
   const { name } = JSON.parse(data);
