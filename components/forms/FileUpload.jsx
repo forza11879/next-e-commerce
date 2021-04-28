@@ -1,5 +1,6 @@
 import React from 'react';
 import Resizer from 'react-image-file-resizer';
+import { Avatar } from 'antd';
 
 const FileUpload = ({
   values,
@@ -15,7 +16,6 @@ const FileUpload = ({
     let allUploadedFiles = values.images;
 
     if (files) {
-      setLoading(true);
       for (let i = 0; i < files.length; i++) {
         Resizer.imageFileResizer(
           files[i],
@@ -41,14 +41,7 @@ const FileUpload = ({
             };
             try {
               mutationPhotoUpload.mutate(options);
-
-              // console.log('IMAGE UPLOAD RES DATA', data);
-              // setLoading(false);
-              // allUploadedFiles.push(data);
-
-              // setValues({ ...values, images: allUploadedFiles });
             } catch (error) {
-              // setLoading(false);
               console.log('CLOUDINARY UPLOAD ERR', error);
             }
           },
@@ -61,18 +54,31 @@ const FileUpload = ({
   };
 
   return (
-    <div className="row">
-      <label className="btn btn-primary">
-        Choose File
-        <input
-          type="file"
-          multiple
-          hidden
-          accept="images/*"
-          onChange={fileUploadAndResize}
-        />
-      </label>
-    </div>
+    <>
+      <div className="row">
+        {values.images &&
+          values.images.map((image) => (
+            <Avatar
+              key={image.public_id}
+              src={image.url}
+              size={100}
+              className="m-3"
+            />
+          ))}
+      </div>
+      <div className="row">
+        <label className="btn btn-primary">
+          Choose File
+          <input
+            type="file"
+            multiple
+            hidden
+            accept="images/*"
+            onChange={fileUploadAndResize}
+          />
+        </label>
+      </div>
+    </>
   );
 };
 
