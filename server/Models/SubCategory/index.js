@@ -10,7 +10,7 @@ const create = async (name, parent) => {
     parent: parent,
     slug: slugify(name),
   });
-  console.log('newSubCategory: ', newSubCategory);
+  // console.log('newSubCategory: ', newSubCategory);
   return newSubCategory;
   // } catch (error) {
   //   console.log('create model error SubCategory: ', error);

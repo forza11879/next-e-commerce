@@ -6,7 +6,11 @@ import { dehydrate } from 'react-query/hydration';
 import AdminRoute from '@/components/lib/AdminRoute';
 import AdminNav from '@/components/nav/AdminNav';
 import ProductCreateForm from '@/components/forms/ProductCreateForm';
-import { useQueryFnById, useMutationCreateProduct } from '@/hooks/useQuery';
+import FileUpload from '@/components/forms/FileUpload';
+import {
+  useMutationPhotoUpload,
+  useMutationCreateProduct,
+} from '@/hooks/useQuery';
 import admin from '@/firebase/index';
 import { currentUser } from '@/Models/User/index';
 import { listCategory } from '@/Models/Category/index';
@@ -62,14 +66,14 @@ async function getPosts() {
 
 async function getSubCategoryListByCategoryId(id) {
   // await new Promise((resolve) => setTimeout(resolve, 300));
-  console.log(`${baseURL}/category/subcategories/${id}`);
+  // console.log(`${baseURL}/category/subcategories/${id}`);
   try {
     const { data } = await axios.request({
       baseURL,
       url: `/category/subcategories/${id}`,
       method: 'get',
     });
-    console.log('data getSubCategoryListByCategoryId index: ', data);
+    // console.log('data getSubCategoryListByCategoryId index: ', data);
     return data;
   } catch (error) {
     console.log('getSubCategoryListByCategoryId error:', error);
@@ -79,6 +83,7 @@ const ProductCreate = ({ token, isAdmin }) => {
   const [values, setValues] = useState(initialState);
   const [subOptions, setSubOptions] = useState([]);
   const [showSub, setShowSub] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -118,6 +123,7 @@ const ProductCreate = ({ token, isAdmin }) => {
   }, []);
 
   const mutationCreateProduct = useMutationCreateProduct(queryClient);
+  const mutationPhotoUpload = useMutationPhotoUpload(queryClient);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -140,6 +146,7 @@ const ProductCreate = ({ token, isAdmin }) => {
           color: values.color,
           brand: values.brand,
           category: values.category,
+          subcategories: values.subcategories,
         },
       },
     };
@@ -151,7 +158,7 @@ const ProductCreate = ({ token, isAdmin }) => {
   const handleCatagoryChange = async (e) => {
     e.preventDefault();
     // console.log('CLICKED CATEGORY', e.target.value);
-    setValues({ ...values, category: e.target.value });
+    setValues({ ...values, subcategories: [], category: e.target.value });
     // console.log(e.target.name, ' ----- ', e.target.value);
 
     setShowSub(true);
@@ -172,6 +179,17 @@ const ProductCreate = ({ token, isAdmin }) => {
           <div className="col-md-10">
             <h4>Product create</h4>
             <hr />
+            {JSON.stringify(values.images)}
+
+            <div className="p-3">
+              <FileUpload
+                values={values}
+                setValues={setValues}
+                setLoading={setLoading}
+                token={token}
+                mutationPhotoUpload={mutationPhotoUpload}
+              />
+            </div>
 
             <ProductCreateForm
               values={values}

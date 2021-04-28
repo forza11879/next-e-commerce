@@ -8,7 +8,7 @@ const create = async (name) => {
     name: name,
     slug: slugify(name),
   });
-  console.log('newCategory: ', newCategory);
+  // console.log('newCategory: ', newCategory);
   return newCategory;
   // } catch (error) {
   //   console.log('create model error: ', error);

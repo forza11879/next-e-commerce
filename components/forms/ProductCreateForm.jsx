@@ -122,7 +122,6 @@ const ProductCreateForm = ({
         <select
           name="category"
           className="form-control"
-          // onMouseEnter={handleCatagoryChange}
           onChange={handleCatagoryChange}
         >
           <option>Please select</option>

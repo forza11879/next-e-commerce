@@ -33,7 +33,7 @@ const create = async (values) => {
       // color,
       // brand,
     });
-    console.log('newProduct: ', newProduct);
+    // console.log('newProduct: ', newProduct);
     return newProduct;
   } catch (error) {
     console.log('create Product model error : ', error);
