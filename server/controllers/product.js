@@ -1,4 +1,8 @@
-import { create, listProduct } from '@/Models/Product/index';
+import {
+  create,
+  listProduct,
+  listAllByCountProduct,
+} from '@/Models/Product/index';
 
 export const createController = async (req, res) => {
   try {
@@ -15,6 +19,18 @@ export const listController = async (req, res) => {
   try {
     const productList = await listProduct();
     res.status(200).json(productList);
+  } catch (error) {
+    console.log('product List controller error: ', error);
+    res.status(400).json('Fetch product list request failed');
+  }
+};
+
+export const listAllController = async (req, res) => {
+  const { count } = req.query;
+
+  try {
+    const productAllList = await listAllByCountProduct(count);
+    res.status(200).json(productAllList);
   } catch (error) {
     console.log('product List controller error: ', error);
     res.status(400).json('Fetch product list request failed');

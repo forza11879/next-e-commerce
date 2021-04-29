@@ -9,7 +9,6 @@ cloudinary.config({
 
 export const uploadController = async (req, res) => {
   const { image } = req.body;
-  console.log('image: ', image);
   const result = await cloudinary.uploader.upload(image, {
     public_id: `${Date.now()}`,
     resource_type: 'auto', // jpeg, png

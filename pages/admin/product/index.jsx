@@ -3,12 +3,14 @@ import nookies from 'nookies';
 import axios from 'axios';
 import { useQuery, QueryClient, useQueryClient } from 'react-query';
 import { dehydrate } from 'react-query/hydration';
+import { LoadingOutlined } from '@ant-design/icons';
 import AdminRoute from '@/components/lib/AdminRoute';
 import AdminNav from '@/components/nav/AdminNav';
 import ProductCreateForm from '@/components/forms/ProductCreateForm';
 import FileUpload from '@/components/forms/FileUpload';
 import {
   useMutationPhotoUpload,
+  useMutationPhotoRemove,
   useMutationCreateProduct,
 } from '@/hooks/useQuery';
 import admin from '@/firebase/index';
@@ -81,7 +83,6 @@ async function getSubCategoryListByCategoryId(id) {
 }
 const ProductCreate = ({ token, isAdmin }) => {
   const [values, setValues] = useState(initialState);
-  const [subOptions, setSubOptions] = useState([]);
   const [showSub, setShowSub] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -124,6 +125,7 @@ const ProductCreate = ({ token, isAdmin }) => {
 
   const mutationCreateProduct = useMutationCreateProduct(queryClient);
   const mutationPhotoUpload = useMutationPhotoUpload(queryClient);
+  const mutationPhotoRemove = useMutationPhotoRemove(queryClient);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -147,6 +149,7 @@ const ProductCreate = ({ token, isAdmin }) => {
           brand: values.brand,
           category: values.category,
           subcategories: values.subcategories,
+          images: values.images,
         },
       },
     };
@@ -177,10 +180,12 @@ const ProductCreate = ({ token, isAdmin }) => {
             <AdminNav />
           </div>
           <div className="col-md-10">
-            <h4>Product create</h4>
+            {mutationPhotoUpload.isLoading ? (
+              <LoadingOutlined className="text-danger h1" />
+            ) : (
+              <h4>Product create</h4>
+            )}{' '}
             <hr />
-            {JSON.stringify(values.images)}
-
             <div className="p-3">
               <FileUpload
                 values={values}
@@ -188,9 +193,9 @@ const ProductCreate = ({ token, isAdmin }) => {
                 setLoading={setLoading}
                 token={token}
                 mutationPhotoUpload={mutationPhotoUpload}
+                mutationPhotoRemove={mutationPhotoRemove}
               />
             </div>
-
             <ProductCreateForm
               values={values}
               setValues={setValues}

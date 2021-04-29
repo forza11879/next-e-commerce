@@ -50,4 +50,19 @@ const listProduct = async () => {
   }
 };
 
-export { create, listProduct };
+const listAllByCountProduct = async (count) => {
+  const query = {};
+  try {
+    const productAllList = await Product.find(query)
+      .limit(parseInt(count))
+      .populate('category')
+      .populate('subcategories')
+      .sort([['createdAt', 'desc']])
+      .exec();
+    return productAllList;
+  } catch (error) {
+    console.log('product model listAllByCountProduct error: ', error);
+  }
+};
+
+export { create, listProduct, listAllByCountProduct };

@@ -1,4 +1,6 @@
 import mongoose from 'mongoose';
+import Category from '@/Models/Category';
+import SubCategory from '@/Models/SubCategory';
 const { ObjectId } = mongoose.Schema;
 
 const ParentSchema = new mongoose.Schema(
@@ -43,9 +45,9 @@ const ParentSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    // images: {
-    //   type: Array,
-    // },
+    images: {
+      type: Array,
+    },
     shipping: {
       type: String,
       enum: ['Yes', 'No'],

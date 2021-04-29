@@ -1,6 +1,6 @@
 import React from 'react';
 import Resizer from 'react-image-file-resizer';
-import { Avatar } from 'antd';
+import { Avatar, Badge } from 'antd';
 
 const FileUpload = ({
   values,
@@ -8,6 +8,7 @@ const FileUpload = ({
   setLoading,
   token,
   mutationPhotoUpload,
+  mutationPhotoRemove,
 }) => {
   const fileUploadAndResize = (e) => {
     // console.log(e.target.files);
@@ -49,8 +50,32 @@ const FileUpload = ({
         );
       }
     }
-    // send back to server to upload to cloudinary
-    // set url to images[] in the parent component state - ProductCreate
+  };
+
+  const handleImageRemove = (public_id) => {
+    const options = {
+      url: '/removeimage',
+      method: 'post',
+      token: token,
+      data: {
+        public_id,
+      },
+      props: {
+        setValues,
+        values,
+      },
+    };
+    try {
+      mutationPhotoRemove.mutate(options);
+    } catch (error) {
+      console.log('CLOUDINARY UPLOAD ERR', error);
+    }
+
+    const { images } = values;
+    let filteredImages = images.filter((item) => {
+      return item.public_id !== public_id;
+    });
+    setValues({ ...values, images: filteredImages });
   };
 
   return (
@@ -58,14 +83,22 @@ const FileUpload = ({
       <div className="row">
         {values.images &&
           values.images.map((image) => (
-            <Avatar
+            <Badge
+              count="X"
               key={image.public_id}
-              src={image.url}
-              size={100}
-              className="m-3"
-            />
+              onClick={() => handleImageRemove(image.public_id)}
+              style={{ cursor: 'pointer' }}
+            >
+              <Avatar
+                src={image.url}
+                size={100}
+                shape="square"
+                className="ml-3"
+              />
+            </Badge>
           ))}
       </div>
+      <br />
       <div className="row">
         <label className="btn btn-primary">
           Choose File
