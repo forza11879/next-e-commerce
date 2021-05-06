@@ -107,7 +107,7 @@ const ProductCreate = ({ token, isAdmin }) => {
     'categoryList',
     getPosts,
     {
-      staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
+      // staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
     }
   );
 
