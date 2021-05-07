@@ -1,3 +1,14 @@
+/* eslint-disable linebreak-style */
+/* eslint-disable no-nested-ternary */
+/* eslint-disable react/button-has-type */
+/* eslint-disable indent */
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable operator-linebreak */
+/* eslint-disable jsx-a11y/label-has-associated-control */
+/* eslint-disable import/no-unresolved */
+/* eslint-disable linebreak-style */
+/* eslint-disable no-unused-vars */
+/* eslint-disable react/prop-types */
 import React from 'react';
 import SelectOption from '@/components/forms/SelectOption';
 
@@ -32,6 +43,12 @@ const ProductCreateForm = ({
     descriptionInputRef,
     priceInputRef,
     quantityInputRef,
+    // shippingInputRef,
+    // colorInputRef,
+    // brandInputRef,
+    // categoryInputRef,
+    // subcategoriesInputRef,
+    // imagesInputRef,
   } = refOptions;
 
   return (
@@ -72,8 +89,11 @@ const ProductCreateForm = ({
       <div className="form-group">
         <label>Shipping</label>
         <select
+          type="text"
           name="shipping"
           className="form-control"
+          // ref={shippingInputRef}
+          // defaultValue={shipping}
           onChange={handleChange}
         >
           <option>Please select</option>
@@ -95,7 +115,14 @@ const ProductCreateForm = ({
 
       <div className="form-group">
         <label>Color</label>
-        <select name="color" className="form-control" onChange={handleChange}>
+        <select
+          type="text"
+          name="color"
+          className="form-control"
+          // ref={colorInputRef}
+          // defaultValue={color}
+          onChange={handleChange}
+        >
           <option>Please select</option>
           {colors.map((item) => (
             <option key={item} value={item}>
@@ -107,7 +134,14 @@ const ProductCreateForm = ({
 
       <div className="form-group">
         <label>Brand</label>
-        <select name="brand" className="form-control" onChange={handleChange}>
+        <select
+          type="text"
+          name="brand"
+          className="form-control"
+          // ref={brandInputRef}
+          // defaultValue={brand}
+          onChange={handleChange}
+        >
           <option>Please select</option>
           {brands.map((item) => (
             <option key={item} value={item}>

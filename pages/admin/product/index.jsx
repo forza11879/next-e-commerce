@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import nookies from 'nookies';
 import axios from 'axios';
 import { useQuery, QueryClient, useQueryClient } from 'react-query';
@@ -13,6 +13,7 @@ import {
   useMutationPhotoRemove,
   useMutationCreateProduct,
 } from '@/hooks/useQuery';
+import { useStateWithPromise } from '@/hooks/useStateWithPromise';
 import admin from '@/firebase/index';
 import { currentUser } from '@/Models/User/index';
 import { listCategory } from '@/Models/Category/index';
@@ -82,9 +83,13 @@ async function getSubCategoryListByCategoryId(id) {
   }
 }
 const ProductCreate = ({ token, isAdmin }) => {
+  console.log('initialState: ', initialState);
+  // initialState.images = [];
+
   const [values, setValues] = useState(initialState);
   const [showSub, setShowSub] = useState(false);
-  const [loading, setLoading] = useState(false);
+
+  console.log('valuess: ', values);
 
   const queryClient = useQueryClient();
 
@@ -94,6 +99,12 @@ const ProductCreate = ({ token, isAdmin }) => {
   const descriptionInputRef = useRef();
   const priceInputRef = useRef();
   const quantityInputRef = useRef();
+  // const shippingInputRef = useRef();
+  // const colorInputRef = useRef();
+  // const brandInputRef = useRef();
+  // const categoryInputRef = useRef();
+  // const subcategoriesInputRef = useRef();
+  // const imagesInputRef = useRef();
 
   const refOptions = {
     formRef,
@@ -101,17 +112,28 @@ const ProductCreate = ({ token, isAdmin }) => {
     descriptionInputRef,
     priceInputRef,
     quantityInputRef,
+    // shippingInputRef,
+    // colorInputRef,
+    // brandInputRef,
+    // categoryInputRef,
+    // subcategoriesInputRef,
+    // imagesInputRef,
   };
 
   const { data, isLoading, isError, error, isFetching } = useQuery(
     'categoryList',
     getPosts,
     {
-      // staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
+      staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
     }
   );
 
   const dataList = JSON.parse(data);
+
+  const test = [];
+  useEffect(() => {
+    console.log(test);
+  }, []);
 
   useEffect(() => {
     setValues({ ...values, categories: dataList });
@@ -133,6 +155,13 @@ const ProductCreate = ({ token, isAdmin }) => {
     const enteredDescription = descriptionInputRef.current.value;
     const enteredPrice = priceInputRef.current.value;
     const enteredQuantity = quantityInputRef.current.value;
+    // const enteredShipping = shippingInputRef.current.value;
+    // const enteredColor = colorInputRef.current.value;
+    // const enteredBrand = brandInputRef.current.value;
+    // const enteredCategory = categoryInputRef.current.value;
+    // const enteredSubcategories = subcategoriesInputRef.current.value;
+    // const enteredImages = imagesInputRef.current.value;
+    // console.log({ enteredShipping });
 
     const options = {
       url: '/product',
@@ -145,12 +174,23 @@ const ProductCreate = ({ token, isAdmin }) => {
           price: enteredPrice,
           quantity: enteredQuantity,
           shipping: values.shipping,
+          // shipping: enteredShipping,
           color: values.color,
+          // color: enteredColor,
           brand: values.brand,
+          // brand: enteredBrand,
           category: values.category,
+          // category: enteredCategory,
           subcategories: values.subcategories,
+          // subcategories: enteredSubcategories,
           images: values.images,
+          // images: enteredImages,
         },
+      },
+      props: {
+        setValues,
+        values,
+        initialState,
       },
     };
     mutationCreateProduct.mutate(options);
@@ -190,7 +230,6 @@ const ProductCreate = ({ token, isAdmin }) => {
               <FileUpload
                 values={values}
                 setValues={setValues}
-                setLoading={setLoading}
                 token={token}
                 mutationPhotoUpload={mutationPhotoUpload}
                 mutationPhotoRemove={mutationPhotoRemove}

@@ -5,7 +5,6 @@ import { Avatar, Badge } from 'antd';
 const FileUpload = ({
   values,
   setValues,
-  setLoading,
   token,
   mutationPhotoUpload,
   mutationPhotoRemove,

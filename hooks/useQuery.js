@@ -555,18 +555,14 @@ export const useMutationCreateProduct = (queryClient) => {
           toast.error(error.response.data);
         }
       },
-      onSuccess: ({ data }, variables, context) => {
-        // Runs only there is a success
-        // saves http trip to the back-end
+      onSuccess: (
+        { data },
+        { props: { setValues, values, initialState } },
+        context
+      ) => {
         if (data) {
-          // queryClient.setQueryData('categoryList', (oldQueryData) => {
-          //   const oldQueryDataArray = JSON.parse(oldQueryData);
-          //   const newQueryDataArray = oldQueryDataArray.filter(
-          //     (item) => item.name !== data.name
-          //   );
-          //   newQueryDataArray.unshift(data);
-          //   return JSON.stringify(newQueryDataArray);
-          // });
+          initialState.images = [];
+          setValues({ ...values, images: [] });
           toast.success(`"${data.title}" is created`);
         }
       },
