@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { useQuery, useMutation } from 'react-query';
 import axios from 'axios';
 import { toast } from 'react-toastify';
@@ -557,12 +558,13 @@ export const useMutationCreateProduct = (queryClient) => {
       },
       onSuccess: (
         { data },
-        { props: { setValues, values, initialState } },
+        { props: { setValues, initialState } },
         context
       ) => {
         if (data) {
           initialState.images = [];
-          setValues({ ...values, images: [] });
+          setValues((values) => ({ ...values, images: [] }));
+
           toast.success(`"${data.title}" is created`);
         }
       },
@@ -637,36 +639,19 @@ export const useMutationPhotoUpload = (queryClient) => {
           toast.error(error.response.data);
         }
       },
-      onSuccess: (
-        { data },
-        { props: { setValues, values, allUploadedFiles } },
-        context
-      ) => {
+      onSuccess: ({ data }, { props: { setValues } }, context) => {
         // Runs only there is a success
         // saves http trip to the back-end
-        console.log('onSuccess data from back-end: ', data);
 
-        allUploadedFiles.push(data);
-
-        setValues({ ...values, images: allUploadedFiles });
         if (data) {
-          // queryClient.setQueryData('subCategoryList', (oldQueryData) => {
-          //   const oldQueryDataArray = JSON.parse(oldQueryData);
-          //   // console.log(
-          //   //   'oldQueryDataArray onSuccess before filter: ',
-          //   //   oldQueryDataArray
-          //   // );
-          //   const newQueryDataArray = oldQueryDataArray.filter(
-          //     (item) => item.name !== data.name
-          //   );
-          //   newQueryDataArray.unshift(data);
-          //   // console.log(
-          //   //   'newQueryDataArray onSuccess after filter and unshift: ',
-          //   //   newQueryDataArray
-          //   // );
-          //   return JSON.stringify(newQueryDataArray);
-          // });
-          // toast.success(`"${data.name}" is created`);
+          console.log('onSuccess data from back-end: ', data);
+
+          setValues((values) => {
+            const allUploadedFiles = values.images;
+            allUploadedFiles.push(data);
+            return { ...values, images: allUploadedFiles };
+          });
+          toast.success(`"${data.name}" is created`);
         }
       },
       onSettled: (data, error, variables, context) => {
@@ -750,7 +735,7 @@ export const useMutationPhotoRemove = (queryClient) => {
         let filteredImages = images.filter((item) => {
           return item.public_id !== public_id;
         });
-        setValues({ ...values, images: filteredImages });
+        setValues((values) => ({ ...values, images: filteredImages }));
 
         if (data) {
           // queryClient.setQueryData('subCategoryList', (oldQueryData) => {

@@ -1,14 +1,3 @@
-/* eslint-disable linebreak-style */
-/* eslint-disable no-nested-ternary */
-/* eslint-disable react/button-has-type */
-/* eslint-disable indent */
-/* eslint-disable no-underscore-dangle */
-/* eslint-disable operator-linebreak */
-/* eslint-disable jsx-a11y/label-has-associated-control */
-/* eslint-disable import/no-unresolved */
-/* eslint-disable linebreak-style */
-/* eslint-disable no-unused-vars */
-/* eslint-disable react/prop-types */
 import React from 'react';
 import SelectOption from '@/components/forms/SelectOption';
 

@@ -6,11 +6,13 @@
         "@/lib/*": ["lib/*"],
         "@/hooks/*": ["hooks/*"],
         "@/store/*":["store/*"],
+        "@/images/*":["images/*"],
         "@/middleware/*": ["server/middleware/*"],
         "@/controllers/*":["server/controllers/*"],
         "@/Models/*":["server/Models/*"],
         "@/firebase/*":["server/firebase/*"],
         "@/util/*":["server/util/*"],
+        
            }
     }
 }

@@ -130,11 +130,6 @@ const ProductCreate = ({ token, isAdmin }) => {
 
   const dataList = JSON.parse(data);
 
-  const test = [];
-  useEffect(() => {
-    console.log(test);
-  }, []);
-
   useEffect(() => {
     setValues({ ...values, categories: dataList });
 

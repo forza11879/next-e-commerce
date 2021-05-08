@@ -13,7 +13,6 @@ const FileUpload = ({
     // console.log(e.target.files);
     // resize
     let files = e.target.files; // 3
-    let allUploadedFiles = values.images;
 
     if (files) {
       for (let i = 0; i < files.length; i++) {
@@ -35,8 +34,6 @@ const FileUpload = ({
               },
               props: {
                 setValues,
-                values,
-                allUploadedFiles,
               },
             };
             try {
