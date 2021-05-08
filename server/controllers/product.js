@@ -2,6 +2,7 @@ import {
   create,
   listProduct,
   listAllByCountProduct,
+  remove,
 } from '@/Models/Product/index';
 
 export const createController = async (req, res) => {
@@ -34,5 +35,16 @@ export const listAllController = async (req, res) => {
   } catch (error) {
     console.log('product List controller error: ', error);
     res.status(400).json('Fetch product list request failed');
+  }
+};
+
+export const removeController = async (req, res) => {
+  const { slug } = req.query;
+  try {
+    const deleted = await remove(slug);
+    res.status(200).json(deleted);
+  } catch (error) {
+    console.log('product remove controller error: ', error);
+    res.status(400).json('Fetch product remove request failed');
   }
 };

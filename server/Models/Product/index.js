@@ -65,4 +65,14 @@ const listAllByCountProduct = async (count) => {
   }
 };
 
-export { create, listProduct, listAllByCountProduct };
+const remove = async (slug) => {
+  const query = { slug };
+  try {
+    const deleted = await Product.findOneAndRemove(query).exec();
+    return deleted;
+  } catch (error) {
+    console.log('product model remove error: ', error);
+  }
+};
+
+export { create, listProduct, listAllByCountProduct, remove };

@@ -651,7 +651,7 @@ export const useMutationPhotoUpload = (queryClient) => {
             allUploadedFiles.push(data);
             return { ...values, images: allUploadedFiles };
           });
-          toast.success(`"${data.name}" is created`);
+          toast.success(`picture is uploaded`);
         }
       },
       onSettled: (data, error, variables, context) => {

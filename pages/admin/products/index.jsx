@@ -54,7 +54,7 @@ const AllProducts = ({ count, token, isAdmin }) => {
             )}
             <div className="row">
               {JSON.parse(data).map((item) => (
-                <div key={item._id} className="col-md-4">
+                <div key={item._id} className="col-md-4 pb-3">
                   <AdminProductCard product={item} />
                 </div>
               ))}
