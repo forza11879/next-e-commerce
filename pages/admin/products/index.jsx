@@ -3,19 +3,19 @@ import axios from 'axios';
 import nookies from 'nookies';
 import { useQuery, QueryClient, useQueryClient } from 'react-query';
 import { dehydrate } from 'react-query/hydration';
+import { useMutationRemoveProduct } from '@/hooks/useQuery';
 import AdminRoute from '@/components/lib/AdminRoute';
 import AdminNav from '@/components/nav/AdminNav';
 import AdminProductCard from '@/components/cards/AdminProductCard';
-
 import admin from '@/firebase/index';
 import { currentUser } from '@/Models/User/index';
 import { listAllByCountProduct } from '@/Models/Product/index';
 
 const baseURL = process.env.api;
 
-async function getPosts(count) {
+async function getProductListByCount(count) {
   // await new Promise((resolve) => setTimeout(resolve, 300));
-  console.log(`${baseURL}/category/all/${count}`);
+  console.log(`${baseURL}/product/all/${count}`);
   try {
     const { data } = await axios.request({
       baseURL,
@@ -30,13 +30,62 @@ async function getPosts(count) {
 }
 
 const AllProducts = ({ count, token, isAdmin }) => {
+  const queryClient = useQueryClient();
+
+  const mutationRemoveProduct = useMutationRemoveProduct(queryClient);
+
   const { data, isLoading, isError, error, isFetching } = useQuery(
     'productListByCount',
-    () => getPosts(count),
+    () => getProductListByCount(count),
     {
       staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
     }
   );
+
+  // const handleRemove = (slug) => {
+  //   // let answer = window.confirm("Delete?");
+  //   if (window.confirm('Delete?')) {
+  //     // console.log("send delete request", slug);
+  //     removeProduct(slug, user.token)
+  //       .then((res) => {
+  //         loadAllProducts();
+  //         toast.error(`${res.data.title} is deleted`);
+  //       })
+  //       .catch((err) => {
+  //         if (err.response.status === 400) toast.error(err.response.data);
+  //         console.log(err);
+  //       });
+  //   }
+  // };
+
+  const handleRemove = (slug) => {
+    const options = {
+      url: `/api/product/${slug}`,
+      token: token,
+      data: {
+        slug,
+      },
+      // props: {
+      //   setValues,
+      //   values,
+      // },
+    };
+    try {
+      if (window.confirm('Delete?')) {
+        mutationRemoveProduct.mutate(options);
+        // toast.error(`${res.data.title} is deleted`);
+      }
+    } catch (error) {
+      console.log('handleRemove error: ', error);
+      // if (error.response.status === 400) toast.error(error.response.data);
+    }
+
+    // const { images } = values;
+    // let filteredImages = images.filter((item) => {
+    //   return item.public_id !== slug;
+    // });
+    // setValues({ ...values, images: filteredImages });
+  };
 
   return (
     <div className="container-fluid">
@@ -55,7 +104,10 @@ const AllProducts = ({ count, token, isAdmin }) => {
             <div className="row">
               {JSON.parse(data).map((item) => (
                 <div key={item._id} className="col-md-4 pb-3">
-                  <AdminProductCard product={item} />
+                  <AdminProductCard
+                    product={item}
+                    handleRemove={handleRemove}
+                  />
                 </div>
               ))}
             </div>

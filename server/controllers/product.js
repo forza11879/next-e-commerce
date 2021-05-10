@@ -40,6 +40,7 @@ export const listAllController = async (req, res) => {
 
 export const removeController = async (req, res) => {
   const { slug } = req.query;
+  console.log({ slug });
   try {
     const deleted = await remove(slug);
     res.status(200).json(deleted);

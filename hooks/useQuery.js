@@ -585,6 +585,82 @@ export const useMutationCreateProduct = (queryClient) => {
   );
 };
 
+export const useMutationRemoveProduct = (queryClient) => {
+  return useMutation(
+    async ({ url, token, data }) => {
+      return await axios.delete(url, {
+        headers: {
+          token,
+        },
+        data,
+      });
+    },
+    {
+      onMutate: ({ data: { slug } }) => {
+        // Cancel any outgoing refetches (so they don't overwrite(race condition) our optimistic update)
+        queryClient.cancelQueries('productListByCount', { exact: true });
+        // Snapshot the previous value
+        const previousQueryDataArray = queryClient.getQueryData(
+          'productListByCount'
+        );
+        // In an optimistic update the UI behaves as though a change was successfully completed before receiving confirmation from the server that it actually was - it is being optimistic that it will eventually get the confirmation rather than an error. This allows for a more responsive user experience.
+        // queryClient.setQueryData('categoryList', (oldQueryData) => {
+        //   const oldQueryDataArray = JSON.parse(oldQueryData);
+        //   const newQueryDataArray = oldQueryDataArray.filter(
+        //     (item) => item.slug !== slug
+        //   );
+        //   return JSON.stringify(newQueryDataArray);
+        // });
+        // if thre is a error return will pass the function or the value to the onError third argument:
+        return () =>
+          queryClient.setQueryData(
+            'productListByCount',
+            previousQueryDataArray
+          );
+      },
+      onError: (error, variables, rollback) => {
+        // Runs on error
+        // toast.error(error.response.data.message);
+        // console.log('onError error: ', error.response.data.message);
+        if (rollback) {
+          rollback();
+          console.log('delete rollback');
+        }
+      },
+      onSuccess: ({ data }, variables, context) => {
+        // Runs only there is a success
+        // if (data) {
+        //   queryClient.setQueryData('categoryList', (oldQueryData) => {
+        //     const oldQueryDataArray = JSON.parse(oldQueryData);
+        //     const newQueryDataArray = oldQueryDataArray.filter(
+        //       (item) => item.slug !== data.deleted.slug
+        //     );
+        //     return JSON.stringify(newQueryDataArray);
+        //   });
+        //   toast.error(`${data.deleted.name} deleted`);
+        // }
+      },
+      onSettled: ({ data }, variables, context) => {
+        // Runs on either success or error. It is better to run invalidateQueries
+        // onSettled in case there is an error to re-fetch the request
+        const { slug } = data;
+        if (data) {
+          // console.log({ slug });
+          queryClient.setQueryData('productListByCount', (oldQueryData) => {
+            const oldQueryDataArray = JSON.parse(oldQueryData);
+            const newQueryDataArray = oldQueryDataArray.filter(
+              (item) => item.slug !== slug
+            );
+            return JSON.stringify(newQueryDataArray);
+          });
+          toast.error(`${slug} deleted`);
+        }
+        queryClient.invalidateQueries('productListByCount');
+      },
+    }
+  );
+};
+
 // Photo Upload Mutations
 
 export const useMutationPhotoUpload = (queryClient) => {

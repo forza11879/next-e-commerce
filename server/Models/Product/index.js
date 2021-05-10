@@ -68,7 +68,7 @@ const listAllByCountProduct = async (count) => {
 const remove = async (slug) => {
   const query = { slug };
   try {
-    const deleted = await Product.findOneAndRemove(query).exec();
+    const deleted = await Product.findOneAndRemove(query);
     return deleted;
   } catch (error) {
     console.log('product model remove error: ', error);
