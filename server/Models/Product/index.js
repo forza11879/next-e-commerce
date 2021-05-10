@@ -75,4 +75,17 @@ const remove = async (slug) => {
   }
 };
 
-export { create, listProduct, listAllByCountProduct, remove };
+const read = async (slug) => {
+  const query = { slug: slug };
+  try {
+    const product = await Product.findOne(query)
+      .populate('category')
+      .populate('subcategories')
+      .exec();
+    return product;
+  } catch (error) {
+    console.log('product model read error: ', error);
+  }
+};
+
+export { create, listProduct, listAllByCountProduct, remove, read };

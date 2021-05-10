@@ -3,6 +3,7 @@ import {
   listProduct,
   listAllByCountProduct,
   remove,
+  read,
 } from '@/Models/Product/index';
 
 export const createController = async (req, res) => {
@@ -40,12 +41,24 @@ export const listAllController = async (req, res) => {
 
 export const removeController = async (req, res) => {
   const { slug } = req.query;
-  console.log({ slug });
+  // console.log({ slug });
   try {
     const deleted = await remove(slug);
     res.status(200).json(deleted);
   } catch (error) {
     console.log('product remove controller error: ', error);
     res.status(400).json('Fetch product remove request failed');
+  }
+};
+
+export const readController = async (req, res) => {
+  const { slug } = req.query;
+  console.log({ slug });
+  try {
+    const product = await read(slug);
+    res.status(200).json(product);
+  } catch (error) {
+    console.log('product read controller error: ', error);
+    res.status(400).json('Fetch product read request failed');
   }
 };
