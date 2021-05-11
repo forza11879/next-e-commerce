@@ -189,6 +189,7 @@ const ProductCreate = ({ token, isAdmin }) => {
       },
     };
     mutationCreateProduct.mutate(options);
+    setValues((values) => ({ ...values, subcategories: [] }));
     formRef.current.reset();
     // if (err.response.status === 400) toast.error(err.response.data);
   };

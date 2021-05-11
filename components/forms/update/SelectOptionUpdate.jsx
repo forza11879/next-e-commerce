@@ -8,8 +8,6 @@ const { Option } = Select;
 const baseURL = process.env.api;
 
 async function getSubCategoryListByCategoryId(id) {
-  // await new Promise((resolve) => setTimeout(resolve, 300));
-  // console.log('SelectOption url', `${baseURL}/category/subcategories/${id}`);
   try {
     const { data } = await axios.request({
       baseURL,
@@ -22,18 +20,24 @@ async function getSubCategoryListByCategoryId(id) {
   }
 }
 
-const SelectOption = ({
-  setValues,
+const SelectOptionUpdate = ({
   subcategories,
-  category,
-  values,
+  categoryId,
   arrayOfSubs,
   setArrayOfSubs,
 }) => {
   const { data, isLoading, isError, error, isFetching } = useQuery(
-    ['subCategoryListByCategoryId', category],
-    () => getSubCategoryListByCategoryId(category)
+    ['subCategoryListByCategoryIdUpdate', categoryId],
+    () => getSubCategoryListByCategoryId(categoryId)
   );
+
+  useEffect(() => {
+    const arrayOfSubcategories = subcategories.map((item) => {
+      return item.name;
+    });
+
+    setArrayOfSubs(arrayOfSubcategories);
+  }, []);
 
   return (
     <div>
@@ -42,8 +46,8 @@ const SelectOption = ({
         mode="multiple"
         style={{ width: '100%' }}
         placeholder="Please select"
-        value={subcategories}
-        onChange={(value) => setValues({ ...values, subcategories: value })}
+        value={arrayOfSubs}
+        onChange={(value) => setArrayOfSubs(value)}
       >
         {data &&
           data.map((item) => (
@@ -56,4 +60,4 @@ const SelectOption = ({
   );
 };
 
-export default SelectOption;
+export default SelectOptionUpdate;

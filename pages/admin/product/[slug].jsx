@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import nookies from 'nookies';
 import axios from 'axios';
 import { useQuery, QueryClient, useQueryClient } from 'react-query';
@@ -6,7 +6,7 @@ import { dehydrate } from 'react-query/hydration';
 import { LoadingOutlined } from '@ant-design/icons';
 import AdminRoute from '@/components/lib/AdminRoute';
 import AdminNav from '@/components/nav/AdminNav';
-import ProductCreateForm from '@/components/forms/ProductCreateForm';
+import ProductUpdateForm from '@/components/forms/update/ProductUpdateForm';
 import FileUpload from '@/components/forms/FileUpload';
 import {
   useMutationPhotoUpload,
@@ -25,7 +25,6 @@ const initialState = {
   description: '',
   price: '',
   categories: [],
-  category: '',
   subcategories: [],
   shipping: '',
   quantity: '',
@@ -84,12 +83,10 @@ async function getSubCategoryListByCategoryId(id) {
   }
 }
 const ProductUpdate = ({ slug, token, isAdmin }) => {
-  console.log('initialState: ', initialState);
+  // console.log('initialState: ', initialState);
 
   const [values, setValues] = useState(initialState);
-  // const [showSub, setShowSub] = useState(false);
-
-  // console.log('valuess: ', values);
+  const [arrayOfSubs, setArrayOfSubs] = useState([]);
 
   const queryClient = useQueryClient();
 
@@ -106,19 +103,19 @@ const ProductUpdate = ({ slug, token, isAdmin }) => {
   // const subcategoriesInputRef = useRef();
   // const imagesInputRef = useRef();
 
-  // const refOptions = {
-  //   formRef,
-  //   titleInputRef,
-  //   descriptionInputRef,
-  //   priceInputRef,
-  //   quantityInputRef,
-  //   // shippingInputRef,
-  //   // colorInputRef,
-  //   // brandInputRef,
-  //   // categoryInputRef,
-  //   // subcategoriesInputRef,
-  //   // imagesInputRef,
-  // };
+  const refOptions = {
+    formRef,
+    titleInputRef,
+    descriptionInputRef,
+    priceInputRef,
+    quantityInputRef,
+    // shippingInputRef,
+    // colorInputRef,
+    // brandInputRef,
+    // categoryInputRef,
+    // subcategoriesInputRef,
+    // imagesInputRef,
+  };
 
   const productReadQuery = useQuery(
     ['productRead', slug],
@@ -131,94 +128,101 @@ const ProductUpdate = ({ slug, token, isAdmin }) => {
   // console.log('data: ', JSON.parse(productReadQuery.data));
 
   const { data, isLoading, isError, error, isFetching } = useQuery(
-    'categoryList',
+    'categoryListUpdate',
     getCategories,
     {
       staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
     }
   );
 
-  // const dataList = JSON.parse(data);
+  const dataList = JSON.parse(data);
   const productData = JSON.parse(productReadQuery.data);
 
   useEffect(() => {
-    // setValues({ ...values, categories: dataList });
-    setValues({ ...values, ...productData });
-    // console.log('data: ', JSON.parse(productReadQuery.data));
+    setValues((values) => ({
+      ...values,
+      ...productData,
+      categories: dataList,
+    }));
 
-    // dataList.map((item) => {
-    //   queryClient.prefetchQuery(['subCategoryListByCategoryId', item._id], () =>
-    //     getSubCategoryListByCategoryId(item._id)
-    //   );
-    // });
+    dataList.map((item) => {
+      queryClient.prefetchQuery(
+        ['subCategoryListByCategoryIdUpdate', item._id],
+        () => getSubCategoryListByCategoryId(item._id)
+      );
+    });
   }, []);
 
-  // const mutationCreateProduct = useMutationCreateProduct(queryClient);
-  // const mutationPhotoUpload = useMutationPhotoUpload(queryClient);
-  // const mutationPhotoRemove = useMutationPhotoRemove(queryClient);
+  const mutationCreateProduct = useMutationCreateProduct(queryClient);
+  const mutationPhotoUpload = useMutationPhotoUpload(queryClient);
+  const mutationPhotoRemove = useMutationPhotoRemove(queryClient);
 
-  // const handleSubmit = (e) => {
-  //   e.preventDefault();
-  //   const enteredTitle = titleInputRef.current.value;
-  //   const enteredDescription = descriptionInputRef.current.value;
-  //   const enteredPrice = priceInputRef.current.value;
-  //   const enteredQuantity = quantityInputRef.current.value;
-  //   // const enteredShipping = shippingInputRef.current.value;
-  //   // const enteredColor = colorInputRef.current.value;
-  //   // const enteredBrand = brandInputRef.current.value;
-  //   // const enteredCategory = categoryInputRef.current.value;
-  //   // const enteredSubcategories = subcategoriesInputRef.current.value;
-  //   // const enteredImages = imagesInputRef.current.value;
-  //   // console.log({ enteredShipping });
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const enteredTitle = titleInputRef.current.value;
+    const enteredDescription = descriptionInputRef.current.value;
+    const enteredPrice = priceInputRef.current.value;
+    const enteredQuantity = quantityInputRef.current.value;
+    // const enteredShipping = shippingInputRef.current.value;
+    // const enteredColor = colorInputRef.current.value;
+    // const enteredBrand = brandInputRef.current.value;
+    // const enteredCategory = categoryInputRef.current.value;
+    // const enteredSubcategories = subcategoriesInputRef.current.value;
+    // const enteredImages = imagesInputRef.current.value;
+    // console.log({ enteredShipping });
 
-  //   const options = {
-  //     url: '/product',
-  //     method: 'post',
-  //     token: token,
-  //     data: {
-  //       values: {
-  //         title: enteredTitle,
-  //         description: enteredDescription,
-  //         price: enteredPrice,
-  //         quantity: enteredQuantity,
-  //         shipping: values.shipping,
-  //         // shipping: enteredShipping,
-  //         color: values.color,
-  //         // color: enteredColor,
-  //         brand: values.brand,
-  //         // brand: enteredBrand,
-  //         category: values.category,
-  //         // category: enteredCategory,
-  //         subcategories: values.subcategories,
-  //         // subcategories: enteredSubcategories,
-  //         images: values.images,
-  //         // images: enteredImages,
-  //       },
-  //     },
-  //     props: {
-  //       setValues,
-  //       values,
-  //       initialState,
-  //     },
-  //   };
-  //   mutationCreateProduct.mutate(options);
-  //   formRef.current.reset();
-  //   // if (err.response.status === 400) toast.error(err.response.data);
-  // };
+    const options = {
+      url: '/product',
+      method: 'post',
+      token: token,
+      data: {
+        values: {
+          title: enteredTitle,
+          description: enteredDescription,
+          price: enteredPrice,
+          quantity: enteredQuantity,
+          shipping: values.shipping,
+          // shipping: enteredShipping,
+          color: values.color,
+          // color: enteredColor,
+          brand: values.brand,
+          // brand: enteredBrand,
+          category: values.category,
+          // category: enteredCategory,
+          subcategories: values.subcategories,
+          // subcategories: enteredSubcategories,
+          images: values.images,
+          // images: enteredImages,
+        },
+      },
+      props: {
+        setValues,
+        values,
+        initialState,
+      },
+    };
+    mutationCreateProduct.mutate(options);
+    formRef.current.reset();
+    // if (err.response.status === 400) toast.error(err.response.data);
+  };
 
-  // const handleCatagoryChange = async (e) => {
-  //   e.preventDefault();
-  //   // console.log('CLICKED CATEGORY', e.target.value);
-  //   setValues({ ...values, subcategories: [], category: e.target.value });
-  //   // console.log(e.target.name, ' ----- ', e.target.value);
+  const handleCatagoryChange = async (e) => {
+    e.preventDefault();
+    // console.log('CLICKED CATEGORY', e.target.value);
+    setValues((values) => ({
+      ...values,
+      subcategories: [],
+      category: { _id: e.target.value },
+    }));
 
-  //   setShowSub(true);
-  // };
+    // console.log(e.target.name, ' ----- ', e.target.value);
+    setArrayOfSubs([]);
+  };
 
-  // const handleChange = (e) => {
-  //   setValues({ ...values, [e.target.name]: e.target.value });
-  //   // console.log(e.target.name, ' ----- ', e.target.value);
-  // };
+  const handleChange = (e) => {
+    setValues({ ...values, [e.target.name]: e.target.value });
+    // console.log(e.target.name, ' ----- ', e.target.value);
+  };
 
   return (
     <div className="container-fluid">
@@ -238,8 +242,6 @@ const ProductUpdate = ({ slug, token, isAdmin }) => {
             )}{' '} */}
             <>
               <h4>Product Update</h4>
-              <p> {console.log('values: ', values)}</p>
-              <p> {JSON.stringify(values)}</p>
             </>
             <hr />
             <div className="p-3">
@@ -251,16 +253,17 @@ const ProductUpdate = ({ slug, token, isAdmin }) => {
                 mutationPhotoRemove={mutationPhotoRemove}
               /> */}
             </div>
-            {/* <ProductCreateForm
+            <ProductUpdateForm
               values={values}
               setValues={setValues}
+              arrayOfSubs={arrayOfSubs}
+              setArrayOfSubs={setArrayOfSubs}
               refOptions={refOptions}
               mutation={mutationCreateProduct}
               handleSubmit={handleSubmit}
               handleChange={handleChange}
               handleCatagoryChange={handleCatagoryChange}
-              showSub={showSub}
-            /> */}
+            />
           </div>
         </div>
       </AdminRoute>
@@ -300,7 +303,7 @@ export async function getServerSideProps(context) {
 
     await Promise.allSettled([
       queryClient.prefetchQuery(['productRead', slug], () => productRead(slug)),
-      queryClient.prefetchQuery('categoryList', categoryList),
+      queryClient.prefetchQuery('categoryListUpdate', categoryList),
     ]);
 
     return {
