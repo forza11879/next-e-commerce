@@ -21,23 +21,14 @@ async function getSubCategoryListByCategoryId(id) {
 }
 
 const SelectOptionUpdate = ({
-  subcategories,
-  categoryId,
+  selectedCategory,
   arrayOfSubs,
   setArrayOfSubs,
 }) => {
   const { data, isLoading, isError, error, isFetching } = useQuery(
-    ['subCategoryListByCategoryIdUpdate', categoryId],
-    () => getSubCategoryListByCategoryId(categoryId)
+    ['subCategoryListByCategoryIdUpdate', selectedCategory],
+    () => getSubCategoryListByCategoryId(selectedCategory)
   );
-
-  useEffect(() => {
-    const arrayOfSubcategories = subcategories.map((item) => {
-      return item.name;
-    });
-
-    setArrayOfSubs(arrayOfSubcategories);
-  }, []);
 
   return (
     <div>

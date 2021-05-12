@@ -86,6 +86,7 @@ const ProductUpdate = ({ slug, token, isAdmin }) => {
   // console.log('initialState: ', initialState);
 
   const [values, setValues] = useState(initialState);
+  const [selectedCategory, setSelectedCategory] = useState('');
   const [arrayOfSubs, setArrayOfSubs] = useState([]);
 
   const queryClient = useQueryClient();
@@ -144,6 +145,13 @@ const ProductUpdate = ({ slug, token, isAdmin }) => {
       ...productData,
       categories: dataList,
     }));
+
+    setSelectedCategory(productData.category._id);
+
+    const arrayOfSubcategories = productData.subcategories.map((item) => {
+      return item._id;
+    });
+    setArrayOfSubs((arrayOfSubs) => arrayOfSubcategories);
 
     dataList.map((item) => {
       queryClient.prefetchQuery(
@@ -208,15 +216,18 @@ const ProductUpdate = ({ slug, token, isAdmin }) => {
 
   const handleCatagoryChange = async (e) => {
     e.preventDefault();
-    // console.log('CLICKED CATEGORY', e.target.value);
-    setValues((values) => ({
-      ...values,
-      subcategories: [],
-      category: { _id: e.target.value },
-    }));
 
-    // console.log(e.target.name, ' ----- ', e.target.value);
-    setArrayOfSubs([]);
+    setSelectedCategory(e.target.value);
+
+    if (values.category._id === e.target.value) {
+      const arrayOfSubcategories = values.subcategories.map((item) => {
+        return item._id;
+      });
+      setArrayOfSubs((arrayOfSubs) => arrayOfSubcategories);
+    } else {
+      // console.log(e.target.name, ' ----- ', e.target.value);
+      setArrayOfSubs([]);
+    }
   };
 
   const handleChange = (e) => {
@@ -258,6 +269,7 @@ const ProductUpdate = ({ slug, token, isAdmin }) => {
               setValues={setValues}
               arrayOfSubs={arrayOfSubs}
               setArrayOfSubs={setArrayOfSubs}
+              selectedCategory={selectedCategory}
               refOptions={refOptions}
               mutation={mutationCreateProduct}
               handleSubmit={handleSubmit}
