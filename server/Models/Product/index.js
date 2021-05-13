@@ -88,4 +88,23 @@ const read = async (slug) => {
   }
 };
 
-export { create, listProduct, listAllByCountProduct, remove, read };
+const update = async (values, slug) => {
+  const { title } = values;
+
+  if (title) {
+    values.slug = slugify(title);
+  }
+
+  const query = { slug: slug };
+  const update = values;
+  const options = { new: true };
+
+  try {
+    const updated = await Product.findOneAndUpdate(query, update, options);
+    return updated;
+  } catch (error) {
+    console.log('product model update error: ', error);
+  }
+};
+
+export { create, listProduct, listAllByCountProduct, remove, read, update };

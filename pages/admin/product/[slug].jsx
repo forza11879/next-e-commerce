@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import nookies from 'nookies';
 import axios from 'axios';
+import { useRouter } from 'next/router';
 import { useQuery, QueryClient, useQueryClient } from 'react-query';
 import { dehydrate } from 'react-query/hydration';
 import { LoadingOutlined } from '@ant-design/icons';
@@ -11,7 +12,7 @@ import FileUpload from '@/components/forms/FileUpload';
 import {
   useMutationPhotoUpload,
   useMutationPhotoRemove,
-  useMutationCreateProduct,
+  useMutationUpdateProduct,
 } from '@/hooks/useQuery';
 import admin from '@/firebase/index';
 import { currentUser } from '@/Models/User/index';
@@ -83,11 +84,10 @@ async function getSubCategoryListByCategoryId(id) {
   }
 }
 const ProductUpdate = ({ slug, token, isAdmin }) => {
-  // console.log('initialState: ', initialState);
-
   const [values, setValues] = useState(initialState);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [arrayOfSubs, setArrayOfSubs] = useState([]);
+  const router = useRouter();
 
   const queryClient = useQueryClient();
 
@@ -97,12 +97,6 @@ const ProductUpdate = ({ slug, token, isAdmin }) => {
   const descriptionInputRef = useRef();
   const priceInputRef = useRef();
   const quantityInputRef = useRef();
-  // const shippingInputRef = useRef();
-  // const colorInputRef = useRef();
-  // const brandInputRef = useRef();
-  // const categoryInputRef = useRef();
-  // const subcategoriesInputRef = useRef();
-  // const imagesInputRef = useRef();
 
   const refOptions = {
     formRef,
@@ -110,12 +104,6 @@ const ProductUpdate = ({ slug, token, isAdmin }) => {
     descriptionInputRef,
     priceInputRef,
     quantityInputRef,
-    // shippingInputRef,
-    // colorInputRef,
-    // brandInputRef,
-    // categoryInputRef,
-    // subcategoriesInputRef,
-    // imagesInputRef,
   };
 
   const productReadQuery = useQuery(
@@ -125,8 +113,6 @@ const ProductUpdate = ({ slug, token, isAdmin }) => {
       staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
     }
   );
-
-  // console.log('data: ', JSON.parse(productReadQuery.data));
 
   const { data, isLoading, isError, error, isFetching } = useQuery(
     'categoryListUpdate',
@@ -160,7 +146,7 @@ const ProductUpdate = ({ slug, token, isAdmin }) => {
     });
   }, []);
 
-  const mutationCreateProduct = useMutationCreateProduct(queryClient);
+  const mutationUpdateProduct = useMutationUpdateProduct(queryClient);
   const mutationPhotoUpload = useMutationPhotoUpload(queryClient);
   const mutationPhotoRemove = useMutationPhotoRemove(queryClient);
 
@@ -170,17 +156,10 @@ const ProductUpdate = ({ slug, token, isAdmin }) => {
     const enteredDescription = descriptionInputRef.current.value;
     const enteredPrice = priceInputRef.current.value;
     const enteredQuantity = quantityInputRef.current.value;
-    // const enteredShipping = shippingInputRef.current.value;
-    // const enteredColor = colorInputRef.current.value;
-    // const enteredBrand = brandInputRef.current.value;
-    // const enteredCategory = categoryInputRef.current.value;
-    // const enteredSubcategories = subcategoriesInputRef.current.value;
-    // const enteredImages = imagesInputRef.current.value;
-    // console.log({ enteredShipping });
 
     const options = {
-      url: '/product',
-      method: 'post',
+      url: `/product/${slug}`,
+      method: 'put',
       token: token,
       data: {
         values: {
@@ -189,31 +168,28 @@ const ProductUpdate = ({ slug, token, isAdmin }) => {
           price: enteredPrice,
           quantity: enteredQuantity,
           shipping: values.shipping,
-          // shipping: enteredShipping,
           color: values.color,
-          // color: enteredColor,
           brand: values.brand,
-          // brand: enteredBrand,
-          category: values.category,
-          // category: enteredCategory,
-          subcategories: values.subcategories,
-          // subcategories: enteredSubcategories,
+          category: selectedCategory ? selectedCategory : values.category,
+          subcategories: arrayOfSubs,
           images: values.images,
-          // images: enteredImages,
         },
       },
       props: {
         setValues,
         values,
         initialState,
+        router,
       },
     };
-    mutationCreateProduct.mutate(options);
-    formRef.current.reset();
+    mutationUpdateProduct.mutate(options);
+
+    // formRef.current.reset();
+
     // if (err.response.status === 400) toast.error(err.response.data);
   };
 
-  const handleCatagoryChange = async (e) => {
+  const handleCategoryChange = async (e) => {
     e.preventDefault();
 
     setSelectedCategory(e.target.value);
@@ -242,26 +218,20 @@ const ProductUpdate = ({ slug, token, isAdmin }) => {
             <AdminNav />
           </div>
           <div className="col-md-10">
-            {/* {mutationPhotoUpload.isLoading ? (
+            {mutationPhotoUpload.isLoading ? (
               <LoadingOutlined className="text-danger h1" />
             ) : (
-              <>
-                <h4>Product Update</h4>
-                <p> {JSON.stringify(productReadQuery.data)}</p>
-              </>
-            )}{' '} */}
-            <>
               <h4>Product Update</h4>
-            </>
+            )}
             <hr />
             <div className="p-3">
-              {/* <FileUpload
+              <FileUpload
                 values={values}
                 setValues={setValues}
                 token={token}
                 mutationPhotoUpload={mutationPhotoUpload}
                 mutationPhotoRemove={mutationPhotoRemove}
-              /> */}
+              />
             </div>
             <ProductUpdateForm
               values={values}
@@ -270,10 +240,10 @@ const ProductUpdate = ({ slug, token, isAdmin }) => {
               setArrayOfSubs={setArrayOfSubs}
               selectedCategory={selectedCategory}
               refOptions={refOptions}
-              mutation={mutationCreateProduct}
+              mutation={mutationUpdateProduct}
               handleSubmit={handleSubmit}
               handleChange={handleChange}
-              handleCatagoryChange={handleCatagoryChange}
+              handleCategoryChange={handleCategoryChange}
             />
           </div>
         </div>

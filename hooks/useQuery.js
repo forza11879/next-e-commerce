@@ -366,9 +366,8 @@ export const useMutationRemoveSubCategory = (queryClient) => {
         queryClient.cancelQueries('subCategoryList', { exact: true });
 
         // Snapshot the previous value
-        const previousQueryDataArray = queryClient.getQueryData(
-          'subCategoryList'
-        );
+        const previousQueryDataArray =
+          queryClient.getQueryData('subCategoryList');
         // In an optimistic update the UI behaves as though a change was successfully completed before receiving confirmation from the server that it actually was - it is being optimistic that it will eventually get the confirmation rather than an error. This allows for a more responsive user experience.
         // queryClient.setQueryData('subCategoryList', (oldQueryData) => {
         //   const oldQueryDataArray = JSON.parse(oldQueryData);
@@ -441,9 +440,8 @@ export const useMutationUpdateSubCategory = (queryClient) => {
         queryClient.cancelQueries('subCategoryList', { exact: true });
 
         // Snapshot the previous value
-        const previousQueryDataArray = queryClient.getQueryData(
-          'subCategoryList'
-        );
+        const previousQueryDataArray =
+          queryClient.getQueryData('subCategoryList');
         // In an optimistic update the UI behaves as though a change was successfully completed before receiving confirmation from the server that it actually was - it is being optimistic that it will eventually get the confirmation rather than an error. This allows for a more responsive user experience.
         const newObject = {
           _id: Date.now(),
@@ -600,9 +598,8 @@ export const useMutationRemoveProduct = (queryClient) => {
         // Cancel any outgoing refetches (so they don't overwrite(race condition) our optimistic update)
         queryClient.cancelQueries('productListByCount', { exact: true });
         // Snapshot the previous value
-        const previousQueryDataArray = queryClient.getQueryData(
-          'productListByCount'
-        );
+        const previousQueryDataArray =
+          queryClient.getQueryData('productListByCount');
         // In an optimistic update the UI behaves as though a change was successfully completed before receiving confirmation from the server that it actually was - it is being optimistic that it will eventually get the confirmation rather than an error. This allows for a more responsive user experience.
         // queryClient.setQueryData('categoryList', (oldQueryData) => {
         //   const oldQueryDataArray = JSON.parse(oldQueryData);
@@ -845,6 +842,88 @@ export const useMutationPhotoRemove = (queryClient) => {
         // onSettled in case there is an error to re-fetch the request
         // it is prefered to invalidateQueries  after using setQueryData inside onSuccess: because you are getting the latest data from the server
         // queryClient.invalidateQueries('subCategoryList');
+      },
+    }
+  );
+};
+
+// Product Update Mutations
+export const useMutationUpdateProduct = (queryClient) => {
+  return useMutation(
+    async ({ url, method, token, data }) => {
+      return await axios.request({
+        baseURL,
+        url,
+        method,
+        data,
+        headers: { token },
+      });
+    },
+    {
+      onMutate: ({ data: { values } }) => {
+        // Cancel any outgoing refetches (so they don't overwrite(race condition) our optimistic update)
+        // queryClient.cancelQueries('productList', { exact: true });
+        console.log('values onMutate: ', values);
+
+        // Snapshot the previous value
+        // const previousQueryDataArray = queryClient.getQueryData('productList');
+        // console.log('previousQueryDataArray: ', previousQueryDataArray);
+        // In an optimistic update the UI behaves as though a change was successfully completed before receiving confirmation from the server that it actually was - it is being optimistic that it will eventually get the confirmation rather than an error. This allows for a more responsive user experience.
+        // const newObject = {
+        //   ...values,
+        //   _id: Date.now(),
+        // };
+        // console.log('newObject: ', newObject);
+        // queryClient.setQueryData('productList', (oldQueryData) => {
+        //   const oldQueryDataArray = JSON.parse(oldQueryData);
+        //   console.log('oldQueryDataArray: ', oldQueryDataArray);
+        //   const newQueryDataArray = oldQueryDataArray.filter(
+        //     (item) => item.title !== values.title
+        //   );
+        //   console.log('newQueryDataArray before: ', newQueryDataArray);
+        //   newQueryDataArray.unshift(newObject);
+        //   console.log('newQueryDataArray after: ', newQueryDataArray);
+        //   return JSON.stringify(newQueryDataArray);
+        // });
+        // return will pass the function or the value to the onError third argument:
+        // return () =>
+        //   queryClient.setQueryData('productList', previousQueryDataArray);
+      },
+      onError: (error, variables, rollback) => {
+        //   If there is an errror, then we will rollback
+        // console.log('CreateCategory onError error: ', error.response.data);
+        if (rollback) {
+          rollback();
+          console.log('rollback');
+        }
+        if (error) {
+          toast.error(error.response.data);
+        }
+      },
+      onSuccess: (
+        { data },
+        { props: { setValues, initialState } },
+        context
+      ) => {
+        if (data) {
+          queryClient.invalidateQueries('productListByCount');
+
+          toast.success(`"${data.title}" is created`);
+        }
+      },
+      onSettled: (data, error, { props: { router } }, context) => {
+        if (error) {
+          // console.log(
+          //   'CreateCategory onSettled error: ',
+          //   error.response.data.error
+          // );
+          toast.error(error.response.data.error);
+        }
+        // Runs on either success or error. It is better to run invalidateQueries
+        // onSettled in case there is an error to re-fetch the request
+        // it is prefered to invalidateQueries  after using setQueryData inside onSuccess: because you are getting the latest data from the server
+        queryClient.invalidateQueries('productListByCount');
+        router.push(`/admin/products`);
       },
     }
   );

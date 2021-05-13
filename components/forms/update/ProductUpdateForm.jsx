@@ -4,7 +4,7 @@ import SelectOptionUpdate from '@/components/forms/update/SelectOptionUpdate';
 const ProductUpdateForm = ({
   handleSubmit,
   handleChange,
-  handleCatagoryChange,
+  handleCategoryChange,
   setValues,
   values,
   selectedCategory,
@@ -147,7 +147,7 @@ const ProductUpdateForm = ({
         <select
           name="category"
           className="form-control"
-          onChange={handleCatagoryChange}
+          onChange={handleCategoryChange}
           value={selectedCategory ? selectedCategory : category._id}
         >
           {categories.length > 0 &&
