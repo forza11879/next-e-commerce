@@ -28,7 +28,6 @@ const ProductUpdateForm = ({
     color,
     brand,
   } = values;
-  console.log({ values });
   const {
     formRef,
     titleInputRef,

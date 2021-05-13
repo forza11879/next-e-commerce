@@ -152,7 +152,6 @@ const ProductUpdate = ({ slug, token, isAdmin }) => {
       return item._id;
     });
     setArrayOfSubs((arrayOfSubs) => arrayOfSubcategories);
-
     dataList.map((item) => {
       queryClient.prefetchQuery(
         ['subCategoryListByCategoryIdUpdate', item._id],
@@ -294,13 +293,6 @@ export async function getServerSideProps(context) {
 
   const productRead = async (slug) => {
     const result = await read(slug);
-    console.log('result: ', result);
-    return JSON.stringify(result);
-  };
-
-  const categoryList = async () => {
-    const result = await listCategory();
-    console.log('result: ', result);
     return JSON.stringify(result);
   };
 
@@ -315,7 +307,10 @@ export async function getServerSideProps(context) {
 
     await Promise.allSettled([
       queryClient.prefetchQuery(['productRead', slug], () => productRead(slug)),
-      queryClient.prefetchQuery('categoryListUpdate', categoryList),
+      queryClient.prefetchQuery('categoryListUpdate', async () => {
+        const categoryList = await listCategory();
+        return JSON.stringify(categoryList);
+      }),
     ]);
 
     return {
