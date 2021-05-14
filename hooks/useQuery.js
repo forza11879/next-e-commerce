@@ -676,27 +676,12 @@ export const useMutationPhotoUpload = (queryClient) => {
         // Cancel any outgoing refetches (so they don't overwrite(race condition) our optimistic update)
         // queryClient.cancelQueries('categoryList', { exact: true });
         // queryClient.cancelQueries('subCategoryList', { exact: true });
-        // // Snapshot the previous value
-        // const previousQueryDataArray = queryClient.getQueryData('categoryList');
+        // Snapshot the previous value
+        const previousQueryDataArray =
+          queryClient.getQueryData('productListByCount');
         // console.log('previousQueryDataArray: ', previousQueryDataArray);
         // In an optimistic update the UI behaves as though a change was successfully completed before receiving confirmation from the server that it actually was - it is being optimistic that it will eventually get the confirmation rather than an error. This allows for a more responsive user experience.
-        // const newObject = {
-        //   _id: Date.now(),
-        //   name: name,
-        // };
-        // queryClient.setQueryData('subCategoryList', (oldQueryData) => {
-        //   const oldQueryDataArray = JSON.parse(oldQueryData);
-        //   // console.log('oldQueryDataArray onMutate: ', oldQueryDataArray);
-        //   const newQueryDataArray = oldQueryDataArray.filter(
-        //     (item) => item.name !== name
-        //   );
-        //   newQueryDataArray.unshift(newObject);
-        //   // console.log(
-        //   //   'newQueryDataArray onMutate after unshift: ',
-        //   //   newQueryDataArray
-        //   // );
-        //   return JSON.stringify(newQueryDataArray);
-        // });
+
         // return will pass the function or the value to the onError third argument:
         return () =>
           queryClient.setQueryData('subCategoryList', previousQueryDataArray);
@@ -712,9 +697,39 @@ export const useMutationPhotoUpload = (queryClient) => {
           toast.error(error.response.data);
         }
       },
-      onSuccess: ({ data }, { props: { setValues } }, context) => {
+      onSuccess: ({ data }, { props: { values, setValues } }, context) => {
         // Runs only there is a success
         // saves http trip to the back-end
+        const previousQueryDataArray =
+          queryClient.getQueryData('productListByCount');
+        console.log({ data });
+
+        queryClient.setQueryData('productListByCount', (oldQueryData) => {
+          const oldQueryDataArray = JSON.parse(oldQueryData);
+          console.log('oldQueryDataArray onSuccess: ', oldQueryDataArray);
+          console.log('image onSuccess: ', data);
+          console.log('index onSuccess: ', values.index);
+          const idx = values.index;
+
+          const newQueryDataArray = oldQueryDataArray.filter((item) => {
+            return item.slug !== values.slug;
+          });
+
+          const [result] = oldQueryDataArray
+            .filter((item) => {
+              return item.slug === values.slug;
+            })
+            .map((item) => {
+              item.images[idx] = data;
+              return item;
+            });
+
+          newQueryDataArray.push(result);
+
+          console.log('newQueryDataArray: ', newQueryDataArray);
+
+          return JSON.stringify(newQueryDataArray);
+        });
 
         if (data) {
           console.log('onSuccess data from back-end: ', data);
@@ -798,11 +813,31 @@ export const useMutationPhotoRemove = (queryClient) => {
       },
       onSuccess: (
         { data },
-        { data: { public_id }, props: { setValues, values } },
+        { data: { public_id }, props: { setValues, values, id } },
         context
       ) => {
-        // Runs only there is a success
-        // saves http trip to the back-end
+        queryClient.setQueryData('productListByCount', (oldQueryData) => {
+          const oldQueryDataArray = JSON.parse(oldQueryData);
+          console.log('oldQueryDataArray onSuccess: ', oldQueryDataArray);
+
+          const [result] = oldQueryDataArray
+            .filter((item) => {
+              return item.slug === values.slug;
+            })
+            .map((item) => {
+              for (const [key, value] of Object.entries(item)) {
+                if (key === 'images') {
+                  const idx = value.findIndex((item) => item.public_id === id);
+                  return idx;
+                }
+              }
+            });
+          setValues({ ...values, index: result });
+
+          console.log('result: ', result);
+
+          return JSON.stringify(oldQueryDataArray);
+        });
         console.log('onSuccess data from back-end: ', data);
         const { images } = values;
         let filteredImages = images.filter((item) => {
@@ -862,11 +897,12 @@ export const useMutationUpdateProduct = (queryClient) => {
     {
       onMutate: ({ data: { values } }) => {
         // Cancel any outgoing refetches (so they don't overwrite(race condition) our optimistic update)
-        // queryClient.cancelQueries('productList', { exact: true });
+        queryClient.cancelQueries('productListByCount', { exact: true });
         console.log('values onMutate: ', values);
 
         // Snapshot the previous value
-        // const previousQueryDataArray = queryClient.getQueryData('productList');
+        const previousQueryDataArray =
+          queryClient.getQueryData('productListByCount');
         // console.log('previousQueryDataArray: ', previousQueryDataArray);
         // In an optimistic update the UI behaves as though a change was successfully completed before receiving confirmation from the server that it actually was - it is being optimistic that it will eventually get the confirmation rather than an error. This allows for a more responsive user experience.
         // const newObject = {
@@ -906,9 +942,7 @@ export const useMutationUpdateProduct = (queryClient) => {
         context
       ) => {
         if (data) {
-          queryClient.invalidateQueries('productListByCount');
-
-          toast.success(`"${data.title}" is created`);
+          toast.success(`"${data.title}" is updated`);
         }
       },
       onSettled: (data, error, { props: { router } }, context) => {

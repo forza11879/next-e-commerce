@@ -33,6 +33,7 @@ const FileUpload = ({
                 image: uri,
               },
               props: {
+                values,
                 setValues,
               },
             };
@@ -59,6 +60,7 @@ const FileUpload = ({
       props: {
         setValues,
         values,
+        id: public_id,
       },
     };
     try {

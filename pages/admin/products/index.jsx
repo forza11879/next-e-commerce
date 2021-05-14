@@ -42,22 +42,6 @@ const AllProducts = ({ count, token, isAdmin }) => {
     }
   );
 
-  // const handleRemove = (slug) => {
-  //   // let answer = window.confirm("Delete?");
-  //   if (window.confirm('Delete?')) {
-  //     // console.log("send delete request", slug);
-  //     removeProduct(slug, user.token)
-  //       .then((res) => {
-  //         loadAllProducts();
-  //         toast.error(`${res.data.title} is deleted`);
-  //       })
-  //       .catch((err) => {
-  //         if (err.response.status === 400) toast.error(err.response.data);
-  //         console.log(err);
-  //       });
-  //   }
-  // };
-
   const handleRemove = (slug) => {
     const options = {
       url: `/api/product/${slug}`,
@@ -79,12 +63,6 @@ const AllProducts = ({ count, token, isAdmin }) => {
       console.log('handleRemove error: ', error);
       // if (error.response.status === 400) toast.error(error.response.data);
     }
-
-    // const { images } = values;
-    // let filteredImages = images.filter((item) => {
-    //   return item.public_id !== slug;
-    // });
-    // setValues({ ...values, images: filteredImages });
   };
 
   return (

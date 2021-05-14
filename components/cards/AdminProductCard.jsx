@@ -18,7 +18,7 @@ const AdminProductCard = ({ product, handleRemove }) => {
         <Image
           alt={title}
           src={images && images.length ? images[0].url : laptop}
-          //   src={images && images.length ? images[0].public_id : ''}
+          // src={images && images.length ? images[0].public_id : laptop}
           // layout="fill"
           objectFit="cover"
           quality={100}
