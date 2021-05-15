@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import nookies from 'nookies';
 import axios from 'axios';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';

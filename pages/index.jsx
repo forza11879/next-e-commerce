@@ -1,4 +1,3 @@
-import React from 'react';
 import axios from 'axios';
 import { useQuery, QueryClient } from 'react-query';
 import { dehydrate } from 'react-query/hydration';

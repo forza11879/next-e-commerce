@@ -1,4 +1,3 @@
-import React from 'react';
 import Resizer from 'react-image-file-resizer';
 import { Avatar, Badge } from 'antd';
 

@@ -1,4 +1,3 @@
-import React from 'react';
 import AdminRoute from '@/components/lib/AdminRoute';
 
 const IndexAdmin = () => {

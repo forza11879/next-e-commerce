@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import { useRef } from 'react';
 import axios from 'axios';
 import { QueryClient, useQueryClient } from 'react-query';
 import { dehydrate } from 'react-query/hydration';

@@ -1,4 +1,3 @@
-import React from 'react';
 import { useSelector } from 'react-redux';
 import { selectUser } from '@/store/user';
 import LoadingToRedirect from '@/components/lib/LoadingToRedirect';

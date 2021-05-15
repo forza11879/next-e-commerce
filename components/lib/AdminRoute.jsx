@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import LoadingToRedirect from './LoadingToRedirect';
 import { selectUser } from '@/store/user';

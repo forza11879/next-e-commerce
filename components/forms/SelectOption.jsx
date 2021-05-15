@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useQuery } from 'react-query';
 import { Select } from 'antd';

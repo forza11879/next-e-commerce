@@ -1,4 +1,3 @@
-import React from 'react';
 import axios from 'axios';
 import nookies from 'nookies';
 import { useQuery, QueryClient, useQueryClient } from 'react-query';

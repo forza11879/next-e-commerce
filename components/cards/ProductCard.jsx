@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card } from 'antd';
 import { EyeOutlined, ShoppingCartOutlined } from '@ant-design/icons';
 import Image from 'next/image';

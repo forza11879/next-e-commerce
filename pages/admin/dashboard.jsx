@@ -1,4 +1,3 @@
-import React from 'react';
 import AdminRoute from '@/components/lib/AdminRoute';
 import AdminNav from '@/components/nav/AdminNav';
 import nookies from 'nookies';

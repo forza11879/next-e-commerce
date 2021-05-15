@@ -1,5 +1,3 @@
-import React from 'react';
-
 const LocalSearch = ({ keyword, setKeyword }) => {
   const handleSearchChange = (e) => {
     e.preventDefault();

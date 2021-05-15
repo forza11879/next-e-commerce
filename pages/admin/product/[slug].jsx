@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import nookies from 'nookies';
 import axios from 'axios';
 import { useRouter } from 'next/router';

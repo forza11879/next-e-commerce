@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import getConfig from 'next/config';
 import { toast } from 'react-toastify';
 import { useSelector } from 'react-redux';

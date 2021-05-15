@@ -1,4 +1,3 @@
-import React from 'react';
 import SelectOption from '@/components/forms/SelectOption';
 
 const ProductCreateForm = ({

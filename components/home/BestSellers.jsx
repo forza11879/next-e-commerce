@@ -1,4 +1,3 @@
-import React from 'react';
 import ProductCard from '@/components/cards/ProductCard';
 import LoadingCard from '@/components/cards/LoadingCard';
 
