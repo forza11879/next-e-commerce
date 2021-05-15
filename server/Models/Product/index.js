@@ -40,10 +40,20 @@ const create = async (values) => {
   }
 };
 
-const listProduct = async () => {
+const listProduct = async (body) => {
+  const { sort, order, limit } = body;
+  console.log('sort', sort);
+  console.log('order', order);
+  console.log('limit', limit);
+
   try {
     const query = {};
-    const productList = await Product.find(query).sort({ createdAt: -1 });
+    const productList = await Product.find(query)
+      .limit(parseInt(limit))
+      .populate('category')
+      .populate('subcategories')
+      .sort([[sort, order]]);
+
     return productList;
   } catch (error) {
     console.log('product list model error: ', error);

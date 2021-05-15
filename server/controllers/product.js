@@ -19,8 +19,10 @@ export const createController = async (req, res) => {
 };
 
 export const listController = async (req, res) => {
+  // const { body } = req;
+  console.log('req.body', req.body);
   try {
-    const productList = await listProduct();
+    const productList = await listProduct(req.body);
     res.status(200).json(productList);
   } catch (error) {
     console.log('product List controller error: ', error);

@@ -6,11 +6,11 @@ export default async function userHandler(req, res, next) {
   await db(req, res);
 
   switch (method) {
-    case 'GET':
+    case 'POST':
       await listController(req, res);
       break;
     default:
-      res.setHeader('Allow', ['GET']);
+      res.setHeader('Allow', ['POST']);
       res.status(405).end(`Method ${method} Not Allowed`);
   }
 }

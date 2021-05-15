@@ -1,26 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import axios from 'axios';
-import nookies from 'nookies';
-import { useQuery, QueryClient, useQueryClient } from 'react-query';
+import { useQuery, QueryClient } from 'react-query';
 import { dehydrate } from 'react-query/hydration';
-import { useMutationRemoveProduct } from '@/hooks/useQuery';
-import AdminRoute from '@/components/lib/AdminRoute';
-import AdminNav from '@/components/nav/AdminNav';
-import AdminProductCard from '@/components/cards/AdminProductCard';
-import ProductCard from '@/components/cards/ProductCard';
-import admin from '@/firebase/index';
-import { currentUser } from '@/Models/User/index';
-import { listAllByCountProduct } from '@/Models/Product/index';
+import Jumbotron from '@/components/cards/Jumbotron';
+import NewArrivals from '@/components/home/NewArrivals';
+import BestSellers from '@/components/home/BestSellers';
+import { listProduct } from '@/Models/Product/index';
 
 const baseURL = process.env.api;
 
-async function getProductListByCount(count) {
-  console.log(`${baseURL}/product/all/${count}`);
+async function getProductList(body) {
+  console.log(`${baseURL}/product/all`);
   try {
     const { data } = await axios.request({
       baseURL,
-      url: `/product/all/${count}`,
-      method: 'get',
+      url: `/product/all`,
+      method: 'post',
+      data: body,
     });
 
     return JSON.stringify(data);
@@ -29,70 +25,92 @@ async function getProductListByCount(count) {
   }
 }
 
-const HomePage = ({ count, token, isAdmin }) => {
-  const { data, isLoading, isError, error, isFetching } = useQuery(
-    'productListByCount',
-    () => getProductListByCount(count),
+const HomePage = ({ newArrivals, bestSellers }) => {
+  const newArrivalsQuery = useQuery(
+    'productListByNewArrivals',
+    () => getProductList(newArrivals),
     {
       staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
     }
   );
 
-  const productList = JSON.parse(data);
+  const bestSellersQuery = useQuery(
+    'productListByBestSellers',
+    () => getProductList(bestSellers),
+    {
+      staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
+    }
+  );
 
   return (
     <>
-      <div className="jumbotron">
-        {isLoading ? <h4>Loading...</h4> : <h4>All Products</h4>}
+      <div className="jumbotron text-danger h1 font-weight-bold text-center">
+        <Jumbotron text={['Latest Products', 'New Arrivals', 'Best Sellers']} />
       </div>
 
-      <div className="container">
-        <div className="row">
-          {productList.map((item) => (
-            <div key={item._id} className="col-md-4">
-              <ProductCard product={item} />
-            </div>
-          ))}
-        </div>
-      </div>
+      <h4 className="text-center p-3 mt-5 mb-5 display-4 jumbotron">
+        New Arrivals
+      </h4>
+      <NewArrivals
+        newArrivalsQuery={newArrivalsQuery}
+        count={newArrivals.limit}
+      />
+
+      <h4 className="text-center p-3 mt-5 mb-5 display-4 jumbotron">
+        Best Sellers
+      </h4>
+      <BestSellers
+        bestSellersQuery={bestSellersQuery}
+        count={bestSellers.limit}
+      />
+
+      <br />
+      <br />
     </>
   );
 };
 
 export async function getServerSideProps(context) {
   // const { req, res } = context;
-  const { appToken } = nookies.get(context);
-  let isAdmin = false;
 
-  const count = 3;
-
-  const productListByCount = async (count) => {
-    const result = await listAllByCountProduct(count);
-    console.log('result: ', result);
-    return JSON.stringify(result);
+  const newArrivals = {
+    sort: 'createdAt',
+    order: 'desc',
+    limit: '3',
   };
+
+  const bestSellers = {
+    sort: 'sold',
+    order: 'desc',
+    limit: '3',
+  };
+
   try {
-    const { email } = await admin.auth().verifyIdToken(appToken);
-    const { role } = await currentUser(email);
-
-    if (role === 'admin') isAdmin = true;
-
     // Using Hydration
     const queryClient = new QueryClient();
-    await queryClient.prefetchQuery('productListByCount', () =>
-      productListByCount(count)
-    );
+
+    await Promise.allSettled([
+      queryClient.prefetchQuery('productListByNewArrivals', async () => {
+        const newArrivalsResult = await listProduct(newArrivals);
+        // console.log({ result });
+        return JSON.stringify(newArrivalsResult);
+      }),
+      queryClient.prefetchQuery('productListByBestSellers', async () => {
+        const bestSellersResult = await listProduct(bestSellers);
+        // console.log({ result });
+        return JSON.stringify(bestSellersResult);
+      }),
+    ]);
 
     return {
       props: {
-        count: count,
-        token: appToken,
-        isAdmin: isAdmin,
+        newArrivals: newArrivals,
+        bestSellers: bestSellers,
         dehydratedState: dehydrate(queryClient),
       }, // will be passed to the page component as props. always return an object with the props key
     };
   } catch (error) {
-    console.log('error FIREBASsE: ', error.errorInfo.message);
+    console.log('error: ', error);
     if (error) {
       return {
         // notFound: true,
