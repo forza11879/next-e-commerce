@@ -5,6 +5,15 @@ import { toast } from 'react-toastify';
 
 const baseURL = process.env.api;
 
+export const useTodosQuery = (queryKey, queryFn, arg) =>
+  useQuery(queryKey, () => queryFn(arg), {
+    // memoizes with useCallback
+    select: useCallback((data) => {
+      return JSON.parse(data);
+    }, []),
+    staleTime: Infinity,
+  });
+
 export function useQueryFn(queryKey, queryFn) {
   return useQuery(queryKey, queryFn, {
     // initialData: JSON.parse(categoryList),
