@@ -7,7 +7,7 @@ import { QueryClient, useQueryClient } from 'react-query';
 import { dehydrate } from 'react-query/hydration';
 import serialize from 'serialize-javascript';
 import {
-  useQueryFn,
+  useQueryHook,
   useMutationCreateCategory,
   useMutationRemoveCategory,
 } from '@/hooks/useQuery';
@@ -42,8 +42,8 @@ const CategoryCreate = ({ token, isAdmin }) => {
   const nameInputRef = useRef();
   const queryClient = useQueryClient();
 
-  const { data, isLoading, isError, error, isFetching } = useQueryFn(
-    'categoryList',
+  const { data, isLoading, isError, error, isFetching } = useQueryHook(
+    ['categoryList'],
     getPosts
   );
 
@@ -120,25 +120,23 @@ const CategoryCreate = ({ token, isAdmin }) => {
 
             {isError ? (
               <h4 className="text-danger">{error.message}</h4>
-            ) : JSON.parse(data).length ? (
-              JSON.parse(data)
-                .filter(searched(keyword))
-                .map((item) => (
-                  <div className="alert alert-secondary" key={item._id}>
-                    {item.name}
-                    <span
-                      onClick={() => handleRemove(item.slug)}
-                      className="btn btn-sm float-right"
-                    >
-                      <DeleteOutlined className="text-danger" />
+            ) : data.length ? (
+              data.filter(searched(keyword)).map((item) => (
+                <div className="alert alert-secondary" key={item._id}>
+                  {item.name}
+                  <span
+                    onClick={() => handleRemove(item.slug)}
+                    className="btn btn-sm float-right"
+                  >
+                    <DeleteOutlined className="text-danger" />
+                  </span>
+                  <Link href={`/admin/category/${item.slug}`}>
+                    <span className="btn btn-sm float-right">
+                      <EditOutlined className="text-warning" />
                     </span>
-                    <Link href={`/admin/category/${item.slug}`}>
-                      <span className="btn btn-sm float-right">
-                        <EditOutlined className="text-warning" />
-                      </span>
-                    </Link>
-                  </div>
-                ))
+                  </Link>
+                </div>
+              ))
             ) : (
               <p>No Data</p>
             )}

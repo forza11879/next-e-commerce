@@ -8,7 +8,7 @@ import { useRouter } from 'next/router';
 import { read } from '@/Models/Category/index';
 import AdminNav from '@/components/nav/AdminNav';
 import CategoryForm from '@/components/forms/CategoryForm';
-import { useQueryFn, useMutationUpdateCategory } from '@/hooks/useQuery';
+import { useQueryHookArg, useMutationUpdateCategory } from '@/hooks/useQuery';
 
 const baseURL = process.env.api;
 
@@ -30,12 +30,13 @@ const CategoryUpdate = ({ id, token, slug }) => {
   const queryClient = useQueryClient();
   const router = useRouter();
 
-  const { data, isLoading, isError, error, isFetching } = useQueryFn(
+  const { data, isLoading, isError, error, isFetching } = useQueryHookArg(
     ['categorySlug', id],
-    () => getPost(slug)
+    getPost,
+    slug
   );
 
-  const { name } = JSON.parse(data);
+  const { name } = data;
 
   const mutationUpdateCategory = useMutationUpdateCategory(queryClient);
 

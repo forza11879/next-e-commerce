@@ -5,7 +5,7 @@ import { dehydrate } from 'react-query/hydration';
 import Jumbotron from '@/components/cards/Jumbotron';
 import NewArrivals from '@/components/home/NewArrivals';
 import BestSellers from '@/components/home/BestSellers';
-import { useTodosQuery } from '@/hooks/useQuery';
+import { useQueryHookArg } from '@/hooks/useQuery';
 import { listProduct } from '@/Models/Product/index';
 
 const baseURL = process.env.api;
@@ -27,24 +27,15 @@ async function getProductList(body) {
 }
 
 const HomePage = ({ newArrivals, bestSellers }) => {
-  // const newArrivalsQuery = useQuery(
-  //   'productListByNewArrivals',
-  //   () => getProductList(newArrivals),
-  //   {
-  //     staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
-  //   }
-  // );
-  const queryKey = ['productListByNewArrivals'];
-  const queryFn = getProductList;
-  const arg = newArrivals;
-  const newArrivalsQuery = useTodosQuery(queryKey, queryFn, arg);
-
-  const bestSellersQuery = useQuery(
-    'productListByBestSellers',
-    () => getProductList(bestSellers),
-    {
-      staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
-    }
+  const newArrivalsQuery = useQueryHookArg(
+    ['productListByNewArrivals'],
+    getProductList,
+    newArrivals
+  );
+  const bestSellersQuery = useQueryHookArg(
+    ['productListByBestSellers'],
+    getProductList,
+    bestSellers
   );
 
   return (

@@ -7,7 +7,7 @@ import { QueryClient, useQueryClient } from 'react-query';
 import { dehydrate } from 'react-query/hydration';
 import nookies from 'nookies';
 import {
-  useQueryFn,
+  useQueryHook,
   useMutationCreateSubCategory,
   useMutationRemoveSubCategory,
 } from '@/hooks/useQuery';
@@ -60,8 +60,11 @@ const SubCreate = ({ token, isAdmin }) => {
   const queryClient = useQueryClient();
   // "Parallel" queries are queries that are executed in parallel, or at the same time so as to maximize fetching concurrency.
   // When the number of parallel queries does not change, there is no extra effort to use parallel queries. Just use any number of React Query's useQuery and useInfiniteQuery hooks side-by-side!
-  const categoryQuery = useQueryFn('categoryList', getPostsCategory);
-  const subCategoryQuery = useQueryFn('subCategoryList', getPostsSubCategory);
+  const categoryQuery = useQueryHook(['categoryList'], getPostsCategory);
+  const subCategoryQuery = useQueryHook(
+    ['subCategoryList'],
+    getPostsSubCategory
+  );
 
   const mutationCreateSubCategory = useMutationCreateSubCategory(queryClient);
   const mutationRemoveSubCategory = useMutationRemoveSubCategory(queryClient);
@@ -122,8 +125,8 @@ const SubCreate = ({ token, isAdmin }) => {
                 onChange={(e) => setCategory(e.target.value)}
               >
                 <option>Please select</option>
-                {JSON.parse(categoryQuery.data).length > 0 &&
-                  JSON.parse(categoryQuery.data).map((item) => (
+                {categoryQuery.data.length > 0 &&
+                  categoryQuery.data.map((item) => (
                     <option key={item._id} value={item._id}>
                       {item.name}
                     </option>
@@ -142,25 +145,23 @@ const SubCreate = ({ token, isAdmin }) => {
 
             {subCategoryQuery.isError ? (
               <h4 className="text-danger">{error.message}</h4>
-            ) : JSON.parse(subCategoryQuery.data).length ? (
-              JSON.parse(subCategoryQuery.data)
-                .filter(searched(keyword))
-                .map((item) => (
-                  <div className="alert alert-secondary" key={item._id}>
-                    {item.name}
-                    <span
-                      onClick={() => handleRemove(item.slug)}
-                      className="btn btn-sm float-right"
-                    >
-                      <DeleteOutlined className="text-danger" />
+            ) : subCategoryQuery.data.length ? (
+              subCategoryQuery.data.filter(searched(keyword)).map((item) => (
+                <div className="alert alert-secondary" key={item._id}>
+                  {item.name}
+                  <span
+                    onClick={() => handleRemove(item.slug)}
+                    className="btn btn-sm float-right"
+                  >
+                    <DeleteOutlined className="text-danger" />
+                  </span>
+                  <Link href={`/admin/subcategory/${item.slug}`}>
+                    <span className="btn btn-sm float-right">
+                      <EditOutlined className="text-warning" />
                     </span>
-                    <Link href={`/admin/subcategory/${item.slug}`}>
-                      <span className="btn btn-sm float-right">
-                        <EditOutlined className="text-warning" />
-                      </span>
-                    </Link>
-                  </div>
-                ))
+                  </Link>
+                </div>
+              ))
             ) : (
               <p>No Data</p>
             )}

@@ -5,8 +5,17 @@ import { toast } from 'react-toastify';
 
 const baseURL = process.env.api;
 
-export const useTodosQuery = (queryKey, queryFn, arg) =>
+export const useQueryHookArg = (queryKey, queryFn, arg) =>
   useQuery(queryKey, () => queryFn(arg), {
+    // memoizes with useCallback
+    select: useCallback((data) => {
+      return JSON.parse(data);
+    }, []),
+    staleTime: Infinity,
+  });
+
+export const useQueryHook = (queryKey, queryFn) =>
+  useQuery(queryKey, queryFn, {
     // memoizes with useCallback
     select: useCallback((data) => {
       return JSON.parse(data);
@@ -36,9 +45,6 @@ export function useQueryFn(queryKey, queryFn) {
   });
 }
 
-export function useQueryFnById(queryKey, queryFn) {
-  return useQuery(queryKey, queryFn, { staleTime: Infinity });
-}
 // Category Mutations
 export const useMutationCreateCategory = (queryClient) => {
   return useMutation(

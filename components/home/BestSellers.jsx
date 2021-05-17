@@ -2,8 +2,6 @@ import ProductCard from '@/components/cards/ProductCard';
 import LoadingCard from '@/components/cards/LoadingCard';
 
 const BestSellers = ({ bestSellersQuery, count }) => {
-  const bestSellerList = JSON.parse(bestSellersQuery.data);
-
   return (
     <>
       <div className="container">
@@ -11,7 +9,7 @@ const BestSellers = ({ bestSellersQuery, count }) => {
           <LoadingCard count={count} />
         ) : (
           <div className="row">
-            {bestSellerList.map((item) => (
+            {bestSellersQuery.data.map((item) => (
               <div key={item._id} className="col-md-4">
                 <ProductCard product={item} />
               </div>

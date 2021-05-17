@@ -9,7 +9,11 @@ import { listCategory } from '@/Models/Category/index';
 import { read } from '@/Models/SubCategory/index';
 import AdminNav from '@/components/nav/AdminNav';
 import CategoryForm from '@/components/forms/CategoryForm';
-import { useQueryFn, useMutationUpdateSubCategory } from '@/hooks/useQuery';
+import {
+  useQueryHook,
+  useQueryHookArg,
+  useMutationUpdateSubCategory,
+} from '@/hooks/useQuery';
 
 const baseURL = process.env.api;
 
@@ -47,12 +51,14 @@ const SubUpdate = ({ id, token, slug }) => {
   const queryClient = useQueryClient();
   const router = useRouter();
 
-  const categoryQuery = useQueryFn('categoryList', getPostsCategory);
-  const slugSubCategoryQuery = useQueryFn(['subCategorySlug', id], () =>
-    getPostSubCategory(slug)
+  const categoryQuery = useQueryHook(['categoryList'], getPostsCategory);
+  const slugSubCategoryQuery = useQueryHookArg(
+    ['subCategorySlug', id],
+    getPostSubCategory,
+    slug
   );
 
-  const { name, parent } = JSON.parse(slugSubCategoryQuery.data);
+  const { name, parent } = slugSubCategoryQuery.data;
 
   useEffect(() => {
     setParentInput(parent);
@@ -106,8 +112,8 @@ const SubUpdate = ({ id, token, slug }) => {
               onChange={(e) => setParentInput(e.target.value)}
             >
               <option>Please select</option>
-              {JSON.parse(categoryQuery.data).length > 0 &&
-                JSON.parse(categoryQuery.data).map((item) => (
+              {categoryQuery.data.length > 0 &&
+                categoryQuery.data.map((item) => (
                   <option
                     key={item._id}
                     value={item._id}
