@@ -5,6 +5,7 @@ import {
   remove,
   read,
   update,
+  productsCount,
 } from '@/Models/Product/index';
 
 export const createController = async (req, res) => {
@@ -75,5 +76,15 @@ export const updateController = async (req, res) => {
   } catch (error) {
     console.log('product update controller error: ', error);
     res.status(400).json('Fetch product update request failed');
+  }
+};
+
+export const productsCountController = async (req, res) => {
+  try {
+    const total = await productsCount();
+    res.status(200).json(total);
+  } catch (error) {
+    console.log('product productsCount controller error: ', error);
+    res.status(400).json('Fetch product productsCount request failed');
   }
 };

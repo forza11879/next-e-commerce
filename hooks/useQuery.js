@@ -7,11 +7,12 @@ const baseURL = process.env.api;
 
 export const useQueryHookArg = (queryKey, queryFn, arg) =>
   useQuery(queryKey, () => queryFn(arg), {
-    // memoizes with useCallback
+    // Selectors like the one bellow will also run on every render, because the functional identity changes (it's an inline function). If your transformation is expensive, you can memoize it either with useCallback, or by extracting it to a stable function reference
     select: useCallback((data) => {
+      // selectors will only be called if data exists, so you don't have to care about undefined here.
       return JSON.parse(data);
     }, []),
-    staleTime: Infinity,
+    // staleTime: Infinity,
   });
 
 export const useQueryHook = (queryKey, queryFn) =>
@@ -20,7 +21,7 @@ export const useQueryHook = (queryKey, queryFn) =>
     select: useCallback((data) => {
       return JSON.parse(data);
     }, []),
-    staleTime: Infinity,
+    // staleTime: Infinity,
   });
 
 export function useQueryFn(queryKey, queryFn) {

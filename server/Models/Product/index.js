@@ -41,22 +41,48 @@ const create = async (values) => {
 };
 
 const listProduct = async (body) => {
-  const { sort, order, limit } = body;
+  const { sort, order, page } = body;
+  const currentPage = parseInt(page) || 1;
+  const perPage = 3; // 3
+
   console.log('sort', sort);
   console.log('order', order);
-  console.log('limit', limit);
+  console.log('page', page);
 
   try {
     const query = {};
     const productList = await Product.find(query)
-      .limit(parseInt(limit))
+      .skip((currentPage - 1) * perPage)
       .populate('category')
       .populate('subcategories')
-      .sort([[sort, order]]);
+      .sort([[sort, order]])
+      .limit(perPage)
+      .exec();
 
     return productList;
   } catch (error) {
     console.log('product list model error: ', error);
+  }
+};
+
+exports.list = async (req, res) => {
+  try {
+    // createdAt/updatedAt, desc/asc, 3
+    const { sort, order, page } = req.body;
+    const currentPage = page || 1;
+    const perPage = 3; // 3
+
+    const products = await Product.find({})
+      .skip((currentPage - 1) * perPage)
+      .populate('category')
+      .populate('subs')
+      .sort([[sort, order]])
+      .limit(perPage)
+      .exec();
+
+    res.json(products);
+  } catch (err) {
+    console.log(err);
   }
 };
 
@@ -117,4 +143,22 @@ const update = async (values, slug) => {
   }
 };
 
-export { create, listProduct, listAllByCountProduct, remove, read, update };
+const productsCount = async () => {
+  const query = {};
+  try {
+    const total = await Product.find(query).estimatedDocumentCount();
+    return total;
+  } catch (error) {
+    console.log('product model productsCount error: ', error);
+  }
+};
+
+export {
+  create,
+  listProduct,
+  listAllByCountProduct,
+  remove,
+  read,
+  update,
+  productsCount,
+};

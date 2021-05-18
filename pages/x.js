@@ -1,1 +1,68 @@
-"[{\"subcategories\":[{\"_id\":\"608896a33831780179d969d7\",\"name\":\"ferrari\",\"parent\":\"6088967b3831780179d969d6\",\"slug\":\"ferrari\",\"createdAt\":\"2021-04-27T22:56:35.155Z\",\"updatedAt\":\"2021-04-27T22:56:35.155Z\",\"__v\":0}],\"sold\":20,\"images\":[{\"public_id\":\"tqckll75avon2lwomaj8\",\"url\":\"https://res.cloudinary.com/dhvi46rif/image/upload/v1620954935/tqckll75avon2lwomaj8.jpg\"}],\"_id\":\"609c9940bf41bb017c638f7f\",\"title\":\"Macbook Pro\",\"description\":\"This is the best Apple product\",\"price\":45000,\"quantity\":50,\"shipping\":\"No\",\"color\":\"Black\",\"brand\":\"Apple\",\"category\":{\"_id\":\"6088967b3831780179d969d6\",\"name\":\"cm\",\"slug\":\"cm\",\"createdAt\":\"2021-04-27T22:55:55.603Z\",\"updatedAt\":\"2021-04-27T22:55:55.603Z\",\"__v\":0},\"slug\":\"macbook-pro\",\"createdAt\":\"2021-05-13T03:13:04.954Z\",\"updatedAt\":\"2021-05-14T01:15:38.398Z\",\"__v\":0},{\"subcategories\":[{\"_id\":\"60865f5c087d730d0e6bb1ef\",\"name\":\"gm\",\"parent\":\"6078f2f351420a0bfc4af2c1\",\"slug\":\"gm\",\"createdAt\":\"2021-04-26T06:36:12.803Z\",\"updatedAt\":\"2021-04-26T06:36:12.803Z\",\"__v\":0}],\"sold\":10,\"images\":[{\"public_id\":\"cgp8te0z1cmptavoiz0s\",\"url\":\"https://res.cloudinary.com/dhvi46rif/image/upload/v1620875594/cgp8te0z1cmptavoiz0s.jpg\"}],\"_id\":\"609c9973bf41bb017c638f80\",\"title\":\"Samsung Pro\",\"description\":\"This is the best Samsung product\",\"price\":40000,\"quantity\":50,\"shipping\":\"Yes\",\"color\":\"Silver\",\"brand\":\"Samsung\",\"category\":{\"_id\":\"6078f2f351420a0bfc4af2c1\",\"name\":\"td\",\"slug\":\"td\",\"createdAt\":\"2021-04-16T02:14:11.151Z\",\"updatedAt\":\"2021-04-21T23:41:34.883Z\",\"__v\":0},\"slug\":\"samsung-pro\",\"createdAt\":\"2021-05-13T03:13:55.350Z\",\"updatedAt\":\"2021-05-13T03:13:55.350Z\",\"__v\":0},{\"subcategories\":[{\"_id\":\"60825fbd8583f4017785a544\",\"name\":\"audi\",\"parent\":\"608241538583f4017785a4fd\",\"slug\":\"audi\",\"createdAt\":\"2021-04-23T05:48:45.258Z\",\"updatedAt\":\"2021-04-23T09:13:14.324Z\",\"__v\":0}],\"sold\":0,\"images\":[{\"public_id\":\"dasit9wdmlocajn8xhg6\",\"url\":\"https://res.cloudinary.com/dhvi46rif/image/upload/v1620956833/dasit9wdmlocajn8xhg6.jpg\"}],\"_id\":\"609dd5d845130703603ac829\",\"title\":\"Asus Pro\",\"description\":\"This is the best Asus product\",\"price\":45000,\"quantity\":50,\"shipping\":\"Yes\",\"color\":\"Brown\",\"brand\":\"ASUS\",\"category\":{\"_id\":\"608241538583f4017785a4fd\",\"name\":\"ry\",\"slug\":\"ry\",\"createdAt\":\"2021-04-23T03:38:59.942Z\",\"updatedAt\":\"2021-04-23T06:13:33.195Z\",\"__v\":0},\"slug\":\"asus-pro\",\"createdAt\":\"2021-05-14T01:43:52.044Z\",\"updatedAt\":\"2021-05-14T01:47:16.231Z\",\"__v\":0}]";
+const HomePage = ({ newArrivals }) => {
+  const [page, setPage] = useState(1);
+  const [arrivals, setArrivals] = useState({ ...newArrivals, page: 1 });
+
+  useEffect(() => {
+    setArrivals((values) => {
+      console.log({ page });
+      return { ...values, page: page };
+    });
+    setTimeout(function () {
+      newArrivalsQuery.refetch();
+    }, 0);
+  }, [page]);
+
+  const newArrivalsQuery = useQuery(
+    ['productListByNewArrivals'],
+    () => getProductList(arrivals),
+    {
+      select: useCallback((data) => {
+        return JSON.parse(data);
+      }, []),
+    }
+  );
+
+  return (
+    <>
+      <NewArrivals
+        productsCountQuery={productsCountQuery}
+        newArrivalsQuery={newArrivalsQuery}
+        page={page}
+        setPage={setPage}
+      />
+    </>
+  );
+};
+
+export async function getServerSideProps(context) {
+  const newArrivals = {
+    sort: 'createdAt',
+    order: 'desc',
+  };
+
+  try {
+    const queryClient = new QueryClient();
+
+    await queryClient.prefetchQuery('productListByNewArrivals', async () => {
+      const newArrivalsResult = await listProduct(newArrivals);
+      return JSON.stringify(newArrivalsResult);
+    });
+
+    return {
+      props: {
+        newArrivals: newArrivals,
+        dehydratedState: dehydrate(queryClient),
+      },
+    };
+  } catch (error) {
+    console.log('error: ', error);
+    if (error) {
+      return {
+        redirect: {
+          destination: '/login',
+          permanent: false,
+        },
+      };
+    }
+  }
+}

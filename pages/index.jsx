@@ -1,17 +1,21 @@
-import { useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import nookies from 'nookies';
 import axios from 'axios';
-import { useQuery, QueryClient } from 'react-query';
+import { useQuery, QueryClient, useQueryClient } from 'react-query';
 import { dehydrate } from 'react-query/hydration';
 import Jumbotron from '@/components/cards/Jumbotron';
 import NewArrivals from '@/components/home/NewArrivals';
 import BestSellers from '@/components/home/BestSellers';
-import { useQueryHookArg } from '@/hooks/useQuery';
-import { listProduct } from '@/Models/Product/index';
+import admin from '@/firebase/index';
+import { currentUser } from '@/Models/User/index';
+import { useQueryHook, useQueryHookArg } from '@/hooks/useQuery';
+import { listProduct, productsCount } from '@/Models/Product/index';
 
 const baseURL = process.env.api;
 
 async function getProductList(body) {
   console.log(`${baseURL}/product/all`);
+  console.log({ body });
   try {
     const { data } = await axios.request({
       baseURL,
@@ -26,12 +30,53 @@ async function getProductList(body) {
   }
 }
 
+async function getproductsCount() {
+  console.log(`${baseURL}/product/all/total`);
+  try {
+    const { data } = await axios.request({
+      baseURL,
+      url: `/product/all/total`,
+      method: 'get',
+    });
+
+    return data;
+  } catch (error) {
+    console.log('getPosts error:', error);
+  }
+}
+
 const HomePage = ({ newArrivals, bestSellers }) => {
+  const [limit] = useState(3);
+  const [page, setPage] = useState(1);
+  const [arrivals, setArrivals] = useState({ ...newArrivals, page: 1 });
+
+  useEffect(() => {
+    setArrivals((values) => {
+      console.log({ page });
+      return { ...values, page: page };
+    });
+    setTimeout(function () {
+      newArrivalsQuery.refetch();
+    }, 0);
+  }, [page]);
+
+  const productsCountQuery = useQueryHook(['productsCount'], getproductsCount);
+
+  // const newArrivalsQuery = useQuery(
+  //   ['productListByNewArrivals'],
+  //   () => getProductList(arrivals),
+  //   {
+  //     select: useCallback((data) => {
+  //       return JSON.parse(data);
+  //     }, []),
+  //   }
+  // );
   const newArrivalsQuery = useQueryHookArg(
     ['productListByNewArrivals'],
     getProductList,
-    newArrivals
+    arrivals
   );
+
   const bestSellersQuery = useQueryHookArg(
     ['productListByBestSellers'],
     getProductList,
@@ -48,17 +93,17 @@ const HomePage = ({ newArrivals, bestSellers }) => {
         New Arrivals
       </h4>
       <NewArrivals
+        productsCountQuery={productsCountQuery}
         newArrivalsQuery={newArrivalsQuery}
-        count={newArrivals.limit}
+        count={limit}
+        page={page}
+        setPage={setPage}
       />
 
       <h4 className="text-center p-3 mt-5 mb-5 display-4 jumbotron">
         Best Sellers
       </h4>
-      <BestSellers
-        bestSellersQuery={bestSellersQuery}
-        count={bestSellers.limit}
-      />
+      <BestSellers bestSellersQuery={bestSellersQuery} count={limit} />
 
       <br />
       <br />
@@ -69,19 +114,22 @@ const HomePage = ({ newArrivals, bestSellers }) => {
 export async function getServerSideProps(context) {
   // const { req, res } = context;
 
+  const { appToken } = nookies.get(context);
+
   const newArrivals = {
     sort: 'createdAt',
     order: 'desc',
-    limit: '3',
   };
 
   const bestSellers = {
     sort: 'sold',
     order: 'desc',
-    limit: '3',
   };
 
   try {
+    const { email } = await admin.auth().verifyIdToken(appToken);
+    const { role } = await currentUser(email);
+
     // Using Hydration
     const queryClient = new QueryClient();
 
@@ -95,6 +143,11 @@ export async function getServerSideProps(context) {
         const bestSellersResult = await listProduct(bestSellers);
         // console.log({ result });
         return JSON.stringify(bestSellersResult);
+      }),
+      queryClient.prefetchQuery('productsCount', async () => {
+        const productsCountResult = await productsCount();
+        console.log({ productsCountResult });
+        return JSON.stringify(productsCountResult);
       }),
     ]);
 
