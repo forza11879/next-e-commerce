@@ -48,31 +48,12 @@ async function getproductsCount() {
 const HomePage = ({ newArrivals, bestSellers }) => {
   const [limit] = useState(3);
   const [page, setPage] = useState(1);
-  const [arrivals, setArrivals] = useState({ ...newArrivals, page: 1 });
-
-  useEffect(() => {
-    setArrivals((values) => {
-      console.log({ page });
-      return { ...values, page: page };
-    });
-    setTimeout(function () {
-      newArrivalsQuery.refetch();
-    }, 0);
-  }, [page]);
+  const arrivals = { ...newArrivals, page: page };
 
   const productsCountQuery = useQueryHook(['productsCount'], getproductsCount);
 
-  // const newArrivalsQuery = useQuery(
-  //   ['productListByNewArrivals'],
-  //   () => getProductList(arrivals),
-  //   {
-  //     select: useCallback((data) => {
-  //       return JSON.parse(data);
-  //     }, []),
-  //   }
-  // );
   const newArrivalsQuery = useQueryHookArg(
-    ['productListByNewArrivals'],
+    ['productListByNewArrivals', arrivals.page],
     getProductList,
     arrivals
   );
@@ -126,6 +107,8 @@ export async function getServerSideProps(context) {
     order: 'desc',
   };
 
+  const page = 1;
+
   try {
     const { email } = await admin.auth().verifyIdToken(appToken);
     const { role } = await currentUser(email);
@@ -134,11 +117,14 @@ export async function getServerSideProps(context) {
     const queryClient = new QueryClient();
 
     await Promise.allSettled([
-      queryClient.prefetchQuery('productListByNewArrivals', async () => {
-        const newArrivalsResult = await listProduct(newArrivals);
-        // console.log({ result });
-        return JSON.stringify(newArrivalsResult);
-      }),
+      queryClient.prefetchQuery(
+        ['productListByNewArrivals', page],
+        async () => {
+          const newArrivalsResult = await listProduct(newArrivals);
+          // console.log({ result });
+          return JSON.stringify(newArrivalsResult);
+        }
+      ),
       queryClient.prefetchQuery('productListByBestSellers', async () => {
         const bestSellersResult = await listProduct(bestSellers);
         // console.log({ result });

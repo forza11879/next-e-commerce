@@ -25,7 +25,6 @@ const HomePage = ({ newArrivals }) => {
   return (
     <>
       <NewArrivals
-        productsCountQuery={productsCountQuery}
         newArrivalsQuery={newArrivalsQuery}
         page={page}
         setPage={setPage}
