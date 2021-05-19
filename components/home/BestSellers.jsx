@@ -1,7 +1,14 @@
+import { Pagination } from 'antd';
 import ProductCard from '@/components/cards/ProductCard';
 import LoadingCard from '@/components/cards/LoadingCard';
 
-const BestSellers = ({ bestSellersQuery, count }) => {
+const BestSellers = ({
+  productsCountQuery,
+  bestSellersQuery,
+  count,
+  pageBestSellers,
+  setPageBestSellers,
+}) => {
   return (
     <>
       <div className="container">
@@ -16,6 +23,15 @@ const BestSellers = ({ bestSellersQuery, count }) => {
             ))}
           </div>
         )}
+      </div>
+      <div className="row">
+        <nav className="col-md-4 offset-md-4 text-center pt-5 p-3">
+          <Pagination
+            current={pageBestSellers}
+            total={(productsCountQuery.data / 3) * 10}
+            onChange={(value) => setPageBestSellers(value)}
+          />
+        </nav>
       </div>
     </>
   );

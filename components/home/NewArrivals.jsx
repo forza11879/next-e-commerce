@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Pagination } from 'antd';
 import ProductCard from '@/components/cards/ProductCard';
 import LoadingCard from '@/components/cards/LoadingCard';
@@ -7,8 +6,8 @@ const NewArrivals = ({
   productsCountQuery,
   newArrivalsQuery,
   count,
-  page,
-  setPage,
+  pageNewArrivals,
+  setPageNewArrivals,
 }) => {
   return (
     <>
@@ -28,9 +27,9 @@ const NewArrivals = ({
       <div className="row">
         <nav className="col-md-4 offset-md-4 text-center pt-5 p-3">
           <Pagination
-            current={page}
+            current={pageNewArrivals}
             total={(productsCountQuery.data / 3) * 10}
-            onChange={(value) => setPage(value)}
+            onChange={(value) => setPageNewArrivals(value)}
           />
         </nav>
       </div>

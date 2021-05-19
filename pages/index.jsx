@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import nookies from 'nookies';
 import axios from 'axios';
-import { useQuery, QueryClient, useQueryClient } from 'react-query';
+import { QueryClient } from 'react-query';
 import { dehydrate } from 'react-query/hydration';
 import Jumbotron from '@/components/cards/Jumbotron';
 import NewArrivals from '@/components/home/NewArrivals';
@@ -15,7 +15,6 @@ const baseURL = process.env.api;
 
 async function getProductList(body) {
   console.log(`${baseURL}/product/all`);
-  console.log({ body });
   try {
     const { data } = await axios.request({
       baseURL,
@@ -47,8 +46,12 @@ async function getproductsCount() {
 
 const HomePage = ({ newArrivals, bestSellers }) => {
   const [limit] = useState(3);
-  const [page, setPage] = useState(1);
-  const arrivals = { ...newArrivals, page: page };
+
+  const [pageNewArrivals, setPageNewArrivals] = useState(1);
+  const [pageBestSellers, setPageBestSellers] = useState(1);
+
+  const arrivals = { ...newArrivals, page: pageNewArrivals };
+  const sellers = { ...bestSellers, page: pageBestSellers };
 
   const productsCountQuery = useQueryHook(['productsCount'], getproductsCount);
 
@@ -59,9 +62,9 @@ const HomePage = ({ newArrivals, bestSellers }) => {
   );
 
   const bestSellersQuery = useQueryHookArg(
-    ['productListByBestSellers'],
+    ['productListByBestSellers', sellers.page],
     getProductList,
-    bestSellers
+    sellers
   );
 
   return (
@@ -77,14 +80,20 @@ const HomePage = ({ newArrivals, bestSellers }) => {
         productsCountQuery={productsCountQuery}
         newArrivalsQuery={newArrivalsQuery}
         count={limit}
-        page={page}
-        setPage={setPage}
+        pageNewArrivals={pageNewArrivals}
+        setPageNewArrivals={setPageNewArrivals}
       />
 
       <h4 className="text-center p-3 mt-5 mb-5 display-4 jumbotron">
         Best Sellers
       </h4>
-      <BestSellers bestSellersQuery={bestSellersQuery} count={limit} />
+      <BestSellers
+        productsCountQuery={productsCountQuery}
+        bestSellersQuery={bestSellersQuery}
+        count={limit}
+        pageBestSellers={pageBestSellers}
+        setPageBestSellers={setPageBestSellers}
+      />
 
       <br />
       <br />
@@ -100,14 +109,14 @@ export async function getServerSideProps(context) {
   const newArrivals = {
     sort: 'createdAt',
     order: 'desc',
+    page: 1,
   };
 
   const bestSellers = {
     sort: 'sold',
     order: 'desc',
+    page: 1,
   };
-
-  const page = 1;
 
   try {
     const { email } = await admin.auth().verifyIdToken(appToken);
@@ -118,18 +127,21 @@ export async function getServerSideProps(context) {
 
     await Promise.allSettled([
       queryClient.prefetchQuery(
-        ['productListByNewArrivals', page],
+        ['productListByNewArrivals', newArrivals.page],
         async () => {
           const newArrivalsResult = await listProduct(newArrivals);
           // console.log({ result });
           return JSON.stringify(newArrivalsResult);
         }
       ),
-      queryClient.prefetchQuery('productListByBestSellers', async () => {
-        const bestSellersResult = await listProduct(bestSellers);
-        // console.log({ result });
-        return JSON.stringify(bestSellersResult);
-      }),
+      queryClient.prefetchQuery(
+        ['productListByBestSellers', bestSellers.page],
+        async () => {
+          const bestSellersResult = await listProduct(bestSellers);
+          // console.log({ result });
+          return JSON.stringify(bestSellersResult);
+        }
+      ),
       queryClient.prefetchQuery('productsCount', async () => {
         const productsCountResult = await productsCount();
         console.log({ productsCountResult });

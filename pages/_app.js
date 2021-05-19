@@ -31,15 +31,14 @@ const queryClient = new QueryClient({
 function MyApp({ Component, pageProps }) {
   const queryClientRef = useRef();
   if (!queryClientRef.current) {
-    queryClientRef.current = new QueryClient();
-    //   {
-    //   defaultOptions: {
-    //     // https://tkdodo.eu/blog/react-query-render-optimizations
-    //     queries: {
-    //       notifyOnChangeProps: 'tracked', // With this, you never have to think about re-renders again
-    //     },
-    //   },
-    // } // https://react-query.tanstack.com/guides/ssr#using-nextjs
+    queryClientRef.current = new QueryClient({
+      defaultOptions: {
+        // https://tkdodo.eu/blog/react-query-render-optimizations
+        queries: {
+          notifyOnChangeProps: 'tracked', // With this, you never have to think about re-renders again
+        },
+      },
+    }); // https://react-query.tanstack.com/guides/ssr#using-nextjs
   }
   return (
     <>
