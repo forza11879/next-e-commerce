@@ -6,8 +6,8 @@ const BestSellers = ({
   productsCountQuery,
   bestSellersQuery,
   count,
-  pageBestSellers,
-  setPageBestSellers,
+  page,
+  setPage,
 }) => {
   return (
     <>
@@ -27,9 +27,9 @@ const BestSellers = ({
       <div className="row">
         <nav className="col-md-4 offset-md-4 text-center pt-5 p-3">
           <Pagination
-            current={pageBestSellers}
+            current={page}
             total={(productsCountQuery.data / 3) * 10}
-            onChange={(value) => setPageBestSellers(value)}
+            onChange={(value) => setPage(value)}
           />
         </nav>
       </div>

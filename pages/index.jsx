@@ -80,8 +80,8 @@ const HomePage = ({ newArrivals, bestSellers }) => {
         productsCountQuery={productsCountQuery}
         newArrivalsQuery={newArrivalsQuery}
         count={limit}
-        pageNewArrivals={pageNewArrivals}
-        setPageNewArrivals={setPageNewArrivals}
+        page={pageNewArrivals}
+        setPage={setPageNewArrivals}
       />
 
       <h4 className="text-center p-3 mt-5 mb-5 display-4 jumbotron">
@@ -91,8 +91,8 @@ const HomePage = ({ newArrivals, bestSellers }) => {
         productsCountQuery={productsCountQuery}
         bestSellersQuery={bestSellersQuery}
         count={limit}
-        pageBestSellers={pageBestSellers}
-        setPageBestSellers={setPageBestSellers}
+        page={pageBestSellers}
+        setPage={setPageBestSellers}
       />
 
       <br />

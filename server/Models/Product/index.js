@@ -65,27 +65,6 @@ const listProduct = async (body) => {
   }
 };
 
-exports.list = async (req, res) => {
-  try {
-    // createdAt/updatedAt, desc/asc, 3
-    const { sort, order, page } = req.body;
-    const currentPage = page || 1;
-    const perPage = 3; // 3
-
-    const products = await Product.find({})
-      .skip((currentPage - 1) * perPage)
-      .populate('category')
-      .populate('subs')
-      .sort([[sort, order]])
-      .limit(perPage)
-      .exec();
-
-    res.json(products);
-  } catch (err) {
-    console.log(err);
-  }
-};
-
 const listAllByCountProduct = async (count) => {
   const query = {};
   try {
@@ -113,11 +92,14 @@ const remove = async (slug) => {
 
 const read = async (slug) => {
   const query = { slug: slug };
+  console.log({ slug });
   try {
     const product = await Product.findOne(query)
       .populate('category')
       .populate('subcategories')
       .exec();
+    console.log({ product });
+
     return product;
   } catch (error) {
     console.log('product model read error: ', error);

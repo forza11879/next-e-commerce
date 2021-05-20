@@ -28,11 +28,7 @@ const ProductCard = ({ product }) => {
       }
       actions={[
         <Link href={`/product/${slug}`}>
-          <>
-            <EyeOutlined className="text-warning" />
-            <br />
-            View Product
-          </>
+          <EyeOutlined className="text-warning" />
         </Link>,
         <>
           <ShoppingCartOutlined className="text-danger" /> <br /> Add to Cart

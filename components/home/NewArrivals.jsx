@@ -6,8 +6,8 @@ const NewArrivals = ({
   productsCountQuery,
   newArrivalsQuery,
   count,
-  pageNewArrivals,
-  setPageNewArrivals,
+  page,
+  setPage,
 }) => {
   return (
     <>
@@ -27,9 +27,9 @@ const NewArrivals = ({
       <div className="row">
         <nav className="col-md-4 offset-md-4 text-center pt-5 p-3">
           <Pagination
-            current={pageNewArrivals}
+            current={page}
             total={(productsCountQuery.data / 3) * 10}
-            onChange={(value) => setPageNewArrivals(value)}
+            onChange={(value) => setPage(value)}
           />
         </nav>
       </div>
