@@ -135,6 +135,44 @@ const productsCount = async () => {
   }
 };
 
+const productById = async (productId) => {
+  const query = { _id: productId };
+  try {
+    const product = await Product.findById(query);
+    return product;
+  } catch (error) {
+    console.log('product model productStar error: ', error);
+  }
+};
+
+const addRating = async (product, user, star) => {
+  const query = { _id: product._id };
+  const update = {
+    $push: { ratings: { star: star, postedBy: user._id } },
+  };
+  const option = { new: true };
+  try {
+    const ratingAdded = await Product.findByIdAndUpdate(query, update, option);
+    return ratingAdded;
+  } catch (error) {
+    console.log('product model addRating error: ', error);
+  }
+};
+
+const updateRating = async (existingRatingObject, star) => {
+  const query = {
+    ratings: { $elemMatch: existingRatingObject },
+  };
+  const update = { $set: { 'ratings.$.star': star } };
+  const option = { new: true };
+  try {
+    const ratingUpdated = await Product.updateOne(query, update, option);
+    return ratingUpdated;
+  } catch (error) {
+    console.log('product model updateRating error: ', error);
+  }
+};
+
 export {
   create,
   listProduct,
@@ -143,4 +181,7 @@ export {
   read,
   update,
   productsCount,
+  productById,
+  addRating,
+  updateRating,
 };

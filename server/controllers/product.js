@@ -6,7 +6,11 @@ import {
   read,
   update,
   productsCount,
+  productById,
+  addRating,
+  updateRating,
 } from '@/Models/Product/index';
+import { currentUser } from '@/Models/User/index';
 
 export const createController = async (req, res) => {
   try {
@@ -86,5 +90,38 @@ export const productsCountController = async (req, res) => {
   } catch (error) {
     console.log('product productsCount controller error: ', error);
     res.status(400).json('Fetch product productsCount request failed');
+  }
+};
+
+export const productStarController = async (req, res) => {
+  const { productId } = req.query;
+  const { email } = req.user;
+  const { star } = req.body;
+
+  try {
+    const product = await productById(productId);
+    const user = await currentUser(email);
+
+    // who is updating?
+    // check if currently logged in user have already added rating to this product?
+    const existingRatingObject = product.ratings.find(
+      (item) => item.postedBy.toString() === user._id.toString()
+    );
+
+    // if user haven't left rating yet, push it
+    if (existingRatingObject === undefined) {
+      const ratingAdded = await addRating(product, user, star);
+      console.log('ratingAdded', ratingAdded);
+      res.status(200).json(ratingAdded);
+    } else {
+      // if user have already left rating, update it
+      const ratingUpdated = await updateRating(existingRatingObject, star);
+
+      console.log('ratingUpdated', ratingUpdated);
+      res.status(200).json(ratingUpdated);
+    }
+  } catch (error) {
+    console.log('product productStar controller error: ', error);
+    res.status(400).json('Fetch product productStar request failed');
   }
 };

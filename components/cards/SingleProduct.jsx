@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { Card } from 'antd';
+import { Card, Tabs } from 'antd';
 import Link from 'next/link';
 import { HeartOutlined, ShoppingCartOutlined } from '@ant-design/icons';
 import { Carousel } from 'react-responsive-carousel';
@@ -10,16 +10,18 @@ import { SideBySideMagnifier, GlassMagnifier } from 'react-image-magnifiers';
 
 // import ImageSingleProduct from '@/components/images/ImageSingleProduct';
 // import ImageLargeSingleProduct from '@/components/images/ImageLargeSingleProduct';
+import ProductListItems from '@/components/cards/ProductListItems';
 
-const { Meta } = Card;
+const { TabPane } = Tabs;
 
 const SingleProduct = ({ product }) => {
   const { title, description, images, slug } = product;
+
   console.log('slug', slug);
   const cloudnaryGalleryRef = useRef(null);
 
-  if (!cloudnaryGalleryRef.current) {
-    if (typeof window !== 'undefined') {
+  useEffect(() => {
+    if (!cloudnaryGalleryRef.current && typeof window !== 'undefined') {
       cloudnaryGalleryRef.current = window.cloudinary
         .galleryWidget({
           container: '#my-gallery',
@@ -39,11 +41,7 @@ const SingleProduct = ({ product }) => {
         })
         .render();
     }
-  }
-
-  // useEffect(() => {
-
-  // }, []);
+  }, []);
 
   // const renderCustomThumbs = (title, images) => {
   //   const thumbList = images.map((item) => (
@@ -74,9 +72,18 @@ const SingleProduct = ({ product }) => {
       <div className="col-md-7">
         {/* <div id="my-gallery" className="gallery"></div> */}
         <div id="my-gallery"></div>
+        <Tabs type="card">
+          <TabPane tab="Description" key="1">
+            {description && description}
+          </TabPane>
+          <TabPane tab="More" key="2">
+            Call use on xxxx xxx xxx to learn more about this product.
+          </TabPane>
+        </Tabs>
       </div>
 
       <div className="col-md-5">
+        <h1 className="bg-info p-3">{title}</h1>
         <Card
           actions={[
             <>
@@ -84,16 +91,13 @@ const SingleProduct = ({ product }) => {
               Add to Cart
             </>,
             <Link href="/">
-              <>
+              <a>
                 <HeartOutlined className="text-info" /> <br /> Add to Wishlist
-              </>
+              </a>
             </Link>,
           ]}
         >
-          <Meta title={title} description={description} />
-          <p>
-            price/category/subs/shipping/color/brand/quantity available/sold
-          </p>
+          <ProductListItems product={product} />
         </Card>
       </div>
     </>
