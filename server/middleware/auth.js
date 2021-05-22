@@ -1,7 +1,7 @@
 import initMiddleware from '@/middleware/init-middelware';
 import admin from '@/firebase/index';
 
-import nookies from 'nookies';
+import nookies, { setCookie } from 'nookies';
 
 const authCheck = async (req, res, next) => {
   const { token } = req.headers;
@@ -15,12 +15,19 @@ const authCheck = async (req, res, next) => {
     // console.log('FIREBASE USER IN AUTHCHECK', firebaseUser);
 
     if (firebaseUser) {
+      // req.firebaseUser = firebaseUser;
       req.user = firebaseUser;
-      nookies.set({ res }, 'appToken', token, {
+
+      setCookie({ res }, 'appToken', token, {
         // maxAge: 72576000,
         httpOnly: true,
         path: '/',
       });
+      // nookies.set({ res }, 'appToken', token, {
+      //   // maxAge: 72576000,
+      //   httpOnly: true,
+      //   path: '/',
+      // });
     }
 
     next();

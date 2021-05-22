@@ -25,7 +25,7 @@ async function getProductSlug(slug) {
   }
 }
 
-const Product = ({ slug }) => {
+const Product = ({ slug, isUser, token }) => {
   const productSlugQuery = useQueryHookArg(
     ['productSlug', slug],
     getProductSlug,
@@ -35,7 +35,11 @@ const Product = ({ slug }) => {
   return (
     <div className="container-fluid">
       <div className="row pt-4">
-        <SingleProduct product={productSlugQuery.data} />
+        <SingleProduct
+          isUser={isUser}
+          token={token}
+          product={productSlugQuery.data}
+        />
       </div>
 
       <div className="row">
@@ -56,13 +60,13 @@ export async function getServerSideProps(context) {
   } = context;
 
   const { appToken } = nookies.get(context);
-  let isAdmin = false;
+  let isUser = false;
 
   try {
     const { email } = await admin.auth().verifyIdToken(appToken);
-    const { role } = await currentUser(email);
+    const user = await currentUser(email);
 
-    if (role === 'admin') isAdmin = true;
+    if (user) isUser = true;
 
     // Using Hydration
     const queryClient = new QueryClient();
@@ -76,7 +80,7 @@ export async function getServerSideProps(context) {
       props: {
         slug: slug,
         token: appToken,
-        isAdmin: isAdmin,
+        isUser: isUser,
         dehydratedState: dehydrate(queryClient),
       }, // will be passed to the page component as props. always return an object with the props key
     };

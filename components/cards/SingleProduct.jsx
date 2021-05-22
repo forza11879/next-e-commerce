@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { Card, Tabs } from 'antd';
 import Link from 'next/link';
+import StarRating from 'react-star-ratings';
 import { HeartOutlined, ShoppingCartOutlined } from '@ant-design/icons';
 import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
@@ -11,11 +12,12 @@ import { SideBySideMagnifier, GlassMagnifier } from 'react-image-magnifiers';
 // import ImageSingleProduct from '@/components/images/ImageSingleProduct';
 // import ImageLargeSingleProduct from '@/components/images/ImageLargeSingleProduct';
 import ProductListItems from '@/components/cards/ProductListItems';
+import RatingModal from '@/components/modal/RatingModal';
 
 const { TabPane } = Tabs;
 
-const SingleProduct = ({ product }) => {
-  const { title, description, images, slug } = product;
+const SingleProduct = ({ product, isUser, token }) => {
+  const { title, description, images, slug, _id } = product;
 
   console.log('slug', slug);
   const cloudnaryGalleryRef = useRef(null);
@@ -84,6 +86,17 @@ const SingleProduct = ({ product }) => {
 
       <div className="col-md-5">
         <h1 className="bg-info p-3">{title}</h1>
+        <StarRating
+          name={_id}
+          numberOfStars={5}
+          rating={2}
+          changeRating={(newRating, name) =>
+            console.log('newRating', newRating, 'name', name)
+          }
+          isSelectable={true}
+          starRatedColor="red"
+        />
+
         <Card
           actions={[
             <>
@@ -95,6 +108,18 @@ const SingleProduct = ({ product }) => {
                 <HeartOutlined className="text-info" /> <br /> Add to Wishlist
               </a>
             </Link>,
+            <RatingModal isUser={isUser} token={token}>
+              <StarRating
+                name={_id}
+                numberOfStars={5}
+                rating={2}
+                changeRating={(newRating, name) =>
+                  console.log('newRating', newRating, 'name', name)
+                }
+                isSelectable={true}
+                starRatedColor="red"
+              />
+            </RatingModal>,
           ]}
         >
           <ProductListItems product={product} />

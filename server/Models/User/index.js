@@ -1,4 +1,4 @@
-import nookies from 'nookies';
+import nookies, { destroyCookie } from 'nookies';
 import { User } from './User';
 
 const createOrUpdateUser = async ({ name, picture, email }) => {
@@ -37,7 +37,8 @@ const currentUser = async (email) => {
 
 const logOut = (res) => {
   try {
-    nookies.destroy({ res }, 'appToken');
+    // nookies.destroy({ res }, 'appToken');
+    destroyCookie({ res }, 'appToken');
   } catch (error) {
     console.log('logout error: ', error);
   }

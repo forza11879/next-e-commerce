@@ -62,6 +62,12 @@ export function* watchAuth() {
 
 function* logout(action) {
   const { onSuccess, onError } = action.payload;
+  // const { url, method, token, onSuccess, onError } = action.payload;
+  // const options = {
+  //   url,
+  //   method,
+  //   token,
+  // };
   // const options = {
   //   url,
   //   method,

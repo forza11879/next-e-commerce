@@ -38,6 +38,9 @@ export const getHttpRequest = ({ url, method, token }) =>
 
 export const getUserLoggedOut = () =>
   actions.sagaLogoutCallBegan({
+    // url,
+    // method,
+    // token,
     onSuccess: userStoreReseted.type,
     onError: actions.sagaLogoutCallFailed.type,
   });

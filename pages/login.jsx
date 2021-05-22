@@ -9,23 +9,36 @@ import { auth, googleAuthProvider } from '@/lib/firebase';
 import { selectUser } from '@/store/user';
 import { fetchApi } from '@/store/saga/user';
 
-const roleBasedRedirect = (user, router) => {
-  console.log('user roleBasedRedirect: ', user);
-  if (user.role === 'admin') {
-    router.push(`/admin/dashboard`);
+// const roleBasedRedirect = (user, router) => {
+//   console.log('router login: ', router);
+//   console.log('user roleBasedRedirect: ', user);
+//   if (user.role === 'admin') {
+//     router.push(`/admin/dashboard`);
+//   } else {
+//     router.push('/user/history');
+//   }
+// };
+
+const roleBasedRedirect = (user, router, intended) => {
+  if (intended) {
+    router.push(intended);
   } else {
-    router.push('/user/history');
+    if (user.role === 'admin') {
+      router.push('/admin/dashboard');
+    } else {
+      router.push('/user/history');
+    }
   }
 };
 
-function redirect(token, router) {
+function redirect(token, router, intented) {
   const options = {
     url: '/user',
     method: 'get',
     token: token,
   };
   fetchApi(options).then(({ data: { user } }) => {
-    roleBasedRedirect(user, router);
+    roleBasedRedirect(user, router, intented);
   });
 }
 
@@ -35,6 +48,7 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();
+  const intented = router.query.from;
   const userResult = useSelector(selectUser);
 
   // useEffect(() => {
@@ -47,7 +61,7 @@ const LoginPage = () => {
     try {
       const { user } = await auth.signInWithEmailAndPassword(email, password);
       const { token } = await user.getIdTokenResult();
-      redirect(token, router);
+      redirect(token, router, intented);
     } catch (error) {
       console.log(error);
       toast.error(error.message);
@@ -59,7 +73,7 @@ const LoginPage = () => {
     try {
       const { user } = await auth.signInWithPopup(googleAuthProvider);
       const { token } = await user.getIdTokenResult();
-      redirect(token, router);
+      redirect(token, router, intented);
     } catch (error) {
       console.log('googleLogin error: ', error);
       toast.error(error.message);

@@ -30,6 +30,7 @@ export const postCreateOrUpdateUser = async (req, res) => {
 
 export const getLogOutUser = async (req, res) => {
   try {
+    console.log('req.user', req.user);
     logOut(res);
     // console.log('user: ', user);
     res.status(200).json({ message: 'user logged out' });
