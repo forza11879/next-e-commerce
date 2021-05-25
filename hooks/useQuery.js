@@ -778,45 +778,46 @@ export const useMutationStarProduct = (queryClient) => {
       });
     },
     {
-      // onMutate: ({ data: { star, slug } }) => {
-      //   // Cancel any outgoing refetches (so they don't overwrite(race condition) our optimistic update)
-      //   console.log({ star });
-      //   console.log({ slug });
-      //   queryClient.cancelQueries(['productSlug', slug], { exact: true });
-      //   // // Snapshot the previous value
-      //   const previousQueryDataArray = queryClient.getQueryData([
-      //     'productSlug',
-      //     slug,
-      //   ]);
-      //   // console.log('previousQueryDataArray: ', previousQueryDataArray);
-      //   // In an optimistic update the UI behaves as though a change was successfully completed before receiving confirmation from the server that it actually was - it is being optimistic that it will eventually get the confirmation rather than an error. This allows for a more responsive user experience.
-      //   // const newObject = {
-      //   //   _id: Date.now(),
-      //   //   name: name,
-      //   // };
-      //   queryClient.setQueryData(['productSlug', slug], (oldQueryData) => {
-      //     const oldQueryDataArray = JSON.parse(oldQueryData);
-      //     console.log('oldQueryDataArray', oldQueryDataArray);
-      //     // return JSON.stringify(newQueryDataArray);
-      //   });
-      //   // // return will pass the function or the value to the onError third argument:
-      //   return () =>
-      //     queryClient.setQueryData(
-      //       ['productSlug', slug],
-      //       previousQueryDataArray
-      //     );
-      // },
-      // onError: (error, variables, rollback) => {
-      //   //   If there is an errror, then we will rollback
-      //   // console.log('CreateCategory onError error: ', error.response.data);
-      //   if (rollback) {
-      //     rollback();
-      //     console.log('rollback');
-      //   }
-      //   // if (error) {
-      //   //   toast.error(error.response.data);
-      //   // }
-      // },
+      onMutate: ({ data: { star, slug } }) => {
+        // Cancel any outgoing refetches (so they don't overwrite(race condition) our optimistic update)
+        // console.log({ star });
+        // console.log({ slug });
+        queryClient.cancelQueries(['productSlug', slug], { exact: true });
+        // // // Snapshot the previous value
+        const previousQueryDataArray = queryClient.getQueryData([
+          'productSlug',
+          slug,
+        ]);
+        // console.log('previousQueryDataArray: ', previousQueryDataArray);
+        // In an optimistic update the UI behaves as though a change was successfully completed before receiving confirmation from the server that it actually was - it is being optimistic that it will eventually get the confirmation rather than an error. This allows for a more responsive user experience.
+        // const newObject = {
+        //   _id: Date.now(),
+        //   name: name,
+        // };
+        queryClient.setQueryData(['productSlug', slug], (oldQueryData) => {
+          const oldQueryDataArray = JSON.parse(oldQueryData);
+          oldQueryDataArray.star = star;
+          console.log('oldQueryDataArray: ', oldQueryDataArray);
+          return JSON.stringify(oldQueryDataArray);
+        });
+        // // return will pass the function or the value to the onError third argument:
+        return () =>
+          queryClient.setQueryData(
+            ['productSlug', slug],
+            previousQueryDataArray
+          );
+      },
+      onError: (error, variables, rollback) => {
+        //   If there is an errror, then we will rollback
+        // console.log('CreateCategory onError error: ', error.response.data);
+        if (rollback) {
+          rollback();
+          console.log('rollback');
+        }
+        // if (error) {
+        //   toast.error(error.response.data);
+        // }
+      },
       // onSuccess: ({ data }, variables, context) => {
       //   // Runs only there is a success
       //   // saves http trip to the back-end
@@ -833,7 +834,7 @@ export const useMutationStarProduct = (queryClient) => {
       //   }
       // },
       onSettled: (data, error, { slug }, context) => {
-        console.log({ slug });
+        // console.log({ slug });
         // if (error) {
         //   // console.log(
         //   //   'CreateCategory onSettled error: ',

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import nookies from 'nookies';
 import axios from 'axios';
 import { QueryClient, useQueryClient } from 'react-query';
@@ -35,7 +35,7 @@ async function getProductSlug(slug, userId) {
       data.star = 0;
     }
 
-    console.log('data', data);
+    // console.log('data', data);
     return JSON.stringify(data);
   } catch (error) {
     console.log('getProductSlug error:', error);
@@ -54,17 +54,11 @@ const Product = ({ userId, slug, isUser, token }) => {
     JSON.parse(userId)
   );
 
-  useEffect(() => {
-    console.log('productSlugQuery.data.star: ', productSlugQuery.data.star);
-    setStar(productSlugQuery.data.star);
-  }, []);
-
   const mutationStarProduct = useMutationStarProduct(queryClient);
 
   const onStarClick = (newRating, productId) => {
     setStar(newRating);
-    // console.table(newRating, productId);
-    // console.log({ star });
+    console.log(`/product/star/${productId}`);
     const options = {
       url: `/product/star/${productId}`,
       method: 'put',
@@ -83,7 +77,6 @@ const Product = ({ userId, slug, isUser, token }) => {
           token={token}
           product={productSlugQuery.data}
           onStarClick={onStarClick}
-          star={star}
         />
       </div>
 

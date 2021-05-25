@@ -16,8 +16,8 @@ import RatingModal from '@/components/modal/RatingModal';
 
 const { TabPane } = Tabs;
 
-const SingleProduct = ({ product, isUser, token, onStarClick, star }) => {
-  const { title, description, images, slug, _id } = product;
+const SingleProduct = ({ product, isUser, token, onStarClick }) => {
+  const { title, description, images, slug, _id, star } = product;
 
   // console.log('slug', slug);
   const cloudnaryGalleryRef = useRef(null);
