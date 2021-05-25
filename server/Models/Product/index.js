@@ -94,11 +94,13 @@ const read = async (slug) => {
   const query = { slug: slug };
   console.log({ slug });
   try {
+    // https://stackoverflow.com/questions/67677767/deep-copy-of-the-object-to-add-a-key-value/67677884#67677884
     const product = await Product.findOne(query)
+      .lean() // https://mongoosejs.com/docs/tutorials/lean.html
       .populate('category')
-      .populate('subcategories')
-      .exec();
-    console.log({ product });
+      .populate('subcategories');
+
+    // console.log({ product });
 
     return product;
   } catch (error) {

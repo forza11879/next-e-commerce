@@ -98,6 +98,10 @@ export const productStarController = async (req, res) => {
   const { email } = req.user;
   const { star } = req.body;
 
+  console.log({ productId });
+  console.log({ email });
+  console.log({ star });
+
   try {
     const product = await productById(productId);
     const user = await currentUser(email);

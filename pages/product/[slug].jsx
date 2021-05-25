@@ -1,16 +1,22 @@
+import { useState, useEffect } from 'react';
 import nookies from 'nookies';
 import axios from 'axios';
-import { QueryClient } from 'react-query';
+import { QueryClient, useQueryClient } from 'react-query';
 import { dehydrate } from 'react-query/hydration';
 import admin from '@/firebase/index';
 import { currentUser } from '@/Models/User/index';
 import { read } from '@/Models/Product/index';
-import { useQueryHook, useQueryHookArg } from '@/hooks/useQuery';
+import {
+  useQueryHook,
+  useQueryHookArg,
+  useQueryHookTwoArg,
+  useMutationStarProduct,
+} from '@/hooks/useQuery';
 import SingleProduct from '@/components/cards/SingleProduct';
 
 const baseURL = process.env.api;
 
-async function getProductSlug(slug) {
+async function getProductSlug(slug, userId) {
   console.log(`${baseURL}/product/${slug}`);
   try {
     const { data } = await axios.request({
@@ -18,6 +24,17 @@ async function getProductSlug(slug) {
       url: `/product/${slug}`,
       method: 'get',
     });
+
+    const existingRatingObject = data.ratings.find(
+      (item) => item.postedBy.toString() === userId.toString()
+    );
+
+    if (existingRatingObject) {
+      data.star = existingRatingObject.star;
+    } else {
+      data.star = 0;
+    }
+
     console.log('data', data);
     return JSON.stringify(data);
   } catch (error) {
@@ -25,12 +42,38 @@ async function getProductSlug(slug) {
   }
 }
 
-const Product = ({ slug, isUser, token }) => {
-  const productSlugQuery = useQueryHookArg(
+const Product = ({ userId, slug, isUser, token }) => {
+  const [star, setStar] = useState(0);
+
+  const queryClient = useQueryClient();
+
+  const productSlugQuery = useQueryHookTwoArg(
     ['productSlug', slug],
     getProductSlug,
-    slug
+    slug,
+    JSON.parse(userId)
   );
+
+  useEffect(() => {
+    console.log('productSlugQuery.data.star: ', productSlugQuery.data.star);
+    setStar(productSlugQuery.data.star);
+  }, []);
+
+  const mutationStarProduct = useMutationStarProduct(queryClient);
+
+  const onStarClick = (newRating, productId) => {
+    setStar(newRating);
+    // console.table(newRating, productId);
+    // console.log({ star });
+    const options = {
+      url: `/product/star/${productId}`,
+      method: 'put',
+      slug: slug,
+      token: token,
+      data: { star: newRating, slug: slug },
+    };
+    mutationStarProduct.mutate(options);
+  };
 
   return (
     <div className="container-fluid">
@@ -39,6 +82,8 @@ const Product = ({ slug, isUser, token }) => {
           isUser={isUser}
           token={token}
           product={productSlugQuery.data}
+          onStarClick={onStarClick}
+          star={star}
         />
       </div>
 
@@ -72,12 +117,25 @@ export async function getServerSideProps(context) {
     const queryClient = new QueryClient();
 
     await queryClient.prefetchQuery(['productSlug', slug], async () => {
-      const result = await read(slug);
-      return JSON.stringify(result);
+      const product = await read(slug);
+
+      const existingRatingObject = product.ratings.find(
+        (item) => item.postedBy.toString() === user._id.toString()
+      );
+
+      if (existingRatingObject) {
+        product.star = existingRatingObject.star;
+      } else {
+        product.star = 0;
+      }
+
+      console.log({ product });
+      return JSON.stringify(product);
     });
 
     return {
       props: {
+        userId: JSON.stringify(user._id),
         slug: slug,
         token: appToken,
         isUser: isUser,

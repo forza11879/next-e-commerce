@@ -3,9 +3,9 @@ import { Card, Tabs } from 'antd';
 import Link from 'next/link';
 import StarRating from 'react-star-ratings';
 import { HeartOutlined, ShoppingCartOutlined } from '@ant-design/icons';
-import { Carousel } from 'react-responsive-carousel';
+// import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
-import { SideBySideMagnifier, GlassMagnifier } from 'react-image-magnifiers';
+// import { SideBySideMagnifier, GlassMagnifier } from 'react-image-magnifiers';
 // import Image from 'next/image';
 // import { CloudinaryContext, Transformation, Image } from 'cloudinary-react';
 
@@ -16,10 +16,10 @@ import RatingModal from '@/components/modal/RatingModal';
 
 const { TabPane } = Tabs;
 
-const SingleProduct = ({ product, isUser, token }) => {
+const SingleProduct = ({ product, isUser, token, onStarClick, star }) => {
   const { title, description, images, slug, _id } = product;
 
-  console.log('slug', slug);
+  // console.log('slug', slug);
   const cloudnaryGalleryRef = useRef(null);
 
   useEffect(() => {
@@ -89,10 +89,8 @@ const SingleProduct = ({ product, isUser, token }) => {
         <StarRating
           name={_id}
           numberOfStars={5}
-          rating={2}
-          changeRating={(newRating, name) =>
-            console.log('newRating', newRating, 'name', name)
-          }
+          rating={star}
+          changeRating={onStarClick}
           isSelectable={true}
           starRatedColor="red"
         />
@@ -112,10 +110,8 @@ const SingleProduct = ({ product, isUser, token }) => {
               <StarRating
                 name={_id}
                 numberOfStars={5}
-                rating={2}
-                changeRating={(newRating, name) =>
-                  console.log('newRating', newRating, 'name', name)
-                }
+                rating={star}
+                changeRating={onStarClick}
                 isSelectable={true}
                 starRatedColor="red"
               />

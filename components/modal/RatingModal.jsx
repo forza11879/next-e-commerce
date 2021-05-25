@@ -8,13 +8,13 @@ const RatingModal = ({ isUser, token, children }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const router = useRouter();
   const { asPath } = router;
-  console.log('asPath: ', asPath);
-  console.log('router: ', router);
+  // console.log('asPath: ', asPath);
+  // console.log('router: ', router);
   // console.log({ isUser });
   // console.log({ token });
 
   const handleModal = () => {
-    if (!isUser && token) {
+    if (isUser && token) {
       setModalVisible(true);
     } else {
       // router.push('/login');
