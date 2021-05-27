@@ -1,3 +1,5 @@
+import mongoose from 'mongoose';
+// const { ObjectId } = mongoose.Schema;
 import Product from './Product';
 import slugify from 'slugify';
 
@@ -161,17 +163,43 @@ const addRating = async (product, user, star) => {
   }
 };
 
-const updateRating = async (existingRatingObject, star) => {
-  const query = {
-    ratings: { $elemMatch: existingRatingObject },
-  };
+const updateRating = async (userId, star, productId) => {
+  console.log({ userId });
+  console.log({ productId });
+
+  const query = { _id: productId };
   const update = { $set: { 'ratings.$.star': star } };
   const option = { new: true };
   try {
-    const ratingUpdated = await Product.updateOne(query, update, option);
+    const ratingUpdated = await Product.findOneAndUpdate(query, update, option)
+      .where('ratings')
+      .elemMatch({ postedBy: userId });
+    // ratingUpdated.save();
     return ratingUpdated;
   } catch (error) {
     console.log('product model updateRating error: ', error);
+  }
+};
+
+const calculateAvgRating = async (id) => {
+  try {
+    const stats = await Product.aggregate([
+      { $match: { _id: mongoose.Types.ObjectId(id) } },
+      {
+        $addFields: {
+          avgRating: {
+            $avg: '$ratings.star',
+          },
+          nRatings: {
+            $size: '$ratings',
+          },
+        },
+      },
+    ]);
+    console.log('stats: ', stats);
+    // return stats;
+  } catch (err) {
+    console.log(`calculateAvgRating error: ${err}`);
   }
 };
 
@@ -186,4 +214,5 @@ export {
   productById,
   addRating,
   updateRating,
+  calculateAvgRating,
 };

@@ -9,6 +9,7 @@ import {
   productById,
   addRating,
   updateRating,
+  calculateAvgRating,
 } from '@/Models/Product/index';
 import { currentUser } from '@/Models/User/index';
 
@@ -98,13 +99,10 @@ export const productStarController = async (req, res) => {
   const { email } = req.user;
   const { star } = req.body;
 
-  console.log({ productId });
-  console.log({ email });
-  console.log({ star });
-
   try {
     const product = await productById(productId);
     const user = await currentUser(email);
+    const { _id } = user;
 
     // who is updating?
     // check if currently logged in user have already added rating to this product?
@@ -115,13 +113,11 @@ export const productStarController = async (req, res) => {
     // if user haven't left rating yet, push it
     if (existingRatingObject === undefined) {
       const ratingAdded = await addRating(product, user, star);
-      console.log('ratingAdded', ratingAdded);
       res.status(200).json(ratingAdded);
     } else {
       // if user have already left rating, update it
-      const ratingUpdated = await updateRating(existingRatingObject, star);
-
-      console.log('ratingUpdated', ratingUpdated);
+      const ratingUpdated = await updateRating(_id, star, productId);
+      await calculateAvgRating(productId);
       res.status(200).json(ratingUpdated);
     }
   } catch (error) {

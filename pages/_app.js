@@ -20,13 +20,6 @@ import Header from '@/components/nav/Header';
 
 // const queryClient = new QueryClient();
 const store = configureAppStore();
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      notifyOnChangeProps: 'tracked',
-    },
-  },
-});
 
 function MyApp({ Component, pageProps }) {
   const queryClientRef = useRef();
@@ -36,6 +29,9 @@ function MyApp({ Component, pageProps }) {
         // https://tkdodo.eu/blog/react-query-render-optimizations
         queries: {
           notifyOnChangeProps: 'tracked', // With this, you never have to think about re-renders again
+          // refetchOnWindowFocus: false,
+          // retry: false,
+          staleTime: 30000,
         },
       },
     }); // https://react-query.tanstack.com/guides/ssr#using-nextjs

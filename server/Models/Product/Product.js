@@ -67,8 +67,34 @@ const ParentSchema = new mongoose.Schema(
       },
     ],
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    // toJSON: { virtuals: true },
+    // toObject: { virtuals: true },
+  }
 );
+
+// ParentSchema.statics.avgRating = async function (id) {
+//   try {
+//     const stats = await this.model('Product').aggregate([
+//       { $match: { _id: id } },
+//       {
+//         $addFields: {
+//           avgRating: { $avg: '$ratings.star' },
+//           nRatings: { $size: '$ratings' },
+//         },
+//       },
+//     ]);
+//     console.log('stats: ', stats);
+//   } catch (err) {
+//     console.log(`avgRating error from Pre SAVE hook${err}`);
+//   }
+// };
+
+// Call avgRating before save
+// ParentSchema.post('save', async function () {
+//   await this.constructor.avgRating(this._id);
+// });
 
 export default mongoose.models.Product ||
   mongoose.model('Product', ParentSchema);
