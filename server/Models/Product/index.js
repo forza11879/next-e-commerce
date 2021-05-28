@@ -149,10 +149,10 @@ const productById = async (productId) => {
   }
 };
 
-const addRating = async (product, user, star) => {
-  const query = { _id: product._id };
+const addRating = async (productId, userId, star) => {
+  const query = { _id: productId };
   const update = {
-    $push: { ratings: { star: star, postedBy: user._id } },
+    $push: { ratings: { star: star, postedBy: userId } },
   };
   const option = { new: true };
   try {
@@ -195,9 +195,16 @@ const calculateAvgRating = async (id) => {
           },
         },
       },
+      {
+        $merge: {
+          into: 'products',
+          // on: ['string'],
+          whenMatched: 'replace',
+          whenNotMatched: 'insert',
+        },
+      },
     ]);
-    console.log('stats: ', stats);
-    // return stats;
+    // console.log('stats: ', stats);
   } catch (err) {
     console.log(`calculateAvgRating error: ${err}`);
   }

@@ -102,24 +102,22 @@ export const productStarController = async (req, res) => {
   try {
     const product = await productById(productId);
     const user = await currentUser(email);
-    const { _id } = user;
 
-    // who is updating?
-    // check if currently logged in user have already added rating to this product?
-    const existingRatingObject = product.ratings.find(
-      (item) => item.postedBy.toString() === user._id.toString()
-    );
+    if (!product && !user)
+      return res.status(401).json({ error: 'unauthorized' });
 
-    // if user haven't left rating yet, push it
-    if (existingRatingObject === undefined) {
-      const ratingAdded = await addRating(product, user, star);
+    const { _id: userId } = user;
+
+    const ratingUpdated = await updateRating(userId, star, productId);
+
+    if (!ratingUpdated) {
+      const ratingAdded = await addRating(productId, userId, star);
       res.status(200).json(ratingAdded);
     } else {
-      // if user have already left rating, update it
-      const ratingUpdated = await updateRating(_id, star, productId);
-      await calculateAvgRating(productId);
       res.status(200).json(ratingUpdated);
     }
+
+    await calculateAvgRating(productId);
   } catch (error) {
     console.log('product productStar controller error: ', error);
     res.status(400).json('Fetch product productStar request failed');

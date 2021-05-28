@@ -1,5 +1,6 @@
 import Category from './Category';
 import slugify from 'slugify';
+import SubCategory from '@/Models/SubCategory/SubCategory';
 
 const create = async (name) => {
   console.log('name: ', name);

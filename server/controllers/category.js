@@ -5,6 +5,7 @@ import {
   update,
   remove,
 } from '@/Models/Category/index';
+import { cascadeDelete } from '@/Models/SubCategory/index';
 
 export const createController = async (req, res) => {
   try {
@@ -58,6 +59,8 @@ export const removeController = async (req, res) => {
   const { slug } = req.query;
   try {
     const deleted = await remove(slug);
+    const { _id } = deleted;
+    await cascadeDelete(_id);
     res.status(200).json({ deleted: deleted });
   } catch (error) {
     console.log('remove controller error: ', error);

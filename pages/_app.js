@@ -31,7 +31,7 @@ function MyApp({ Component, pageProps }) {
           notifyOnChangeProps: 'tracked', // With this, you never have to think about re-renders again
           // refetchOnWindowFocus: false,
           // retry: false,
-          staleTime: 30000,
+          // staleTime: 30000,
         },
       },
     }); // https://react-query.tanstack.com/guides/ssr#using-nextjs

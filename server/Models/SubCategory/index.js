@@ -2,8 +2,6 @@ import SubCategory from './SubCategory';
 import slugify from 'slugify';
 
 const create = async (name, parent) => {
-  console.log('name: ', name);
-  console.log('parent: ', parent);
   // try {
   const newSubCategory = await SubCategory.create({
     name: name,
@@ -73,4 +71,21 @@ const getSubCategories = async (id) => {
   }
 };
 
-export { create, listSubCategory, read, update, remove, getSubCategories };
+const cascadeDelete = async function (id) {
+  try {
+    const filter = { parent: id };
+    await SubCategory.deleteMany(filter);
+  } catch (err) {
+    console.log(`deleteMany error: ${err}`);
+  }
+};
+
+export {
+  create,
+  listSubCategory,
+  read,
+  update,
+  remove,
+  getSubCategories,
+  cascadeDelete,
+};
