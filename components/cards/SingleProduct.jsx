@@ -17,7 +17,8 @@ import RatingModal from '@/components/modal/RatingModal';
 const { TabPane } = Tabs;
 
 const SingleProduct = ({ product, isUser, token, onStarClick }) => {
-  const { title, description, images, slug, _id, star } = product;
+  const { title, description, images, slug, _id, star, avgRating, nRatings } =
+    product;
 
   // console.log('slug', slug);
   const cloudnaryGalleryRef = useRef(null);
@@ -83,17 +84,24 @@ const SingleProduct = ({ product, isUser, token, onStarClick }) => {
           </TabPane>
         </Tabs>
       </div>
-
       <div className="col-md-5">
         <h1 className="bg-info p-3">{title}</h1>
-        <StarRating
-          name={_id}
-          numberOfStars={5}
-          rating={star}
-          changeRating={onStarClick}
-          isSelectable={true}
-          starRatedColor="red"
-        />
+        {product && avgRating && nRatings > 0 ? (
+          <div className="text-center pt-1 pb-3">
+            <span>
+              <StarRating
+                starDimension="20px"
+                starSpacing="2px"
+                starRatedColor="red"
+                rating={avgRating}
+                editing={false}
+              />{' '}
+              ({nRatings})
+            </span>
+          </div>
+        ) : (
+          <div className="text-center pt-1 pb-3">No rating yet</div>
+        )}
 
         <Card
           actions={[
