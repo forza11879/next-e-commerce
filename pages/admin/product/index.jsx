@@ -11,7 +11,7 @@ import FileUpload from '@/components/forms/FileUpload';
 import {
   useMutationPhotoUpload,
   useMutationPhotoRemove,
-} from '@/hooks/useQuery';
+} from '@/hooks/query/photo';
 import { useQueryCategories } from '@/hooks/query/category';
 import { useMutationCreateProduct } from '@/hooks/query/product';
 import admin from '@/firebase/index';
@@ -114,8 +114,8 @@ const ProductCreate = ({ token, isAdmin }) => {
 
   const mutationCreateProduct = useMutationCreateProduct();
 
-  const mutationPhotoUpload = useMutationPhotoUpload(queryClient);
-  const mutationPhotoRemove = useMutationPhotoRemove(queryClient);
+  const mutationPhotoUpload = useMutationPhotoUpload();
+  const mutationPhotoRemove = useMutationPhotoRemove();
 
   const handleSubmit = (e) => {
     e.preventDefault();

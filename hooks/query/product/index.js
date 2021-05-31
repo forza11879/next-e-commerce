@@ -5,7 +5,23 @@ import { toast } from 'react-toastify';
 
 const baseURL = process.env.api;
 
-async function fetchProducts(count) {
+async function fetchProducts(body) {
+  console.log(`${baseURL}/product/all`);
+  try {
+    const { data } = await axios.request({
+      baseURL,
+      url: `/product/all`,
+      method: 'post',
+      data: body,
+    });
+
+    return JSON.stringify(data);
+  } catch (error) {
+    console.log('getPosts error:', error);
+  }
+}
+
+async function fetchProductsByCount(count) {
   console.log(`${baseURL}/product/all/${count}`);
   try {
     const { data } = await axios.request({
@@ -60,14 +76,43 @@ async function fetchProductStarByUserId(slug, userId) {
   }
 }
 
+async function fetchProductsCount() {
+  console.log(`${baseURL}/product/all/total`);
+  try {
+    const { data } = await axios.request({
+      baseURL,
+      url: `/product/all/total`,
+      method: 'get',
+    });
+
+    return data;
+  } catch (error) {
+    console.log('getPosts error:', error);
+  }
+}
+
 const queryKeys = {
   products: ['products'],
   product: (id) => [...queryKeys.products, id],
   productStar: (slug) => ['productStar', slug],
+  productsByNewArrivals: (page) => ['productsByNewArrivals', page],
+  productsByBestSellers: (page) => ['productsByBestSellers', page],
+  productsCount: ['productsCount'],
 };
 
+export const useQueryProductsCount = () =>
+  useQuery(queryKeys.productsCount, () => fetchProductsCount(), {
+    // Selectors like the one bellow will also run on every render, because the functional identity changes (it's an inline function). If your transformation is expensive, you can memoize it either with useCallback, or by extracting it to a stable function reference
+    select: useCallback((data) => {
+      // selectors will only be called if data exists, so you don't have to care about undefined here.
+      // console.log(JSON.parse(data));
+      return JSON.parse(data);
+    }, []),
+    staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
+  });
+
 export const useQueryProducts = (count) =>
-  useQuery(queryKeys.products, () => fetchProducts(count), {
+  useQuery(queryKeys.products, () => fetchProductsByCount(count), {
     // Selectors like the one bellow will also run on every render, because the functional identity changes (it's an inline function). If your transformation is expensive, you can memoize it either with useCallback, or by extracting it to a stable function reference
     select: useCallback((data) => {
       // selectors will only be called if data exists, so you don't have to care about undefined here.
@@ -102,6 +147,28 @@ export const useQueryProductStar = (slug, userId) =>
       // staleTime: Infinity,
     }
   );
+
+export const useQueryProductByNewArrivals = (page, body) =>
+  useQuery(queryKeys.productsByNewArrivals(page), () => fetchProducts(body), {
+    // Selectors like the one bellow will also run on every render, because the functional identity changes (it's an inline function). If your transformation is expensive, you can memoize it either with useCallback, or by extracting it to a stable function reference
+    select: useCallback((data) => {
+      // selectors will only be called if data exists, so you don't have to care about undefined here.
+      // console.log(JSON.parse(data));
+      return JSON.parse(data);
+    }, []),
+    // staleTime: Infinity,
+  });
+
+export const useQueryProductByBestSellers = (page, body) =>
+  useQuery(queryKeys.productsByBestSellers(page), () => fetchProducts(body), {
+    // Selectors like the one bellow will also run on every render, because the functional identity changes (it's an inline function). If your transformation is expensive, you can memoize it either with useCallback, or by extracting it to a stable function reference
+    select: useCallback((data) => {
+      // selectors will only be called if data exists, so you don't have to care about undefined here.
+      // console.log(JSON.parse(data));
+      return JSON.parse(data);
+    }, []),
+    // staleTime: Infinity,
+  });
 
 // Product Mutations
 export const useMutationCreateProduct = () => {

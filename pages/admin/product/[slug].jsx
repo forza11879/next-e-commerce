@@ -12,7 +12,7 @@ import FileUpload from '@/components/forms/FileUpload';
 import {
   useMutationPhotoUpload,
   useMutationPhotoRemove,
-} from '@/hooks/useQuery';
+} from '@/hooks/query/photo';
 import { useQueryCategories } from '@/hooks/query/category';
 import {
   useQueryProduct,
@@ -100,8 +100,8 @@ const ProductUpdate = ({ slug, token, isAdmin }) => {
   }, []);
 
   const mutationUpdateProduct = useMutationUpdateProduct();
-  const mutationPhotoUpload = useMutationPhotoUpload(queryClient);
-  const mutationPhotoRemove = useMutationPhotoRemove(queryClient);
+  const mutationPhotoUpload = useMutationPhotoUpload();
+  const mutationPhotoRemove = useMutationPhotoRemove();
 
   const handleSubmit = (e) => {
     e.preventDefault();

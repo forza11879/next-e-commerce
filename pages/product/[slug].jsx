@@ -1,58 +1,21 @@
 import { useState } from 'react';
 import nookies from 'nookies';
-import axios from 'axios';
-import { QueryClient, useQueryClient } from 'react-query';
+import { QueryClient } from 'react-query';
 import { dehydrate } from 'react-query/hydration';
 import admin from '@/firebase/index';
 import { currentUser } from '@/Models/User/index';
 import { read } from '@/Models/Product/index';
-import { useQueryHookTwoArg } from '@/hooks/useQuery';
 import {
   useQueryProductStar,
   useMutationStarProduct,
 } from '@/hooks/query/product';
 import SingleProduct from '@/components/cards/SingleProduct';
 
-const baseURL = process.env.api;
-
-// async function getProductSlugStarByUserId(slug, userId) {
-//   console.log(`${baseURL}/product/${slug}`);
-//   try {
-//     const { data } = await axios.request({
-//       baseURL,
-//       url: `/product/${slug}`,
-//       method: 'get',
-//     });
-
-//     const existingRatingObject = data.ratings.find(
-//       (item) => item.postedBy.toString() === userId.toString()
-//     );
-
-//     if (existingRatingObject) {
-//       data.star = existingRatingObject.star;
-//     } else {
-//       data.star = 0;
-//     }
-
-//     // console.log('data', data);
-//     return JSON.stringify(data);
-//   } catch (error) {
-//     console.log('getProductSlug error:', error);
-//   }
-// }
-
 const Product = ({ userId, slug, isUser, token }) => {
   const [star, setStar] = useState(0);
   const id = JSON.parse(userId);
 
   const productSlugQuery = useQueryProductStar(slug, id);
-  // useQueryHookTwoArg(
-  //   ['productSlug', slug],
-  //   getProductSlugStarByUserId,
-  //   slug,
-  //   JSON.parse(userId)
-  // );
-
   const mutationStarProduct = useMutationStarProduct();
 
   const onStarClick = (newRating, productId) => {

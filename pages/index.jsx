@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import nookies from 'nookies';
-import axios from 'axios';
 import { QueryClient } from 'react-query';
 import { dehydrate } from 'react-query/hydration';
 import Jumbotron from '@/components/cards/Jumbotron';
@@ -8,41 +7,12 @@ import NewArrivals from '@/components/home/NewArrivals';
 import BestSellers from '@/components/home/BestSellers';
 import admin from '@/firebase/index';
 import { currentUser } from '@/Models/User/index';
-import { useQueryHook, useQueryHookArg } from '@/hooks/useQuery';
+import {
+  useQueryProductByNewArrivals,
+  useQueryProductByBestSellers,
+  useQueryProductsCount,
+} from '@/hooks/query/product';
 import { listProduct, productsCount } from '@/Models/Product/index';
-
-const baseURL = process.env.api;
-
-async function getProductList(body) {
-  console.log(`${baseURL}/product/all`);
-  try {
-    const { data } = await axios.request({
-      baseURL,
-      url: `/product/all`,
-      method: 'post',
-      data: body,
-    });
-
-    return JSON.stringify(data);
-  } catch (error) {
-    console.log('getPosts error:', error);
-  }
-}
-
-async function getproductsCount() {
-  console.log(`${baseURL}/product/all/total`);
-  try {
-    const { data } = await axios.request({
-      baseURL,
-      url: `/product/all/total`,
-      method: 'get',
-    });
-
-    return data;
-  } catch (error) {
-    console.log('getPosts error:', error);
-  }
-}
 
 const HomePage = ({ newArrivals, bestSellers }) => {
   const [limit] = useState(3);
@@ -53,19 +23,13 @@ const HomePage = ({ newArrivals, bestSellers }) => {
   const arrivals = { ...newArrivals, page: pageNewArrivals };
   const sellers = { ...bestSellers, page: pageBestSellers };
 
-  const productsCountQuery = useQueryHook(['productsCount'], getproductsCount);
+  const productsCountQuery = useQueryProductsCount();
 
-  const newArrivalsQuery = useQueryHookArg(
-    ['productListByNewArrivals', arrivals.page],
-    getProductList,
+  const newArrivalsQuery = useQueryProductByNewArrivals(
+    arrivals.page,
     arrivals
   );
-
-  const bestSellersQuery = useQueryHookArg(
-    ['productListByBestSellers', sellers.page],
-    getProductList,
-    sellers
-  );
+  const bestSellersQuery = useQueryProductByBestSellers(sellers.page, sellers);
 
   return (
     <>
@@ -127,7 +91,7 @@ export async function getServerSideProps(context) {
 
     await Promise.allSettled([
       queryClient.prefetchQuery(
-        ['productListByNewArrivals', newArrivals.page],
+        ['productsByNewArrivals', newArrivals.page],
         async () => {
           const newArrivalsResult = await listProduct(newArrivals);
           // console.log({ result });
@@ -135,7 +99,7 @@ export async function getServerSideProps(context) {
         }
       ),
       queryClient.prefetchQuery(
-        ['productListByBestSellers', bestSellers.page],
+        ['productsByBestSellers', bestSellers.page],
         async () => {
           const bestSellersResult = await listProduct(bestSellers);
           // console.log({ result });
