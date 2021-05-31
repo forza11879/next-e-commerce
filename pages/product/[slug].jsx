@@ -6,55 +6,54 @@ import { dehydrate } from 'react-query/hydration';
 import admin from '@/firebase/index';
 import { currentUser } from '@/Models/User/index';
 import { read } from '@/Models/Product/index';
+import { useQueryHookTwoArg } from '@/hooks/useQuery';
 import {
-  useQueryHook,
-  useQueryHookArg,
-  useQueryHookTwoArg,
+  useQueryProductStar,
   useMutationStarProduct,
-} from '@/hooks/useQuery';
+} from '@/hooks/query/product';
 import SingleProduct from '@/components/cards/SingleProduct';
 
 const baseURL = process.env.api;
 
-async function getProductSlug(slug, userId) {
-  console.log(`${baseURL}/product/${slug}`);
-  try {
-    const { data } = await axios.request({
-      baseURL,
-      url: `/product/${slug}`,
-      method: 'get',
-    });
+// async function getProductSlugStarByUserId(slug, userId) {
+//   console.log(`${baseURL}/product/${slug}`);
+//   try {
+//     const { data } = await axios.request({
+//       baseURL,
+//       url: `/product/${slug}`,
+//       method: 'get',
+//     });
 
-    const existingRatingObject = data.ratings.find(
-      (item) => item.postedBy.toString() === userId.toString()
-    );
+//     const existingRatingObject = data.ratings.find(
+//       (item) => item.postedBy.toString() === userId.toString()
+//     );
 
-    if (existingRatingObject) {
-      data.star = existingRatingObject.star;
-    } else {
-      data.star = 0;
-    }
+//     if (existingRatingObject) {
+//       data.star = existingRatingObject.star;
+//     } else {
+//       data.star = 0;
+//     }
 
-    // console.log('data', data);
-    return JSON.stringify(data);
-  } catch (error) {
-    console.log('getProductSlug error:', error);
-  }
-}
+//     // console.log('data', data);
+//     return JSON.stringify(data);
+//   } catch (error) {
+//     console.log('getProductSlug error:', error);
+//   }
+// }
 
 const Product = ({ userId, slug, isUser, token }) => {
   const [star, setStar] = useState(0);
+  const id = JSON.parse(userId);
 
-  const queryClient = useQueryClient();
+  const productSlugQuery = useQueryProductStar(slug, id);
+  // useQueryHookTwoArg(
+  //   ['productSlug', slug],
+  //   getProductSlugStarByUserId,
+  //   slug,
+  //   JSON.parse(userId)
+  // );
 
-  const productSlugQuery = useQueryHookTwoArg(
-    ['productSlug', slug],
-    getProductSlug,
-    slug,
-    JSON.parse(userId)
-  );
-
-  const mutationStarProduct = useMutationStarProduct(queryClient);
+  const mutationStarProduct = useMutationStarProduct();
 
   const onStarClick = (newRating, productId) => {
     setStar(newRating);
@@ -109,7 +108,7 @@ export async function getServerSideProps(context) {
     // Using Hydration
     const queryClient = new QueryClient();
 
-    await queryClient.prefetchQuery(['productSlug', slug], async () => {
+    await queryClient.prefetchQuery(['productStar', slug], async () => {
       const product = await read(slug);
 
       const existingRatingObject = product.ratings.find(
@@ -122,7 +121,7 @@ export async function getServerSideProps(context) {
         product.star = 0;
       }
 
-      console.log({ product });
+      // console.log({ product });
       return JSON.stringify(product);
     });
 

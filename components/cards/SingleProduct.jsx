@@ -13,6 +13,7 @@ import 'react-responsive-carousel/lib/styles/carousel.min.css';
 // import ImageLargeSingleProduct from '@/components/images/ImageLargeSingleProduct';
 import ProductListItems from '@/components/cards/ProductListItems';
 import RatingModal from '@/components/modal/RatingModal';
+import RatingStar from '@/components/starrating/RatingStar';
 
 const { TabPane } = Tabs;
 
@@ -87,18 +88,7 @@ const SingleProduct = ({ product, isUser, token, onStarClick }) => {
       <div className="col-md-5">
         <h1 className="bg-info p-3">{title}</h1>
         {product && avgRating && nRatings > 0 ? (
-          <div className="text-center pt-1 pb-3">
-            <span>
-              <StarRating
-                starDimension="20px"
-                starSpacing="2px"
-                starRatedColor="red"
-                rating={avgRating}
-                editing={false}
-              />{' '}
-              ({nRatings})
-            </span>
-          </div>
+          <RatingStar product={product} />
         ) : (
           <div className="text-center pt-1 pb-3">No rating yet</div>
         )}

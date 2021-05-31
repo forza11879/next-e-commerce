@@ -1,8 +1,10 @@
-import axios from 'axios';
 import nookies from 'nookies';
-import { useQuery, QueryClient, useQueryClient } from 'react-query';
+import { QueryClient } from 'react-query';
 import { dehydrate } from 'react-query/hydration';
-import { useMutationRemoveProduct } from '@/hooks/useQuery';
+import {
+  useQueryProducts,
+  useMutationRemoveProduct,
+} from '@/hooks/query/product';
 import AdminRoute from '@/components/lib/AdminRoute';
 import AdminNav from '@/components/nav/AdminNav';
 import AdminProductCard from '@/components/cards/AdminProductCard';
@@ -10,36 +12,10 @@ import admin from '@/firebase/index';
 import { currentUser } from '@/Models/User/index';
 import { listAllByCountProduct } from '@/Models/Product/index';
 
-const baseURL = process.env.api;
-
-async function getProductListByCount(count) {
-  // await new Promise((resolve) => setTimeout(resolve, 300));
-  console.log(`${baseURL}/product/all/${count}`);
-  try {
-    const { data } = await axios.request({
-      baseURL,
-      url: `/product/all/${count}`,
-      method: 'get',
-    });
-
-    return JSON.stringify(data);
-  } catch (error) {
-    console.log('getPosts error:', error);
-  }
-}
-
 const AllProducts = ({ count, token, isAdmin }) => {
-  const queryClient = useQueryClient();
+  const { data, isLoading } = useQueryProducts(count);
 
-  const mutationRemoveProduct = useMutationRemoveProduct(queryClient);
-
-  const { data, isLoading, isError, error, isFetching } = useQuery(
-    'productListByCount',
-    () => getProductListByCount(count),
-    {
-      staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
-    }
-  );
+  const mutationRemoveProduct = useMutationRemoveProduct();
 
   const handleRemove = (slug) => {
     const options = {
@@ -48,10 +24,6 @@ const AllProducts = ({ count, token, isAdmin }) => {
       data: {
         slug,
       },
-      // props: {
-      //   setValues,
-      //   values,
-      // },
     };
     try {
       if (window.confirm('Delete?')) {
@@ -79,7 +51,7 @@ const AllProducts = ({ count, token, isAdmin }) => {
               <h4>All Products</h4>
             )}
             <div className="row">
-              {JSON.parse(data).map((item) => (
+              {data.map((item) => (
                 <div key={item._id} className="col-md-4 pb-3">
                   <AdminProductCard
                     product={item}
@@ -115,7 +87,7 @@ export async function getServerSideProps(context) {
 
     // Using Hydration
     const queryClient = new QueryClient();
-    await queryClient.prefetchQuery('productListByCount', () =>
+    await queryClient.prefetchQuery(['products'], () =>
       productListByCount(count)
     );
 

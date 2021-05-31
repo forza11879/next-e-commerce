@@ -1,6 +1,5 @@
 import { useRef } from 'react';
-import axios from 'axios';
-import { QueryClient, useQueryClient } from 'react-query';
+import { QueryClient } from 'react-query';
 import { dehydrate } from 'react-query/hydration';
 import nookies from 'nookies';
 import { toast } from 'react-toastify';
@@ -8,37 +7,21 @@ import { useRouter } from 'next/router';
 import { read } from '@/Models/Category/index';
 import AdminNav from '@/components/nav/AdminNav';
 import CategoryForm from '@/components/forms/CategoryForm';
-import { useQueryHookArg, useMutationUpdateCategory } from '@/hooks/useQuery';
-
-const baseURL = process.env.api;
-
-async function getPost(slug) {
-  await new Promise((resolve) => setTimeout(resolve, 100));
-  //   console.log(`${baseURL}/category/${slug}`);
-  const { data } = await axios.request({
-    baseURL: baseURL,
-    url: `/category/${slug}`,
-    method: 'get',
-  });
-  //   console.log('getPost data.name:', data.name);
-  return JSON.stringify(data);
-}
+import {
+  useQueryCategory,
+  useMutationUpdateCategory,
+} from '@/hooks/query/category';
 
 const CategoryUpdate = ({ id, token, slug }) => {
   const formRef = useRef();
   const nameInputRef = useRef();
-  const queryClient = useQueryClient();
   const router = useRouter();
 
-  const { data, isLoading, isError, error, isFetching } = useQueryHookArg(
-    ['categorySlug', id],
-    getPost,
-    slug
-  );
+  const { data, isLoading } = useQueryCategory(id, slug);
 
   const { name } = data;
 
-  const mutationUpdateCategory = useMutationUpdateCategory(queryClient);
+  const mutationUpdateCategory = useMutationUpdateCategory();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -60,9 +43,6 @@ const CategoryUpdate = ({ id, token, slug }) => {
       console.log(error);
       if (error.response.status === 400) toast.error(error.response.data);
     }
-
-    // toast.success(`"${res.data.name}" is updated`);
-    // history.push('/admin/category');
   };
 
   return (
@@ -77,7 +57,6 @@ const CategoryUpdate = ({ id, token, slug }) => {
           ) : (
             <h4>Update Category</h4>
           )}
-          {/* {categoryForm()} */}
           <CategoryForm
             formRef={formRef}
             nameInputRef={nameInputRef}
@@ -117,7 +96,7 @@ export async function getServerSideProps(context) {
   try {
     // Using Hydration
     const queryClient = new QueryClient();
-    await queryClient.prefetchQuery(['categorySlug', id], categoryRead, null, {
+    await queryClient.prefetchQuery(['categories', id], categoryRead, null, {
       // force: true, // forced prefetch regadless if the data is stale(forced prefetching)
     });
 

@@ -1,5 +1,4 @@
 import React, { useRef, useState } from 'react';
-import axios from 'axios';
 import { toast } from 'react-toastify';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import Link from 'next/link';
@@ -7,10 +6,11 @@ import { QueryClient, useQueryClient } from 'react-query';
 import { dehydrate } from 'react-query/hydration';
 import nookies from 'nookies';
 import {
-  useQueryHook,
+  useQuerySubCategories,
   useMutationCreateSubCategory,
   useMutationRemoveSubCategory,
-} from '@/hooks/useQuery';
+} from '@/hooks/query/subcategory';
+import { useQueryCategories } from '@/hooks/query/category';
 import AdminRoute from '@/components/lib/AdminRoute';
 import AdminNav from '@/components/nav/AdminNav';
 import CategoryForm from '@/components/forms/CategoryForm';
@@ -20,38 +20,6 @@ import { currentUser } from '@/Models/User/index';
 import { listSubCategory } from '@/Models/SubCategory/index';
 import { listCategory } from '@/Models/Category/index';
 
-const baseURL = process.env.api;
-
-async function getPostsCategory() {
-  // await new Promise((resolve) => setTimeout(resolve, 500));
-  console.log(`${baseURL}/category/all`);
-  // if (true) {
-  //   throw new Error('Test error!');
-  // }
-  const { data } = await axios.request({
-    baseURL,
-    url: '/category/all',
-    method: 'get',
-  });
-
-  return JSON.stringify(data);
-}
-
-async function getPostsSubCategory() {
-  // await new Promise((resolve) => setTimeout(resolve, 500));
-  console.log(`${baseURL}/subcategory/all`);
-  // if (true) {
-  //   throw new Error('Test error!');
-  // }
-  const { data } = await axios.request({
-    baseURL,
-    url: '/subcategory/all',
-    method: 'get',
-  });
-
-  return JSON.stringify(data);
-}
-
 const SubCreate = ({ token, isAdmin }) => {
   const [category, setCategory] = useState('');
   const [keyword, setKeyword] = useState('');
@@ -60,14 +28,11 @@ const SubCreate = ({ token, isAdmin }) => {
   const queryClient = useQueryClient();
   // "Parallel" queries are queries that are executed in parallel, or at the same time so as to maximize fetching concurrency.
   // When the number of parallel queries does not change, there is no extra effort to use parallel queries. Just use any number of React Query's useQuery and useInfiniteQuery hooks side-by-side!
-  const categoryQuery = useQueryHook(['categoryList'], getPostsCategory);
-  const subCategoryQuery = useQueryHook(
-    ['subCategoryList'],
-    getPostsSubCategory
-  );
+  const categoryQuery = useQueryCategories();
+  const subCategoryQuery = useQuerySubCategories();
 
-  const mutationCreateSubCategory = useMutationCreateSubCategory(queryClient);
-  const mutationRemoveSubCategory = useMutationRemoveSubCategory(queryClient);
+  const mutationCreateSubCategory = useMutationCreateSubCategory();
+  const mutationRemoveSubCategory = useMutationRemoveSubCategory();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -196,8 +161,8 @@ export async function getServerSideProps(context) {
     const queryClient = new QueryClient();
 
     await Promise.allSettled([
-      queryClient.prefetchQuery('categoryList', categoryList),
-      queryClient.prefetchQuery('subCategoryList', subCategoryList),
+      queryClient.prefetchQuery(['categories'], categoryList),
+      queryClient.prefetchQuery(['subCategories'], subCategoryList),
     ]);
 
     return {
@@ -226,11 +191,3 @@ export async function getServerSideProps(context) {
   }
 }
 export default SubCreate;
-
-//   const {
-//     data,
-//     isLoading,
-//     isError,
-//     error,
-//     isFetching,
-//   }

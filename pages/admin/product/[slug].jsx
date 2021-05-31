@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import nookies from 'nookies';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import { useQuery, QueryClient, useQueryClient } from 'react-query';
+import { QueryClient, useQueryClient } from 'react-query';
 import { dehydrate } from 'react-query/hydration';
 import { LoadingOutlined } from '@ant-design/icons';
 import AdminRoute from '@/components/lib/AdminRoute';
@@ -12,8 +12,12 @@ import FileUpload from '@/components/forms/FileUpload';
 import {
   useMutationPhotoUpload,
   useMutationPhotoRemove,
-  useMutationUpdateProduct,
 } from '@/hooks/useQuery';
+import { useQueryCategories } from '@/hooks/query/category';
+import {
+  useQueryProduct,
+  useMutationUpdateProduct,
+} from '@/hooks/query/product';
 import admin from '@/firebase/index';
 import { currentUser } from '@/Models/User/index';
 import { read } from '@/Models/Product/index';
@@ -36,51 +40,17 @@ const initialState = {
   brand: '',
 };
 
-async function getCategories() {
-  // await new Promise((resolve) => setTimeout(resolve, 300));
-  console.log(`${baseURL}/category/all`);
-  try {
-    const { data } = await axios.request({
-      baseURL,
-      url: '/category/all',
-      method: 'get',
-    });
-
-    return JSON.stringify(data);
-  } catch (error) {
-    console.log('getPosts error:', error);
-  }
-}
-
-async function getProduct(slug) {
-  // await new Promise((resolve) => setTimeout(resolve, 300));
-  console.log(`${baseURL}/product/${slug}`);
-  try {
-    const { data } = await axios.request({
-      baseURL,
-      url: `/product/${slug}`,
-      method: 'get',
-    });
-
-    return JSON.stringify(data);
-  } catch (error) {
-    console.log('getPosts error:', error);
-  }
-}
-
-async function getSubCategoryListByCategoryId(id) {
-  // await new Promise((resolve) => setTimeout(resolve, 300));
-  // console.log(`${baseURL}/category/subcategories/${id}`);
+async function getSubCategoriesByCategoryId(id) {
+  console.log(`${baseURL}/category/subcategories/${id}`);
   try {
     const { data } = await axios.request({
       baseURL,
       url: `/category/subcategories/${id}`,
       method: 'get',
     });
-    // console.log('data getSubCategoryListByCategoryId index: ', data);
     return data;
   } catch (error) {
-    console.log('getSubCategoryListByCategoryId error:', error);
+    console.log('getSubCategoriesByCategoryId error:', error);
   }
 }
 const ProductUpdate = ({ slug, token, isAdmin }) => {
@@ -106,47 +76,30 @@ const ProductUpdate = ({ slug, token, isAdmin }) => {
     quantityInputRef,
   };
 
-  const productReadQuery = useQuery(
-    ['productRead', slug],
-    () => getProduct(slug),
-    {
-      staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
-    }
-  );
-
-  const { data, isLoading, isError, error, isFetching } = useQuery(
-    'categoryListUpdate',
-    getCategories,
-    {
-      staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
-    }
-  );
-
-  const dataList = JSON.parse(data);
-  const productData = JSON.parse(productReadQuery.data);
+  const productQuery = useQueryProduct(slug);
+  const { data } = useQueryCategories();
 
   useEffect(() => {
     setValues((values) => ({
       ...values,
-      ...productData,
-      categories: dataList,
+      ...productQuery.data,
+      categories: data,
     }));
 
-    setSelectedCategory(productData.category._id);
+    setSelectedCategory(productQuery.data.category._id);
 
-    const arrayOfSubcategories = productData.subcategories.map((item) => {
+    const arrayOfSubcategories = productQuery.data.subcategories.map((item) => {
       return item._id;
     });
     setArrayOfSubs((arrayOfSubs) => arrayOfSubcategories);
-    dataList.map((item) => {
-      queryClient.prefetchQuery(
-        ['subCategoryListByCategoryIdUpdate', item._id],
-        () => getSubCategoryListByCategoryId(item._id)
+    data.map((item) => {
+      queryClient.prefetchQuery(['subCategoriesByCategoryId', item._id], () =>
+        getSubCategoriesByCategoryId(item._id)
       );
     });
   }, []);
 
-  const mutationUpdateProduct = useMutationUpdateProduct(queryClient);
+  const mutationUpdateProduct = useMutationUpdateProduct();
   const mutationPhotoUpload = useMutationPhotoUpload(queryClient);
   const mutationPhotoRemove = useMutationPhotoRemove(queryClient);
 
@@ -276,8 +229,8 @@ export async function getServerSideProps(context) {
     const queryClient = new QueryClient();
 
     await Promise.allSettled([
-      queryClient.prefetchQuery(['productRead', slug], () => productRead(slug)),
-      queryClient.prefetchQuery('categoryListUpdate', async () => {
+      queryClient.prefetchQuery(['products', slug], () => productRead(slug)),
+      queryClient.prefetchQuery(['categories'], async () => {
         const categoryList = await listCategory();
         return JSON.stringify(categoryList);
       }),

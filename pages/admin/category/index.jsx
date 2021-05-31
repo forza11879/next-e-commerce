@@ -1,17 +1,15 @@
 import { useRef, useState } from 'react';
 import nookies from 'nookies';
-import axios from 'axios';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import Link from 'next/link';
-import { QueryClient, useQueryClient } from 'react-query';
+import { QueryClient } from 'react-query';
 import { dehydrate } from 'react-query/hydration';
 import serialize from 'serialize-javascript';
 import {
-  useQueryHook,
+  useQueryCategories,
   useMutationCreateCategory,
   useMutationRemoveCategory,
-} from '@/hooks/useQuery';
-import { useQueryCategories } from '@/hooks/query/category';
+} from '@/hooks/query/category';
 import AdminRoute from '@/components/lib/AdminRoute';
 import AdminNav from '@/components/nav/AdminNav';
 import CategoryForm from '@/components/forms/CategoryForm';
@@ -20,38 +18,16 @@ import admin from '@/firebase/index';
 import { currentUser } from '@/Models/User/index';
 import { listCategory } from '@/Models/Category/index';
 
-// const baseURL = process.env.api;
-
-// async function getPosts() {
-//   // await new Promise((resolve) => setTimeout(resolve, 300));
-//   console.log(`${baseURL}/category/all`);
-//   // if (true) {
-//   //   throw new Error('Test error!');
-//   // }
-//   const { data } = await axios.request({
-//     baseURL,
-//     url: '/category/all',
-//     method: 'get',
-//   });
-
-//   return JSON.stringify(data);
-// }
-
 const CategoryCreate = ({ token, isAdmin }) => {
   const [keyword, setKeyword] = useState('');
   const formRef = useRef();
   const nameInputRef = useRef();
-  const queryClient = useQueryClient();
 
-  // const { data, isLoading, isError, error, isFetching } = useQueryHook(
-  //   ['categoryList'],
-  //   getPosts
-  // );
   const { data, isLoading, isError, error, isFetching } = useQueryCategories();
 
-  const mutationCreateCategory = useMutationCreateCategory(queryClient);
+  const mutationCreateCategory = useMutationCreateCategory();
 
-  const mutationRemoveCategory = useMutationRemoveCategory(queryClient);
+  const mutationRemoveCategory = useMutationRemoveCategory();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -168,7 +144,7 @@ export async function getServerSideProps(context) {
 
     // Using Hydration
     const queryClient = new QueryClient();
-    await queryClient.prefetchQuery('categories', categoryList, null, {
+    await queryClient.prefetchQuery(['categories'], categoryList, null, {
       // force: true, // forced prefetch regadless if the data is stale(forced prefetching)
     });
 

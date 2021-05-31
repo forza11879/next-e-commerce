@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
-import nookies from 'nookies';
 import axios from 'axios';
-import { useQuery, QueryClient, useQueryClient } from 'react-query';
+import nookies from 'nookies';
+import { QueryClient, useQueryClient } from 'react-query';
 import { dehydrate } from 'react-query/hydration';
 import { LoadingOutlined } from '@ant-design/icons';
 import AdminRoute from '@/components/lib/AdminRoute';
@@ -11,14 +11,12 @@ import FileUpload from '@/components/forms/FileUpload';
 import {
   useMutationPhotoUpload,
   useMutationPhotoRemove,
-  useMutationCreateProduct,
 } from '@/hooks/useQuery';
-import { useStateWithPromise } from '@/hooks/useStateWithPromise';
+import { useQueryCategories } from '@/hooks/query/category';
+import { useMutationCreateProduct } from '@/hooks/query/product';
 import admin from '@/firebase/index';
 import { currentUser } from '@/Models/User/index';
 import { listCategory } from '@/Models/Category/index';
-
-const baseURL = process.env.api;
 
 const initialState = {
   title: 'Macbook Pro',
@@ -50,46 +48,28 @@ const initialState = {
 //   color: '',
 //   brand: '',
 // };
+const baseURL = process.env.api;
 
-async function getPosts() {
-  // await new Promise((resolve) => setTimeout(resolve, 300));
-  console.log(`${baseURL}/category/all`);
-  try {
-    const { data } = await axios.request({
-      baseURL,
-      url: '/category/all',
-      method: 'get',
-    });
-
-    return JSON.stringify(data);
-  } catch (error) {
-    console.log('getPosts error:', error);
-  }
-}
-
-async function getSubCategoryListByCategoryId(id) {
-  // await new Promise((resolve) => setTimeout(resolve, 300));
-  // console.log(`${baseURL}/category/subcategories/${id}`);
+async function getSubCategoriesByCategoryId(id) {
+  console.log(`${baseURL}/category/subcategories/${id}`);
   try {
     const { data } = await axios.request({
       baseURL,
       url: `/category/subcategories/${id}`,
       method: 'get',
     });
-    // console.log('data getSubCategoryListByCategoryId index: ', data);
     return data;
   } catch (error) {
-    console.log('getSubCategoryListByCategoryId error:', error);
+    console.log('getSubCategoriesByCategoryId error:', error);
   }
 }
+
 const ProductCreate = ({ token, isAdmin }) => {
   console.log('initialState: ', initialState);
   // initialState.images = [];
 
   const [values, setValues] = useState(initialState);
   const [showSub, setShowSub] = useState(false);
-
-  console.log('valuess: ', values);
 
   const queryClient = useQueryClient();
 
@@ -120,27 +100,20 @@ const ProductCreate = ({ token, isAdmin }) => {
     // imagesInputRef,
   };
 
-  const { data, isLoading, isError, error, isFetching } = useQuery(
-    'categoryList',
-    getPosts,
-    {
-      staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
-    }
-  );
-
-  const dataList = JSON.parse(data);
+  const { data } = useQueryCategories();
 
   useEffect(() => {
-    setValues({ ...values, categories: dataList });
+    setValues({ ...values, categories: data });
 
-    dataList.map((item) => {
-      queryClient.prefetchQuery(['subCategoryListByCategoryId', item._id], () =>
-        getSubCategoryListByCategoryId(item._id)
+    data.map((item) => {
+      queryClient.prefetchQuery(['subCategoriesByCategoryId', item._id], () =>
+        getSubCategoriesByCategoryId(item._id)
       );
     });
   }, []);
 
-  const mutationCreateProduct = useMutationCreateProduct(queryClient);
+  const mutationCreateProduct = useMutationCreateProduct();
+
   const mutationPhotoUpload = useMutationPhotoUpload(queryClient);
   const mutationPhotoRemove = useMutationPhotoRemove(queryClient);
 
@@ -267,7 +240,7 @@ export async function getServerSideProps(context) {
 
     // Using Hydration
     const queryClient = new QueryClient();
-    await queryClient.prefetchQuery('categoryList', categoryList);
+    await queryClient.prefetchQuery(['categories'], categoryList);
 
     return {
       props: {

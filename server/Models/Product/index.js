@@ -181,6 +181,25 @@ const updateRating = async (userId, star, productId) => {
   }
 };
 
+// const cascadeUpdate = async (productId, categoryId) => {
+//   console.log({ categoryId });
+//   console.log({ productId });
+
+//   const query = { _id: productId };
+// https://stackoverflow.com/questions/5890898/confused-as-to-how-pullall-works-in-mongodb
+//   const update = { $pullAll: { category: [categoryId] } };
+//   const option = { new: true };
+//   try {
+//     const productUpdated = await Product.findOneAndUpdate(query, update, option)
+//       .where('category')
+//       .elemMatch({ _id: categoryId });
+//     // ratingUpdated.save();
+//     return productUpdated;
+//   } catch (error) {
+//     console.log('product model cascadeUpdate error: ', error);
+//   }
+// };
+
 const calculateAvgRating = async (id) => {
   try {
     const stats = await Product.aggregate([
@@ -222,4 +241,5 @@ export {
   addRating,
   updateRating,
   calculateAvgRating,
+  // cascadeUpdate,
 };

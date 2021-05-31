@@ -1,6 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import axios from 'axios';
-import { QueryClient, useQueryClient } from 'react-query';
+import { QueryClient } from 'react-query';
 import { dehydrate } from 'react-query/hydration';
 import nookies from 'nookies';
 import { toast } from 'react-toastify';
@@ -10,53 +9,19 @@ import { read } from '@/Models/SubCategory/index';
 import AdminNav from '@/components/nav/AdminNav';
 import CategoryForm from '@/components/forms/CategoryForm';
 import {
-  useQueryHook,
-  useQueryHookArg,
+  useQuerySubCategory,
   useMutationUpdateSubCategory,
-} from '@/hooks/useQuery';
-
-const baseURL = process.env.api;
-
-async function getPostsCategory() {
-  // await new Promise((resolve) => setTimeout(resolve, 500));
-  console.log(`${baseURL}/category/all`);
-  // if (true) {
-  //   throw new Error('Test error!');
-  // }
-  const { data } = await axios.request({
-    baseURL,
-    url: '/category/all',
-    method: 'get',
-  });
-
-  return JSON.stringify(data);
-}
-
-async function getPostSubCategory(slug) {
-  //   await new Promise((resolve) => setTimeout(resolve, 100));
-  //   console.log(`${baseURL}/category/${slug}`);
-  const { data } = await axios.request({
-    baseURL: baseURL,
-    url: `/subcategory/${slug}`,
-    method: 'get',
-  });
-  //   console.log('getPost data.name:', data.name);
-  return JSON.stringify(data);
-}
+} from '@/hooks/query/subcategory';
+import { useQueryCategories } from '@/hooks/query/category';
 
 const SubUpdate = ({ id, token, slug }) => {
   const [parentInput, setParentInput] = useState('');
   const formRef = useRef();
   const nameInputRef = useRef();
-  const queryClient = useQueryClient();
   const router = useRouter();
 
-  const categoryQuery = useQueryHook(['categoryList'], getPostsCategory);
-  const slugSubCategoryQuery = useQueryHookArg(
-    ['subCategorySlug', id],
-    getPostSubCategory,
-    slug
-  );
+  const categoryQuery = useQueryCategories();
+  const slugSubCategoryQuery = useQuerySubCategory(id, slug);
 
   const { name, parent } = slugSubCategoryQuery.data;
 
@@ -64,7 +29,7 @@ const SubUpdate = ({ id, token, slug }) => {
     setParentInput(parent);
   }, []);
 
-  const mutationUpdateSubCategory = useMutationUpdateSubCategory(queryClient);
+  const mutationUpdateSubCategory = useMutationUpdateSubCategory();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -172,8 +137,8 @@ export async function getServerSideProps(context) {
     const queryClient = new QueryClient();
 
     await Promise.allSettled([
-      queryClient.prefetchQuery('categoryList', categoryList),
-      queryClient.prefetchQuery(['subCategorySlug', id], subCategoryRead),
+      queryClient.prefetchQuery(['categories'], categoryList),
+      queryClient.prefetchQuery(['subCategories', id], subCategoryRead),
     ]);
 
     return {
