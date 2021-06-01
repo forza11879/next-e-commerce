@@ -30,6 +30,7 @@ const queryKeys = {
   subCategory: (id) => [...queryKeys.subCategories, id],
 };
 
+// Queries
 export const useQuerySubCategories = () =>
   useQuery(queryKeys.subCategories, fetchSubCategories, {
     select: useCallback((data) => {
@@ -44,7 +45,7 @@ export const useQuerySubCategory = (id, slug) =>
     }, []),
   });
 
-// SubCategory Mutations
+// Mutations
 export const useMutationCreateSubCategory = () => {
   const queryClient = useQueryClient();
   return useMutation(

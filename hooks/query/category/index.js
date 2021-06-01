@@ -33,6 +33,7 @@ const queryKeys = {
   category: (id) => [...queryKeys.categories, id],
 };
 
+// Queries
 export const useQueryCategories = () =>
   useQuery(queryKeys.categories, fetchCategories, {
     // Selectors like the one bellow will also run on every render, because the functional identity changes (it's an inline function). If your transformation is expensive, you can memoize it either with useCallback, or by extracting it to a stable function reference
@@ -55,6 +56,7 @@ export const useQueryCategory = (id, slug) =>
     // staleTime: Infinity,
   });
 
+// Mutations
 export const useMutationCreateCategory = () => {
   const queryClient = useQueryClient();
   return useMutation(

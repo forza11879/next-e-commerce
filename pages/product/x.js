@@ -1,1 +1,46 @@
-"{\"_id\":\"60ac0e7b5728360854f0cbed\",\"subcategories\":[{\"_id\":\"60866339087d730d0e6bb1f1\",\"name\":\"ford\",\"parent\":\"608241538583f4017785a4fd\",\"slug\":\"ford\",\"createdAt\":\"2021-04-26T06:52:41.593Z\",\"updatedAt\":\"2021-04-26T06:52:41.593Z\",\"__v\":0}],\"sold\":0,\"images\":[{\"public_id\":\"efziv0vlcarn79o2dir9\",\"url\":\"https://res.cloudinary.com/dhvi46rif/image/upload/v1621888605/efziv0vlcarn79o2dir9.jpg\"}],\"title\":\"Macbook Pro\",\"description\":\"This is the best Apple product\",\"price\":45000,\"quantity\":50,\"shipping\":\"Yes\",\"color\":\"Black\",\"brand\":\"Apple\",\"category\":{\"_id\":\"608241538583f4017785a4fd\",\"name\":\"ry\",\"slug\":\"ry\",\"createdAt\":\"2021-04-23T03:38:59.942Z\",\"updatedAt\":\"2021-04-23T06:13:33.195Z\",\"__v\":0},\"slug\":\"macbook-pro\",\"ratings\":[{\"_id\":\"60ac2c44917a56018982f5c1\",\"star\":3,\"postedBy\":\"606787cbc3f14b038015cafb\"}],\"createdAt\":\"2021-05-24T20:37:15.464Z\",\"updatedAt\":\"2021-05-24T23:13:53.754Z\",\"__v\":0}";
+[
+  {
+    subcategories: [
+      {
+        _id: '60825fca8583f4017785a548',
+        name: 'tesla',
+        parent: '608241538583f4017785a4fd',
+        slug: 'tesla',
+        createdAt: '2021-04-23T05:48:58.664Z',
+        updatedAt: '2021-04-23T08:33:35.028Z',
+        __v: 0,
+      },
+    ],
+    sold: 0,
+    images: [],
+    _id: '60b44076663090017ee99918',
+    title: 'Macbook Pro',
+    description: 'This is the best Apple product',
+    price: 45000,
+    quantity: 50,
+    shipping: 'Yes',
+    color: 'Black',
+    brand: 'Apple',
+    category: {
+      _id: '608241538583f4017785a4fd',
+      name: 'ry',
+      slug: 'ry',
+      createdAt: '2021-04-23T03:38:59.942Z',
+      updatedAt: '2021-04-23T06:13:33.195Z',
+      __v: 0,
+    },
+    slug: 'macbook-pro',
+    ratings: [
+      {
+        _id: '60b453dc3ec16e029e3106ef',
+        star: 4,
+        postedBy: '606787cbc3f14b038015cafb',
+      },
+    ],
+    createdAt: '2021-05-31T01:48:38.078Z',
+    updatedAt: '2021-06-01T00:39:16.146Z',
+    __v: 0,
+    avgRating: 4,
+    nRatings: 1,
+  },
+];

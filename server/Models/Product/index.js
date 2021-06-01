@@ -143,6 +143,7 @@ const productById = async (productId) => {
   const query = { _id: productId };
   try {
     const product = await Product.findById(query);
+    console.log('productById: ', product);
     return product;
   } catch (error) {
     console.log('product model productStar error: ', error);
@@ -224,8 +225,28 @@ const calculateAvgRating = async (id) => {
       },
     ]);
     // console.log('stats: ', stats);
-  } catch (err) {
-    console.log(`calculateAvgRating error: ${err}`);
+  } catch (error) {
+    console.log(`calculateAvgRating error: ${error}`);
+  }
+};
+
+const relatedProduct = async (product) => {
+  const query = {
+    _id: { $ne: product._id },
+    category: product.category,
+  };
+  try {
+    const related = await Product.find(query)
+      // .lean()
+      .limit(3)
+      .populate('category')
+      .populate('subcategories')
+      .populate('postedBy')
+      .exec();
+    console.log('related back-end: ', related);
+    return related;
+  } catch (error) {
+    console.log(`relatedProduct error: ${error}`);
   }
 };
 
@@ -242,4 +263,5 @@ export {
   updateRating,
   calculateAvgRating,
   // cascadeUpdate,
+  relatedProduct,
 };

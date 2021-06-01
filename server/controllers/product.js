@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import {
   create,
   listProduct,
@@ -10,6 +11,7 @@ import {
   addRating,
   updateRating,
   calculateAvgRating,
+  relatedProduct,
 } from '@/Models/Product/index';
 import { currentUser } from '@/Models/User/index';
 
@@ -121,5 +123,16 @@ export const productStarController = async (req, res) => {
   } catch (error) {
     console.log('product productStar controller error: ', error);
     res.status(400).json('Fetch product productStar request failed');
+  }
+};
+
+export const listRelatedController = async (req, res) => {
+  try {
+    const { productId } = req.query;
+    const product = await productById(productId);
+    const related = await relatedProduct(product);
+    res.status(200).json(related);
+  } catch (error) {
+    console.log('product listRelatedController controller error: ', error);
   }
 };

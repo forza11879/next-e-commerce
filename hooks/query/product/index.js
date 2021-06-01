@@ -17,7 +17,7 @@ async function fetchProducts(body) {
 
     return JSON.stringify(data);
   } catch (error) {
-    console.log('getPosts error:', error);
+    console.log('fetchProducts error:', error);
   }
 }
 
@@ -32,7 +32,7 @@ async function fetchProductsByCount(count) {
 
     return JSON.stringify(data);
   } catch (error) {
-    console.log('fetchProducts error:', error);
+    console.log('fetchProductsByCount error:', error);
   }
 }
 
@@ -47,7 +47,7 @@ async function fetchProduct(slug) {
 
     return JSON.stringify(data);
   } catch (error) {
-    console.log('getPosts error:', error);
+    console.log('fetchProduct error:', error);
   }
 }
 
@@ -72,7 +72,7 @@ async function fetchProductStarByUserId(slug, userId) {
 
     return JSON.stringify(data);
   } catch (error) {
-    console.log('getProductSlug error:', error);
+    console.log('fetchProductStarByUserId error:', error);
   }
 }
 
@@ -87,7 +87,21 @@ async function fetchProductsCount() {
 
     return data;
   } catch (error) {
-    console.log('getPosts error:', error);
+    console.log('fetchProductsCount error:', error);
+  }
+}
+
+async function fetchProductRelated(productId) {
+  console.log(`${baseURL}/product/related/${productId}`);
+  try {
+    const { data } = await axios.request({
+      baseURL,
+      url: `/product/related/${productId}`,
+      method: 'get',
+    });
+    return JSON.stringify(data);
+  } catch (error) {
+    console.log('fetchProductRelated error:', error);
   }
 }
 
@@ -98,8 +112,10 @@ const queryKeys = {
   productsByNewArrivals: (page) => ['productsByNewArrivals', page],
   productsByBestSellers: (page) => ['productsByBestSellers', page],
   productsCount: ['productsCount'],
+  productRelated: (slug) => ['productRelated', slug],
 };
 
+// Queries
 export const useQueryProductsCount = () =>
   useQuery(queryKeys.productsCount, () => fetchProductsCount(), {
     // Selectors like the one bellow will also run on every render, because the functional identity changes (it's an inline function). If your transformation is expensive, you can memoize it either with useCallback, or by extracting it to a stable function reference
@@ -170,7 +186,23 @@ export const useQueryProductByBestSellers = (page, body) =>
     // staleTime: Infinity,
   });
 
-// Product Mutations
+export const useQueryProductRelated = (slug, productId) =>
+  useQuery(
+    queryKeys.productRelated(slug),
+    () => fetchProductRelated(productId),
+    {
+      // Selectors like the one bellow will also run on every render, because the functional identity changes (it's an inline function). If your transformation is expensive, you can memoize it either with useCallback, or by extracting it to a stable function reference
+      select: useCallback((data) => {
+        // selectors will only be called if data exists, so you don't have to care about undefined here.
+        // console.log(JSON.parse(data));
+        return JSON.parse(data);
+      }, []),
+
+      // staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
+    }
+  );
+
+// Mutations
 export const useMutationCreateProduct = () => {
   const queryClient = useQueryClient();
   return useMutation(

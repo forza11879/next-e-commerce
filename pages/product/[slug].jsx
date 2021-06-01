@@ -4,18 +4,24 @@ import { QueryClient } from 'react-query';
 import { dehydrate } from 'react-query/hydration';
 import admin from '@/firebase/index';
 import { currentUser } from '@/Models/User/index';
-import { read } from '@/Models/Product/index';
+import { read, relatedProduct } from '@/Models/Product/index';
 import {
   useQueryProductStar,
+  useQueryProductRelated,
   useMutationStarProduct,
 } from '@/hooks/query/product';
 import SingleProduct from '@/components/cards/SingleProduct';
+import ProductCard from '@/components/cards/ProductCard';
 
-const Product = ({ userId, slug, isUser, token }) => {
+const Product = ({ productId, userId, slug, isUser, token }) => {
   const [star, setStar] = useState(0);
-  const id = JSON.parse(userId);
+  // const id = JSON.parse(userId);
+  console.log('productId', productId);
 
-  const productSlugQuery = useQueryProductStar(slug, id);
+  const productSlugQuery = useQueryProductStar(slug, JSON.parse(userId));
+  const productRelatedQuery = useQueryProductRelated(slug, productId);
+  console.log('productRelatedQuery.data: ', productRelatedQuery.data);
+
   const mutationStarProduct = useMutationStarProduct();
 
   const onStarClick = (newRating, productId) => {
@@ -49,6 +55,18 @@ const Product = ({ userId, slug, isUser, token }) => {
           <hr />
         </div>
       </div>
+
+      <div className="row pb-5">
+        {productRelatedQuery.data.length ? (
+          productRelatedQuery.data.map((item) => (
+            <div key={item._id} className="col-md-4">
+              <ProductCard product={item} />
+            </div>
+          ))
+        ) : (
+          <div className="text-center col">No Products Found</div>
+        )}
+      </div>
     </div>
   );
 };
@@ -65,31 +83,38 @@ export async function getServerSideProps(context) {
   try {
     const { email } = await admin.auth().verifyIdToken(appToken);
     const user = await currentUser(email);
-
     if (user) isUser = true;
+    const product = await read(slug);
+    const related = await relatedProduct(product);
+    // console.log('related: ', related);
 
     // Using Hydration
     const queryClient = new QueryClient();
 
-    await queryClient.prefetchQuery(['productStar', slug], async () => {
-      const product = await read(slug);
+    await Promise.allSettled([
+      queryClient.prefetchQuery(['productStar', slug], async () => {
+        const existingRatingObject = product.ratings.find(
+          (item) => item.postedBy.toString() === user._id.toString()
+        );
 
-      const existingRatingObject = product.ratings.find(
-        (item) => item.postedBy.toString() === user._id.toString()
-      );
+        if (existingRatingObject) {
+          product.star = existingRatingObject.star;
+        } else {
+          product.star = 0;
+        }
 
-      if (existingRatingObject) {
-        product.star = existingRatingObject.star;
-      } else {
-        product.star = 0;
-      }
-
-      // console.log({ product });
-      return JSON.stringify(product);
-    });
+        // console.log({ product });
+        return JSON.stringify(product);
+      }),
+      queryClient.prefetchQuery(['productRelated', slug], async () => {
+        const related = await relatedProduct(product);
+        return JSON.stringify(related);
+      }),
+    ]);
 
     return {
       props: {
+        productId: JSON.parse(JSON.stringify(product._id)),
         userId: JSON.stringify(user._id),
         slug: slug,
         token: appToken,

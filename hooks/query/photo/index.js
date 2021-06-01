@@ -19,64 +19,67 @@ export const useMutationPhotoUpload = () => {
       });
     },
     {
+      // data
       onMutate: ({ data: { image } }) => {
+        // console.log({ image });
         // Cancel any outgoing refetches (so they don't overwrite(race condition) our optimistic update)
         // queryClient.cancelQueries('categoryList', { exact: true });
         // queryClient.cancelQueries('subCategoryList', { exact: true });
         // Snapshot the previous value
-        const previousQueryDataArray =
-          queryClient.getQueryData('productsCount');
+        // const previousQueryDataArray =
+        //   queryClient.getQueryData('productsCount');
         // console.log('previousQueryDataArray: ', previousQueryDataArray);
         // In an optimistic update the UI behaves as though a change was successfully completed before receiving confirmation from the server that it actually was - it is being optimistic that it will eventually get the confirmation rather than an error. This allows for a more responsive user experience.
-
         // return will pass the function or the value to the onError third argument:
-        return () =>
-          queryClient.setQueryData('subCategories', previousQueryDataArray);
+        // return () =>
+        //   queryClient.setQueryData('subCategories', previousQueryDataArray);
       },
+      // error, variablrs, rollback
       onError: (error, variables, rollback) => {
         //   If there is an errror, then we will rollback
         // console.log('CreateCategory onError error: ', error.response.data);
-        if (rollback) {
-          rollback();
-          console.log('rollback');
-        }
-        if (error) {
-          toast.error(error.response.data);
-        }
+        // if (rollback) {
+        //   rollback();
+        //   console.log('rollback');
+        // }
+        // if (error) {
+        //   toast.error(error.response.data);
+        // }
       },
+      // data from hhtp response, variables, context
       onSuccess: ({ data }, { props: { values, setValues } }, context) => {
         // Runs only there is a success
         // saves http trip to the back-end
-        const previousQueryDataArray =
-          queryClient.getQueryData('productsCount');
+        // const previousQueryDataArray =
+        //   queryClient.getQueryData('productsCount');
         console.log({ data });
 
-        queryClient.setQueryData('productsCount', (oldQueryData) => {
-          const oldQueryDataArray = JSON.parse(oldQueryData);
-          console.log('oldQueryDataArray onSuccess: ', oldQueryDataArray);
-          console.log('image onSuccess: ', data);
-          console.log('index onSuccess: ', values.index);
-          const idx = values.index;
+        // queryClient.setQueryData('productsCount', (oldQueryData) => {
+        //   const oldQueryDataArray = JSON.parse(oldQueryData);
+        //   console.log('oldQueryDataArray onSuccess: ', oldQueryDataArray);
+        //   console.log('image onSuccess: ', data);
+        //   console.log('index onSuccess: ', values.index);
+        //   const idx = values.index;
 
-          const newQueryDataArray = oldQueryDataArray.filter((item) => {
-            return item.slug !== values.slug;
-          });
+        //   const newQueryDataArray = oldQueryDataArray.filter((item) => {
+        //     return item.slug !== values.slug;
+        //   });
 
-          const [result] = oldQueryDataArray
-            .filter((item) => {
-              return item.slug === values.slug;
-            })
-            .map((item) => {
-              item.images[idx] = data;
-              return item;
-            });
+        //   const [result] = oldQueryDataArray
+        //     .filter((item) => {
+        //       return item.slug === values.slug;
+        //     })
+        //     .map((item) => {
+        //       item.images[idx] = data;
+        //       return item;
+        //     });
 
-          newQueryDataArray.push(result);
+        //   newQueryDataArray.push(result);
 
-          console.log('newQueryDataArray: ', newQueryDataArray);
+        //   console.log('newQueryDataArray: ', newQueryDataArray);
 
-          return JSON.stringify(newQueryDataArray);
-        });
+        //   return JSON.stringify(newQueryDataArray);
+        // });
 
         if (data) {
           console.log('onSuccess data from back-end: ', data);

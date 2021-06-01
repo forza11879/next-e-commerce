@@ -23,7 +23,7 @@ const FileUpload = ({
           100,
           0,
           (uri) => {
-            // console.log(uri);
+            console.log({ uri });
             const options = {
               url: '/uploadimages',
               method: 'post',
