@@ -5,6 +5,7 @@ import { dehydrate } from 'react-query/hydration';
 import Jumbotron from '@/components/cards/Jumbotron';
 import NewArrivals from '@/components/home/NewArrivals';
 import BestSellers from '@/components/home/BestSellers';
+import CategoryList from '@/components/category/CategoryList';
 import admin from '@/firebase/index';
 import { currentUser } from '@/Models/User/index';
 import {
@@ -12,7 +13,9 @@ import {
   useQueryProductByBestSellers,
   useQueryProductsCount,
 } from '@/hooks/query/product';
+import { useQueryCategories } from '@/hooks/query/category';
 import { listProduct, productsCount } from '@/Models/Product/index';
+import { listCategory } from '@/Models/Category/index';
 
 const HomePage = ({ newArrivals, bestSellers }) => {
   const [limit] = useState(3);
@@ -30,6 +33,8 @@ const HomePage = ({ newArrivals, bestSellers }) => {
     arrivals
   );
   const bestSellersQuery = useQueryProductByBestSellers(sellers.page, sellers);
+  const categoriesQuery = useQueryCategories();
+  console.log('categoriesQuery.data: ', categoriesQuery.data);
 
   return (
     <>
@@ -58,6 +63,11 @@ const HomePage = ({ newArrivals, bestSellers }) => {
         page={pageBestSellers}
         setPage={setPageBestSellers}
       />
+
+      <h4 className="text-center p-3 mt-5 mb-5 display-4 jumbotron">
+        Categories
+      </h4>
+      <CategoryList categories={categoriesQuery} />
 
       <br />
       <br />
@@ -110,6 +120,10 @@ export async function getServerSideProps(context) {
         const productsCountResult = await productsCount();
         console.log({ productsCountResult });
         return JSON.stringify(productsCountResult);
+      }),
+      queryClient.prefetchQuery(['categories'], async () => {
+        const categoryList = await listCategory();
+        return JSON.stringify(categoryList);
       }),
     ]);
 

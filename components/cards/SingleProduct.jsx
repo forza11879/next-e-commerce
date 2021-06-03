@@ -22,6 +22,7 @@ const SingleProduct = ({ product, isUser, token, onStarClick }) => {
     product;
 
   const cloudnaryGalleryRef = useRef(null);
+
   const myGallery = window.cloudinary.galleryWidget({
     container: '#my-gallery',
     cloudName: 'dhvi46rif',
