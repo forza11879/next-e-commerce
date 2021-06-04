@@ -1,10 +1,10 @@
-import mongoose from 'mongoose';
 import {
   create,
   listProduct,
   listAllByCountProduct,
   remove,
   read,
+  readByCategory,
   update,
   productsCount,
   productById,
@@ -14,6 +14,7 @@ import {
   relatedProduct,
 } from '@/Models/Product/index';
 import { currentUser } from '@/Models/User/index';
+import { readCategory } from '@/Models/Category/index';
 
 export const createController = async (req, res) => {
   try {
@@ -71,6 +72,20 @@ export const readController = async (req, res) => {
   } catch (error) {
     console.log('product read controller error: ', error);
     res.status(400).json('Fetch product read request failed');
+  }
+};
+
+export const readByCategoryController = async (req, res) => {
+  const { slug } = req.query;
+  try {
+    const category = await readCategory(slug);
+    const products = await readByCategory(category);
+    res.status(200).json(products);
+  } catch (error) {
+    console.log('product readByCategoryController error: ', error);
+    res
+      .status(400)
+      .json('Fetch product readByCategoryController request failed');
   }
 };
 

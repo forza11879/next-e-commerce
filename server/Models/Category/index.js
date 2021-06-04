@@ -26,7 +26,7 @@ const listCategory = async () => {
   }
 };
 
-const read = async (slug) => {
+const readCategory = async (slug) => {
   try {
     const query = { slug: slug };
     const category = await Category.findOne(query);
@@ -59,4 +59,4 @@ const remove = async (slug) => {
   }
 };
 
-export { create, listCategory, read, update, remove };
+export { create, listCategory, readCategory, update, remove };

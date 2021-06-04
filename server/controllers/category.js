@@ -1,7 +1,7 @@
 import {
   create,
   listCategory,
-  read,
+  readCategory,
   update,
   remove,
 } from '@/Models/Category/index';
@@ -34,7 +34,7 @@ export const listController = async (req, res) => {
 export const readController = async (req, res) => {
   const { slug } = req.query;
   try {
-    const category = await read(slug);
+    const category = await readCategory(slug);
     res.status(200).json(category);
   } catch (error) {
     console.log('read controller error: ', error);

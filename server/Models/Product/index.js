@@ -110,6 +110,16 @@ const read = async (slug) => {
   }
 };
 
+const readByCategory = async (category) => {
+  try {
+    const query = { category };
+    const products = await Product.find(query).populate('category');
+    return products;
+  } catch (error) {
+    console.log('product model readByCategory error: ', error);
+  }
+};
+
 const update = async (values, slug) => {
   const { title } = values;
 
@@ -256,6 +266,7 @@ export {
   listAllByCountProduct,
   remove,
   read,
+  readByCategory,
   update,
   productsCount,
   productById,

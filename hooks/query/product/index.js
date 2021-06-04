@@ -105,6 +105,20 @@ async function fetchProductRelated(productId) {
   }
 }
 
+async function fetchProductsByCategory(slug) {
+  console.log(`${baseURL}/product/all/category/${slug}`);
+  try {
+    const { data } = await axios.request({
+      baseURL,
+      url: `/product/all/category/${slug}`,
+      method: 'get',
+    });
+    return JSON.stringify(data);
+  } catch (error) {
+    console.log('fetchProductsByCategory error:', error);
+  }
+}
+
 const queryKeys = {
   products: ['products'],
   product: (id) => [...queryKeys.products, id],
@@ -113,6 +127,7 @@ const queryKeys = {
   productsByBestSellers: (page) => ['productsByBestSellers', page],
   productsCount: ['productsCount'],
   productRelated: (slug) => ['productRelated', slug],
+  productsByCategoryId: (id) => ['productsByCategoryId', id],
 };
 
 // Queries
@@ -199,6 +214,21 @@ export const useQueryProductRelated = (slug, productId) =>
       }, []),
 
       // staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
+    }
+  );
+
+export const useQueryProductsByCategoryId = (id, slug) =>
+  useQuery(
+    queryKeys.productsByCategoryId(id),
+    () => fetchProductsByCategory(slug),
+    {
+      // Selectors like the one bellow will also run on every render, because the functional identity changes (it's an inline function). If your transformation is expensive, you can memoize it either with useCallback, or by extracting it to a stable function reference
+      select: useCallback((data) => {
+        // selectors will only be called if data exists, so you don't have to care about undefined here.
+        // console.log(JSON.parse(data));
+        return JSON.parse(data);
+      }, []),
+      staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
     }
   );
 

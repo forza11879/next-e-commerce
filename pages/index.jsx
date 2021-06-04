@@ -34,7 +34,6 @@ const HomePage = ({ newArrivals, bestSellers }) => {
   );
   const bestSellersQuery = useQueryProductByBestSellers(sellers.page, sellers);
   const categoriesQuery = useQueryCategories();
-  console.log('categoriesQuery.data: ', categoriesQuery.data);
 
   return (
     <>
