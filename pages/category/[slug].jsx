@@ -1,4 +1,3 @@
-import React, { useState, useEffect } from 'react';
 import nookies from 'nookies';
 import { QueryClient } from 'react-query';
 import { dehydrate } from 'react-query/hydration';
@@ -6,19 +5,37 @@ import admin from '@/firebase/index';
 import { currentUser } from '@/Models/User/index';
 import { readCategory } from '@/Models/Category/index';
 import { readByCategory } from '@/Models/Product/index';
-import { useQueryProductsByCategoryId } from '@/hooks/query/product';
+import { useQueryProductsByCategory } from '@/hooks/query/category';
+import ProductCard from '@/components/cards/ProductCard';
 
 const CategoryHome = ({ id, slug }) => {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const useProductsByCategoryQuery = useQueryProductsByCategory(id, slug);
+  return (
+    <div className="container-fluid">
+      <div className="row">
+        <div className="col">
+          {useProductsByCategoryQuery.isLoading ? (
+            <h4 className="text-center p-3 mt-5 mb-5 display-4 jumbotron">
+              Loading...
+            </h4>
+          ) : (
+            <h4 className="text-center p-3 mt-5 mb-5 display-4 jumbotron">
+              {useProductsByCategoryQuery.data.products.length} Products in "
+              {useProductsByCategoryQuery.data.category.name}" category
+            </h4>
+          )}
+        </div>
+      </div>
 
-  const useProductsByCategoryIdQuery = useQueryProductsByCategoryId(id, slug);
-  console.log(
-    'useProductsByCategoryIdQuery.data: ',
-    useProductsByCategoryIdQuery.data
+      <div className="row">
+        {useProductsByCategoryQuery.data.products.map((item) => (
+          <div className="col-md-4" key={item._id}>
+            <ProductCard product={item} />
+          </div>
+        ))}
+      </div>
+    </div>
   );
-
-  return <p>{slug}</p>;
 };
 
 export async function getServerSideProps(context) {
@@ -41,9 +58,9 @@ export async function getServerSideProps(context) {
     // Using Hydration
     const queryClient = new QueryClient();
 
-    await queryClient.prefetchQuery(['productsByCategoryId', id], async () => {
+    await queryClient.prefetchQuery(['productsByCategory', id], async () => {
       const products = await readByCategory(category);
-      return JSON.stringify(products);
+      return JSON.stringify({ category, products });
     });
 
     return {

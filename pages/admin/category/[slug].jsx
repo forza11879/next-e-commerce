@@ -4,7 +4,7 @@ import { dehydrate } from 'react-query/hydration';
 import nookies from 'nookies';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/router';
-import { read } from '@/Models/Category/index';
+import { readCategory } from '@/Models/Category/index';
 import AdminNav from '@/components/nav/AdminNav';
 import CategoryForm from '@/components/forms/CategoryForm';
 import {
@@ -18,6 +18,8 @@ const CategoryUpdate = ({ id, token, slug }) => {
   const router = useRouter();
 
   const { data, isLoading } = useQueryCategory(id, slug);
+
+  console.log({ data });
 
   const { name } = data;
 
@@ -79,7 +81,7 @@ export async function getServerSideProps(context) {
 
   const { appToken } = nookies.get(context);
 
-  const result = await read(slug);
+  const result = await readCategory(slug);
 
   const newObj = {
     id: result._id,

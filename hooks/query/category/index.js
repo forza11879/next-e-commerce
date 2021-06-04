@@ -24,13 +24,28 @@ async function fetchCategory(slug) {
     url: `/category/${slug}`,
     method: 'get',
   });
-  //   console.log('getPost data.name:', data.name);
-  return JSON.stringify(data);
+  // console.log('fetchCategory data:', data);
+  return JSON.stringify(data.category);
+}
+
+async function fetchProductsByCategory(slug) {
+  console.log(`${baseURL}/category/${slug}`);
+  try {
+    const { data } = await axios.request({
+      baseURL,
+      url: `/category/${slug}`,
+      method: 'get',
+    });
+    return JSON.stringify(data);
+  } catch (error) {
+    console.log('fetchProductsByCategory error:', error);
+  }
 }
 
 const queryKeys = {
   categories: ['categories'],
   category: (id) => [...queryKeys.categories, id],
+  productsByCategory: (id) => ['productsByCategory', id],
 };
 
 // Queries
@@ -50,11 +65,26 @@ export const useQueryCategory = (id, slug) =>
     // Selectors like the one bellow will also run on every render, because the functional identity changes (it's an inline function). If your transformation is expensive, you can memoize it either with useCallback, or by extracting it to a stable function reference
     select: useCallback((data) => {
       // selectors will only be called if data exists, so you don't have to care about undefined here.
-      // console.log(JSON.parse(data));
+      console.log(JSON.parse(data));
       return JSON.parse(data);
     }, []),
-    // staleTime: Infinity,
+    staleTime: Infinity,
   });
+
+export const useQueryProductsByCategory = (id, slug) =>
+  useQuery(
+    queryKeys.productsByCategory(id),
+    () => fetchProductsByCategory(slug),
+    {
+      // Selectors like the one bellow will also run on every render, because the functional identity changes (it's an inline function). If your transformation is expensive, you can memoize it either with useCallback, or by extracting it to a stable function reference
+      select: useCallback((data) => {
+        // selectors will only be called if data exists, so you don't have to care about undefined here.
+        // console.log(JSON.parse(data));
+        return JSON.parse(data);
+      }, []),
+      staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
+    }
+  );
 
 // Mutations
 export const useMutationCreateCategory = () => {

@@ -6,6 +6,7 @@ import {
   remove,
 } from '@/Models/Category/index';
 import { cascadeDelete } from '@/Models/SubCategory/index';
+import { readByCategory, cascadeUpdate } from '@/Models/Product/index';
 
 export const createController = async (req, res) => {
   try {
@@ -35,7 +36,8 @@ export const readController = async (req, res) => {
   const { slug } = req.query;
   try {
     const category = await readCategory(slug);
-    res.status(200).json(category);
+    const products = await readByCategory(category);
+    res.status(200).json({ category, products });
   } catch (error) {
     console.log('read controller error: ', error);
     res.status(400).json('reead request failed');
