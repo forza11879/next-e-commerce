@@ -6,6 +6,7 @@ import Jumbotron from '@/components/cards/Jumbotron';
 import NewArrivals from '@/components/home/NewArrivals';
 import BestSellers from '@/components/home/BestSellers';
 import CategoryList from '@/components/category/CategoryList';
+import SubCategoryList from '@/components/subcategory/SubCategoryList';
 import admin from '@/firebase/index';
 import { currentUser } from '@/Models/User/index';
 import {
@@ -14,8 +15,10 @@ import {
   useQueryProductsCount,
 } from '@/hooks/query/product';
 import { useQueryCategories } from '@/hooks/query/category';
+import { useQuerySubCategories } from '@/hooks/query/subcategory';
 import { listProduct, productsCount } from '@/Models/Product/index';
 import { listCategory } from '@/Models/Category/index';
+import { listSubCategory } from '@/Models/SubCategory/index';
 
 const HomePage = ({ newArrivals, bestSellers }) => {
   const [limit] = useState(3);
@@ -34,6 +37,7 @@ const HomePage = ({ newArrivals, bestSellers }) => {
   );
   const bestSellersQuery = useQueryProductByBestSellers(sellers.page, sellers);
   const categoriesQuery = useQueryCategories();
+  const subCategoriesQuery = useQuerySubCategories();
 
   return (
     <>
@@ -67,6 +71,10 @@ const HomePage = ({ newArrivals, bestSellers }) => {
         Categories
       </h4>
       <CategoryList categories={categoriesQuery} />
+      <h4 className="text-center p-3 mt-5 mb-5 display-4 jumbotron">
+        Sub Categories
+      </h4>
+      <SubCategoryList subcategories={subCategoriesQuery} />
 
       <br />
       <br />
@@ -117,12 +125,16 @@ export async function getServerSideProps(context) {
       ),
       queryClient.prefetchQuery('productsCount', async () => {
         const productsCountResult = await productsCount();
-        console.log({ productsCountResult });
+        // console.log({ productsCountResult });
         return JSON.stringify(productsCountResult);
       }),
       queryClient.prefetchQuery(['categories'], async () => {
         const categoryList = await listCategory();
         return JSON.stringify(categoryList);
+      }),
+      queryClient.prefetchQuery(['subcategories'], async () => {
+        const subCategoryList = await listSubCategory();
+        return JSON.stringify(subCategoryList);
       }),
     ]);
 

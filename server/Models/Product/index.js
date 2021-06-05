@@ -120,6 +120,16 @@ const readByCategory = async (category) => {
   }
 };
 
+const readBySubCategory = async (subcategory) => {
+  try {
+    const query = { subcategories: subcategory };
+    const products = await Product.find(query).populate('category');
+    return products;
+  } catch (error) {
+    console.log('product model readByCategory error: ', error);
+  }
+};
+
 const update = async (values, slug) => {
   const { title } = values;
 
@@ -267,6 +277,7 @@ export {
   remove,
   read,
   readByCategory,
+  readBySubCategory,
   update,
   productsCount,
   productById,

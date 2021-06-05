@@ -1,11 +1,12 @@
 import {
   create,
   listSubCategory,
-  read,
+  readSubCategory,
   update,
   remove,
   getSubCategories,
 } from '@/Models/SubCategory/index';
+import { readBySubCategory } from '@/Models/Product/index';
 
 export const createController = async (req, res) => {
   try {
@@ -34,11 +35,13 @@ export const listController = async (req, res) => {
 export const readController = async (req, res) => {
   const { slug } = req.query;
   try {
-    const category = await read(slug);
-    res.status(200).json(category);
+    const subcategory = await readSubCategory(slug);
+    const products = await readBySubCategory(subcategory);
+
+    res.status(200).json({ subcategory, products });
   } catch (error) {
     console.log('read controller error: ', error);
-    res.status(400).json('reead request failed');
+    res.status(400).json('read request failed');
   }
 };
 

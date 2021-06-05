@@ -15,12 +15,9 @@ import ProductCard from '@/components/cards/ProductCard';
 
 const Product = ({ productId, userId, slug, isUser, token }) => {
   const [star, setStar] = useState(0);
-  // const id = JSON.parse(userId);
-  console.log('productId', productId);
 
   const productSlugQuery = useQueryProductStar(slug, JSON.parse(userId));
   const productRelatedQuery = useQueryProductRelated(slug, productId);
-  console.log('productRelatedQuery.data: ', productRelatedQuery.data);
 
   const mutationStarProduct = useMutationStarProduct();
 

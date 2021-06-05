@@ -27,7 +27,7 @@ const listSubCategory = async () => {
   }
 };
 
-const read = async (slug) => {
+const readSubCategory = async (slug) => {
   try {
     const query = { slug: slug };
     const subCategory = await SubCategory.findOne(query);
@@ -83,7 +83,7 @@ const cascadeDelete = async function (id) {
 export {
   create,
   listSubCategory,
-  read,
+  readSubCategory,
   update,
   remove,
   getSubCategories,

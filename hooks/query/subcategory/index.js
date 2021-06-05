@@ -22,13 +22,40 @@ async function fetchSubCategory(slug) {
     url: `/subcategory/${slug}`,
     method: 'get',
   });
-  return JSON.stringify(data);
+  return JSON.stringify(data.subCategory);
+}
+
+async function fetchProductsBySubCategory(slug) {
+  console.log(`${baseURL}/subcategory/${slug}`);
+  try {
+    const { data } = await axios.request({
+      baseURL,
+      url: `/subcategory/${slug}`,
+      method: 'get',
+    });
+    return JSON.stringify(data);
+  } catch (error) {
+    console.log('fetchProductsByCategory error:', error);
+  }
 }
 
 const queryKeys = {
   subCategories: ['subCategories'],
   subCategory: (id) => [...queryKeys.subCategories, id],
+  productsBySubCategory: (id) => ['productsBySubCategory', id],
 };
+
+export const useQueryProductsBySubCategory = (id, slug) =>
+  useQuery(
+    queryKeys.productsBySubCategory(id),
+    () => fetchProductsBySubCategory(slug),
+    {
+      select: useCallback((data) => {
+        return JSON.parse(data);
+      }, []),
+      staleTime: Infinity,
+    }
+  );
 
 // Queries
 export const useQuerySubCategories = () =>
@@ -43,6 +70,7 @@ export const useQuerySubCategory = (id, slug) =>
     select: useCallback((data) => {
       return JSON.parse(data);
     }, []),
+    // staleTime: Infinity,
   });
 
 // Mutations
