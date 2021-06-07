@@ -13,6 +13,7 @@ import {
 } from '@ant-design/icons';
 import { parseCookies, setCookie, destroyCookie } from 'nookies';
 import { selectUser, getUserLoggedOut } from '@/store/user';
+import Search from '@/components/forms/Search';
 
 const { SubMenu, Item } = Menu;
 
@@ -76,6 +77,9 @@ const Header = () => {
           </Item>
         </SubMenu>
       )}
+      <span className="float-right p-1">
+        <Search />
+      </span>
     </Menu>
   );
 };
