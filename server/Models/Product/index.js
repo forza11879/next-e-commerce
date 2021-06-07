@@ -270,6 +270,20 @@ const relatedProduct = async (product) => {
   }
 };
 
+const handleSearchQuery = async (query) => {
+  try {
+    const products = await Product.find({ $text: { $search: query } })
+      .populate('category', '_id name')
+      .populate('subcategories', '_id name')
+      .populate('postedBy', '_id name')
+      .exec();
+
+    return products;
+  } catch (error) {
+    console.log(`handleSearchQuery error: ${error}`);
+  }
+};
+
 export {
   create,
   listProduct,
@@ -286,4 +300,5 @@ export {
   calculateAvgRating,
   cascadeUpdate,
   relatedProduct,
+  handleSearchQuery,
 };
