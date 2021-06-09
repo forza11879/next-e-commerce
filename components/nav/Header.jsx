@@ -10,6 +10,7 @@ import {
   UserOutlined,
   UserAddOutlined,
   LogoutOutlined,
+  ShoppingOutlined,
 } from '@ant-design/icons';
 import { parseCookies, setCookie, destroyCookie } from 'nookies';
 import { selectUser, getUserLoggedOut } from '@/store/user';
@@ -41,6 +42,10 @@ const Header = () => {
     <Menu onClick={handleClick} selectedKeys={[current]} mode="horizontal">
       <Item key="home" icon={<AppstoreOutlined />}>
         <Link href="/">Home</Link>
+      </Item>
+
+      <Item key="shop" icon={<ShoppingOutlined />}>
+        <Link href="/shop">Shop</Link>
       </Item>
 
       {!Boolean(user.email && user.token) && (

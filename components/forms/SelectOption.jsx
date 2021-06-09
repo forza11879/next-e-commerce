@@ -1,25 +1,7 @@
-import axios from 'axios';
-import { useQuery } from 'react-query';
 import { Select } from 'antd';
+import { useQuerySubCategoriesByCategoryId } from '@/hooks/query/subcategory';
 
 const { Option } = Select;
-
-const baseURL = process.env.api;
-
-async function getSubCategoryListByCategoryId(id) {
-  // await new Promise((resolve) => setTimeout(resolve, 300));
-  // console.log('SelectOption url', `${baseURL}/category/subcategories/${id}`);
-  try {
-    const { data } = await axios.request({
-      baseURL,
-      url: `/category/subcategories/${id}`,
-      method: 'get',
-    });
-    return data;
-  } catch (error) {
-    console.log('getSubCategoryListByCategoryId error:', error);
-  }
-}
 
 const SelectOption = ({
   setValues,
@@ -29,10 +11,7 @@ const SelectOption = ({
   arrayOfSubs,
   setArrayOfSubs,
 }) => {
-  const { data, isLoading, isError, error, isFetching } = useQuery(
-    ['subCategoryListByCategoryId', category],
-    () => getSubCategoryListByCategoryId(category)
-  );
+  const { data } = useQuerySubCategoriesByCategoryId(category);
 
   return (
     <div>

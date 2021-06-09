@@ -149,7 +149,7 @@ export const useMutationPhotoRemove = () => {
         // });
         // return will pass the function or the value to the onError third argument:
         return () =>
-          queryClient.setQueryData('subCategories', previousQueryDataArray);
+          queryClient.setQueryData('subcategories', previousQueryDataArray);
       },
       onError: (error, variables, rollback) => {
         //   If there is an errror, then we will rollback

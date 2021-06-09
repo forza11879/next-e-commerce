@@ -1,6 +1,6 @@
 import db from '@/middleware/db';
 import { handler, authCheck, adminCheck } from '@/middleware/index';
-import { searchFiltersController } from '@/controllers/product';
+import { searchFiltersController } from '@/controllers/search';
 
 export default async function userHandler(req, res, next) {
   const { method } = req;
@@ -15,5 +15,3 @@ export default async function userHandler(req, res, next) {
       res.status(405).end(`Method ${method} Not Allowed`);
   }
 }
-
-router.post('/search/filters', searchFilters);

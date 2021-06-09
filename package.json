@@ -19,6 +19,8 @@
     "express-async-errors": "^3.1.1",
     "firebase": "^8.4.1",
     "firebase-admin": "^9.6.0",
+    "lodash": "^4.17.21",
+    "lodash.debounce": "^4.0.8",
     "loglevel": "^1.7.1",
     "mongoose": "^5.12.5",
     "next": "^10.2.2",

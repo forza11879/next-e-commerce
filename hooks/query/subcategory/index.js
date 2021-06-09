@@ -39,23 +39,26 @@ async function fetchProductsBySubCategory(slug) {
   }
 }
 
+async function fetchSubCategoriesByCategoryId(id) {
+  console.log(`${baseURL}/category/subcategories/${id}`);
+  try {
+    const { data } = await axios.request({
+      baseURL,
+      url: `/category/subcategories/${id}`,
+      method: 'get',
+    });
+    return data;
+  } catch (error) {
+    console.log('fetchSubCategoriesByCategoryId error:', error);
+  }
+}
+
 const queryKeys = {
-  subCategories: ['subCategories'],
+  subCategories: ['subcategories'],
   subCategory: (id) => [...queryKeys.subCategories, id],
   productsBySubCategory: (id) => ['productsBySubCategory', id],
+  subCategoriesByCategoryId: (id) => ['subCategoriesByCategoryId', id],
 };
-
-export const useQueryProductsBySubCategory = (id, slug) =>
-  useQuery(
-    queryKeys.productsBySubCategory(id),
-    () => fetchProductsBySubCategory(slug),
-    {
-      select: useCallback((data) => {
-        return JSON.parse(data);
-      }, []),
-      staleTime: Infinity,
-    }
-  );
 
 // Queries
 export const useQuerySubCategories = () =>
@@ -72,6 +75,30 @@ export const useQuerySubCategory = (id, slug) =>
     }, []),
     // staleTime: Infinity,
   });
+
+export const useQueryProductsBySubCategory = (id, slug) =>
+  useQuery(
+    queryKeys.productsBySubCategory(id),
+    () => fetchProductsBySubCategory(slug),
+    {
+      select: useCallback((data) => {
+        return JSON.parse(data);
+      }, []),
+      staleTime: Infinity,
+    }
+  );
+
+export const useQuerySubCategoriesByCategoryId = (id) =>
+  useQuery(
+    queryKeys.subCategoriesByCategoryId(id),
+    () => fetchSubCategoriesByCategoryId(id),
+    {
+      select: useCallback((data) => {
+        return data;
+      }, []),
+      // staleTime: Infinity,
+    }
+  );
 
 // Mutations
 export const useMutationCreateSubCategory = () => {

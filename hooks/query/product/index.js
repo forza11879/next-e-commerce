@@ -131,17 +131,6 @@ const queryKeys = {
 };
 
 // Queries
-export const useQueryProductsCount = () =>
-  useQuery(queryKeys.productsCount, () => fetchProductsCount(), {
-    // Selectors like the one bellow will also run on every render, because the functional identity changes (it's an inline function). If your transformation is expensive, you can memoize it either with useCallback, or by extracting it to a stable function reference
-    select: useCallback((data) => {
-      // selectors will only be called if data exists, so you don't have to care about undefined here.
-      // console.log(JSON.parse(data));
-      return JSON.parse(data);
-    }, []),
-    staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
-  });
-
 export const useQueryProducts = (count) =>
   useQuery(queryKeys.products, () => fetchProductsByCount(count), {
     // Selectors like the one bellow will also run on every render, because the functional identity changes (it's an inline function). If your transformation is expensive, you can memoize it either with useCallback, or by extracting it to a stable function reference
@@ -199,6 +188,17 @@ export const useQueryProductByBestSellers = (page, body) =>
       return JSON.parse(data);
     }, []),
     // staleTime: Infinity,
+  });
+
+export const useQueryProductsCount = () =>
+  useQuery(queryKeys.productsCount, () => fetchProductsCount(), {
+    // Selectors like the one bellow will also run on every render, because the functional identity changes (it's an inline function). If your transformation is expensive, you can memoize it either with useCallback, or by extracting it to a stable function reference
+    select: useCallback((data) => {
+      // selectors will only be called if data exists, so you don't have to care about undefined here.
+      // console.log(JSON.parse(data));
+      return JSON.parse(data);
+    }, []),
+    staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
   });
 
 export const useQueryProductRelated = (slug, productId) =>

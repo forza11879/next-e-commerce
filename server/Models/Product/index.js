@@ -270,7 +270,7 @@ const relatedProduct = async (product) => {
   }
 };
 
-const handleSearchQuery = async (query) => {
+const handleSearchQuery = async (req, res, query) => {
   try {
     const products = await Product.find({ $text: { $search: query } })
       .populate('category', '_id name')
@@ -278,7 +278,7 @@ const handleSearchQuery = async (query) => {
       .populate('postedBy', '_id name')
       .exec();
 
-    return products;
+    res.status(200).json(products);
   } catch (error) {
     console.log(`handleSearchQuery error: ${error}`);
   }
