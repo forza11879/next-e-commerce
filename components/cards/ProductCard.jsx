@@ -9,7 +9,8 @@ const { Meta } = Card;
 const laptop = '/images/laptop.png';
 
 const ProductCard = ({ product }) => {
-  const { images, title, description, slug, avgRating, nRatings } = product;
+  const { images, title, description, price, slug, avgRating, nRatings } =
+    product;
   return (
     <>
       {product && avgRating && nRatings > 0 ? (
@@ -45,7 +46,7 @@ const ProductCard = ({ product }) => {
         ]}
       >
         <Meta
-          title={title}
+          title={`${title} - $${price}`}
           description={`${description && description.substring(0, 40)}...`}
         />
       </Card>

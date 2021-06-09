@@ -270,9 +270,10 @@ const relatedProduct = async (product) => {
   }
 };
 
-const handleSearchQuery = async (req, res, query) => {
+const handleQuery = async (req, res, text) => {
+  const query = { $text: { $search: text } };
   try {
-    const products = await Product.find({ $text: { $search: query } })
+    const products = await Product.find(query)
       .populate('category', '_id name')
       .populate('subcategories', '_id name')
       .populate('postedBy', '_id name')
@@ -280,7 +281,31 @@ const handleSearchQuery = async (req, res, query) => {
 
     res.status(200).json(products);
   } catch (error) {
-    console.log(`handleSearchQuery error: ${error}`);
+    console.log(`handleQuery error: ${error}`);
+  }
+};
+
+const handlePrice = async (req, res, price) => {
+  console.log('price[0]: ', price[0]);
+  console.log('price[1]: ', price[1]);
+
+  const query = {
+    price: {
+      $gte: price[0],
+      $lte: price[1],
+    },
+  };
+  try {
+    const products = await Product.find(query)
+      .populate('category', '_id name')
+      .populate('subcategories', '_id name')
+      .populate('postedBy', '_id name')
+      .exec();
+    console.log({ products });
+
+    res.status(200).json(products);
+  } catch (error) {
+    console.log(`handlePrice error: ${error}`);
   }
 };
 
@@ -300,5 +325,6 @@ export {
   calculateAvgRating,
   cascadeUpdate,
   relatedProduct,
-  handleSearchQuery,
+  handleQuery,
+  handlePrice,
 };

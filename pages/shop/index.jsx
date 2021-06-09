@@ -1,32 +1,32 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-// import debounce from 'lodash.debounce';
-// import _ from 'lodash';
 import nookies from 'nookies';
 import { useSelector, useDispatch } from 'react-redux';
 import { QueryClient, useQueryClient } from 'react-query';
 import { dehydrate } from 'react-query/hydration';
 import admin from '@/firebase/index';
+import { Menu, Slider } from 'antd';
+import { DollarOutlined } from '@ant-design/icons';
 import { currentUser } from '@/Models/User/index';
 import { listAllByCountProduct } from '@/Models/Product/index';
 import ProductCard from '@/components/cards/ProductCard';
 import { useQueryProducts } from '@/hooks/query/product';
 import { useQuerySearchText } from '@/hooks/query/search';
-import { selectSearch } from '@/store/search';
+import { selectSearch, getTextQuery } from '@/store/search';
 
+const { SubMenu, ItemGroup } = Menu;
 const baseURL = process.env.api;
 
-async function fetchProductsByFilter(text) {
+async function fetchProductsByFilter(arg) {
   console.log(`${baseURL}/search/filters`);
-  console.log('text front-end: ', text);
+  console.log({ arg });
   try {
     const { data } = await axios.request({
       baseURL,
       url: `/search/filters`,
       method: 'post',
-      data: { query: text },
+      data: arg,
     });
-    // console.log('data: ', data);
     return data;
   } catch (error) {
     console.log('fetchProductsByFilter error:', error);
@@ -34,26 +34,29 @@ async function fetchProductsByFilter(text) {
 }
 
 const Shop = ({ count }) => {
-  const [dataArray, setDataArray] = useState([]);
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [price, setPrice] = useState([0, 0]);
+  const [ok, setOk] = useState(false);
 
+  const dispatch = useDispatch();
   const { text } = useSelector(selectSearch);
 
   const productsQuery = useQueryProducts(count);
-
+  // 1. on load
   useEffect(() => {
-    setDataArray(productsQuery.data);
+    setProducts(productsQuery.data);
     setLoading(false);
   }, []);
 
   const queryClient = useQueryClient();
-
+  // 2. on text query
   useEffect(() => {
-    const delayed = setTimeout(async () => {
-      await queryClient.prefetchQuery(['searchText'], async () => {
+    const delayed = setTimeout(() => {
+      queryClient.prefetchQuery(['searchProductsByText'], async () => {
         if (text) {
-          const data = await fetchProductsByFilter(text);
-          setDataArray(data);
+          const data = await fetchProductsByFilter({ query: text });
+          setProducts(data);
           setLoading(false);
           return data;
         }
@@ -62,24 +65,67 @@ const Shop = ({ count }) => {
     return () => clearTimeout(delayed);
   }, [text]);
 
-  console.log('dataArray: ', dataArray);
+  // 3. on price query
+  useEffect(() => {
+    console.log('ok to request');
+    queryClient.prefetchQuery(['searchProductsByPrice'], async () => {
+      if (price && price[1] !== 0) {
+        const data = await fetchProductsByFilter({ price });
+        setProducts(data);
+        setLoading(false);
+        return data;
+      }
+    });
+  }, [ok]);
+
+  const handleSlider = (value) => {
+    dispatch(getTextQuery());
+    setPrice(value);
+    setTimeout(() => {
+      setOk(!ok);
+    }, 300);
+  };
 
   return (
     <div className="container-fluid">
       <div className="row">
-        <div className="col-md-3">search/filter menu</div>
+        <div className="col-md-3 pt-2">
+          <h4>Search/Filter</h4>
+          <hr />
 
-        <div className="col-md-9">
+          <Menu defaultOpenKeys={['1', '2']} mode="inline">
+            <SubMenu
+              key="1"
+              title={
+                <span className="h6">
+                  <DollarOutlined /> Price
+                </span>
+              }
+            >
+              <div>
+                <Slider
+                  className="ml-4 mr-4"
+                  tipFormatter={(v) => `$${v}`}
+                  range
+                  value={price}
+                  onChange={handleSlider}
+                  max="4999"
+                />
+              </div>
+            </SubMenu>
+          </Menu>
+        </div>
+        <div className="col-md-9 pt-2">
           {loading ? (
             <h4 className="text-danger">Loading...</h4>
           ) : (
             <h4 className="text-danger">Products</h4>
           )}
 
-          {dataArray.length < 1 && <p>No products found</p>}
+          {products.length < 1 && <p>No products found</p>}
 
           <div className="row pb-5">
-            {dataArray.map((item) => (
+            {products.map((item) => (
               <div key={item._id} className="col-md-4 mt-3">
                 <ProductCard product={item} />
               </div>
@@ -107,7 +153,6 @@ export async function getServerSideProps(context) {
 
     await queryClient.prefetchQuery(['products'], async () => {
       const result = await listAllByCountProduct(count);
-      // console.log({ productAllList });
       return JSON.stringify(result);
     });
 

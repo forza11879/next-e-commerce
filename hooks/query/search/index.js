@@ -26,12 +26,12 @@ async function fetchProductsByFilter(text) {
 const queryKeys = {
   //   products: ['products'],
   //   product: (id) => [...queryKeys.products, id],
-  searchText: ['searchText'],
+  searchProductsByText: ['searchProductsByText'],
 };
 
 // Queries
 export const useQuerySearchText = (text) =>
-  useQuery(queryKeys.searchText, () => fetchProductsByFilter(text), {
+  useQuery(queryKeys.searchProductsByText, () => fetchProductsByFilter(text), {
     // Selectors like the one bellow will also run on every render, because the functional identity changes (it's an inline function). If your transformation is expensive, you can memoize it either with useCallback, or by extracting it to a stable function reference
     select: useCallback((data) => {
       // selectors will only be called if data exists, so you don't have to care about undefined here.

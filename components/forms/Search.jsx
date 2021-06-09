@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import { useSelector, useDispatch } from 'react-redux';
 import { SearchOutlined } from '@ant-design/icons';
-import { getSearchQuery, selectSearch } from '@/store/search';
+import { getTextQuery, selectSearch } from '@/store/search';
 
 const Search = () => {
   const dispatch = useDispatch();
@@ -10,7 +10,7 @@ const Search = () => {
   const router = useRouter();
 
   const handleChange = (e) => {
-    dispatch(getSearchQuery(e.target.value));
+    dispatch(getTextQuery(e.target.value));
   };
 
   const handleSubmit = (e) => {

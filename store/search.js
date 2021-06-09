@@ -21,7 +21,7 @@ export const { searchQuery } = slice.actions;
 export default slice.reducer;
 
 // Action creators
-export const getSearchQuery = (text) =>
+export const getTextQuery = (text = '') =>
   actions.sagaSearchCallBegan({
     text: text,
     onSuccess: searchQuery.type,
