@@ -34,10 +34,17 @@ async function fetchProductsByFilter(text) {
 }
 
 const Shop = ({ count }) => {
-  const [textValue, setTextValue] = useState([]);
+  const [dataArray, setDataArray] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const { text } = useSelector(selectSearch);
-  // const text = 'lenovo';
+
+  const productsQuery = useQueryProducts(count);
+
+  useEffect(() => {
+    setDataArray(productsQuery.data);
+    setLoading(false);
+  }, []);
 
   const queryClient = useQueryClient();
 
@@ -46,9 +53,8 @@ const Shop = ({ count }) => {
       await queryClient.prefetchQuery(['searchText'], async () => {
         if (text) {
           const data = await fetchProductsByFilter(text);
-          queryClient.setQueryData(['products'], (oldQueryData) => {
-            return JSON.stringify(data);
-          });
+          setDataArray(data);
+          setLoading(false);
           return data;
         }
       });
@@ -56,25 +62,24 @@ const Shop = ({ count }) => {
     return () => clearTimeout(delayed);
   }, [text]);
 
-  console.log('textValue: ', textValue);
+  console.log('dataArray: ', dataArray);
 
-  const productsQuery = useQueryProducts(count);
   return (
     <div className="container-fluid">
       <div className="row">
         <div className="col-md-3">search/filter menu</div>
 
         <div className="col-md-9">
-          {productsQuery.isLoading ? (
+          {loading ? (
             <h4 className="text-danger">Loading...</h4>
           ) : (
             <h4 className="text-danger">Products</h4>
           )}
 
-          {productsQuery.data.length < 1 && <p>No products found</p>}
+          {dataArray.length < 1 && <p>No products found</p>}
 
           <div className="row pb-5">
-            {productsQuery.data.map((item) => (
+            {dataArray.map((item) => (
               <div key={item._id} className="col-md-4 mt-3">
                 <ProductCard product={item} />
               </div>
