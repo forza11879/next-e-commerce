@@ -5,12 +5,14 @@ import { useSelector, useDispatch } from 'react-redux';
 import { QueryClient, useQueryClient } from 'react-query';
 import { dehydrate } from 'react-query/hydration';
 import admin from '@/firebase/index';
-import { Menu, Slider } from 'antd';
-import { DollarOutlined } from '@ant-design/icons';
+import { Menu, Slider, Checkbox } from 'antd';
+import { DollarOutlined, DownSquareOutlined } from '@ant-design/icons';
 import { currentUser } from '@/Models/User/index';
 import { listAllByCountProduct } from '@/Models/Product/index';
+import { listCategory } from '@/Models/Category/index';
 import ProductCard from '@/components/cards/ProductCard';
 import { useQueryProducts } from '@/hooks/query/product';
+import { useQueryCategories } from '@/hooks/query/category';
 import { useQuerySearchText } from '@/hooks/query/search';
 import { selectSearch, getTextQuery } from '@/store/search';
 
@@ -19,7 +21,6 @@ const baseURL = process.env.api;
 
 async function fetchProductsByFilter(arg) {
   console.log(`${baseURL}/search/filters`);
-  console.log({ arg });
   try {
     const { data } = await axios.request({
       baseURL,
@@ -33,19 +34,26 @@ async function fetchProductsByFilter(arg) {
   }
 }
 
+// export const getCategories = async () =>
+//   await axios.get(`${process.env.REACT_APP_API}/categories`);
+
 const Shop = ({ count }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [price, setPrice] = useState([0, 0]);
   const [ok, setOk] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const [categoryIds, setCategoryIds] = useState([]);
 
   const dispatch = useDispatch();
   const { text } = useSelector(selectSearch);
 
   const productsQuery = useQueryProducts(count);
+  const categoriesQuery = useQueryCategories();
   // 1. on load
   useEffect(() => {
     setProducts(productsQuery.data);
+    setCategories(categoriesQuery.data);
     setLoading(false);
   }, []);
 
@@ -53,37 +61,102 @@ const Shop = ({ count }) => {
   // 2. on text query
   useEffect(() => {
     const delayed = setTimeout(() => {
-      queryClient.prefetchQuery(['searchProductsByText'], async () => {
-        if (text) {
-          const data = await fetchProductsByFilter({ query: text });
-          setProducts(data);
-          setLoading(false);
-          return data;
+      queryClient.prefetchQuery(
+        ['searchProductsByText'],
+        async () => {
+          if (text) {
+            setCategoryIds([]);
+            setPrice([0, 0]);
+            const data = await fetchProductsByFilter({ query: text });
+            setProducts(data);
+            setLoading(false);
+            return data;
+          }
+          if (!text && categoryIds.length < 1) {
+            setProducts(productsQuery.data);
+          }
         }
-      });
+        // { staleTime: Infinity }
+      );
     }, 300);
     return () => clearTimeout(delayed);
   }, [text]);
 
   // 3. on price query
   useEffect(() => {
-    console.log('ok to request');
-    queryClient.prefetchQuery(['searchProductsByPrice'], async () => {
-      if (price && price[1] !== 0) {
-        const data = await fetchProductsByFilter({ price });
-        setProducts(data);
-        setLoading(false);
-        return data;
+    queryClient.prefetchQuery(
+      ['searchProductsByPrice'],
+      async () => {
+        if (price && price[1] !== 0) {
+          const data = await fetchProductsByFilter({ price });
+          setProducts(data);
+          setLoading(false);
+          return data;
+        } else {
+          setProducts(productsQuery.data);
+        }
       }
-    });
+      // { staleTime: Infinity }
+    );
   }, [ok]);
 
   const handleSlider = (value) => {
     dispatch(getTextQuery());
+    setCategoryIds([]);
     setPrice(value);
     setTimeout(() => {
       setOk(!ok);
     }, 300);
+  };
+
+  // 4. on categories query
+  const showCategories = () =>
+    categories.map((item) => (
+      <div key={item._id}>
+        <Checkbox
+          onChange={handleCheck}
+          className="pb-2 pl-4 pr-4"
+          value={item._id}
+          name="category"
+          checked={categoryIds.includes(item._id)}
+        >
+          {item.name}
+        </Checkbox>
+        <br />
+      </div>
+    ));
+
+  const handleCheck = (e) => {
+    // console.log(e.target.value);
+    let inTheState = [...categoryIds];
+    let justChecked = e.target.value;
+    let foundInTheState = inTheState.indexOf(justChecked); // index or -1
+
+    // indexOf method ?? if not found returns -1 else return index [1,2,3,4,5]
+    if (foundInTheState === -1) {
+      inTheState.push(justChecked);
+    } else {
+      // if found pull out one item from index
+      inTheState.splice(foundInTheState, 1);
+    }
+    setCategoryIds(inTheState);
+
+    queryClient.prefetchQuery(
+      ['searchProductsByCategories', inTheState],
+      async () => {
+        if (Array.isArray(inTheState) && inTheState.length > 0) {
+          dispatch(getTextQuery());
+          setPrice([0, 0]);
+          const data = await fetchProductsByFilter({ category: inTheState });
+          setProducts(data);
+          setLoading(false);
+          return data;
+        } else {
+          setProducts(productsQuery.data);
+        }
+      }
+      // { staleTime: Infinity }
+    );
   };
 
   return (
@@ -112,6 +185,16 @@ const Shop = ({ count }) => {
                   max="4999"
                 />
               </div>
+            </SubMenu>
+            <SubMenu
+              key="2"
+              title={
+                <span className="h6">
+                  <DownSquareOutlined /> Categories
+                </span>
+              }
+            >
+              <div style={{ maringTop: '-10px' }}>{showCategories()}</div>
             </SubMenu>
           </Menu>
         </div>
@@ -151,10 +234,18 @@ export async function getServerSideProps(context) {
     // Using Hydration
     const queryClient = new QueryClient();
 
-    await queryClient.prefetchQuery(['products'], async () => {
-      const result = await listAllByCountProduct(count);
-      return JSON.stringify(result);
-    });
+    await Promise.allSettled([
+      queryClient.prefetchQuery(['products'], async () => {
+        const result = await listAllByCountProduct(count);
+        return JSON.stringify(result);
+      }),
+      queryClient.prefetchQuery(['categories'], async () => {
+        const result = await listCategory();
+        return JSON.stringify(result);
+      }),
+    ]);
+
+    const categoryList = await listCategory();
 
     return {
       props: {

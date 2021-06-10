@@ -57,7 +57,7 @@ export const useQueryCategories = () =>
       // console.log(JSON.parse(data));
       return JSON.parse(data);
     }, []),
-    // staleTime: Infinity,
+    staleTime: Infinity,
   });
 
 export const useQueryCategory = (id, slug) =>

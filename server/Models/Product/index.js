@@ -309,6 +309,20 @@ const handlePrice = async (req, res, price) => {
   }
 };
 
+const handleCategory = async (req, res, category) => {
+  try {
+    let products = await Product.find({ category })
+      .populate('category', '_id name')
+      .populate('subcategories', '_id name')
+      .populate('postedBy', '_id name')
+      .exec();
+
+    res.json(products);
+  } catch (error) {
+    console.log(`handleCategory error: ${error}`);
+  }
+};
+
 export {
   create,
   listProduct,
@@ -327,4 +341,5 @@ export {
   relatedProduct,
   handleQuery,
   handlePrice,
+  handleCategory,
 };

@@ -1,10 +1,14 @@
-import { handleQuery, handlePrice } from '@/Models/Product/index';
+import {
+  handleQuery,
+  handlePrice,
+  handleCategory,
+} from '@/Models/Product/index';
 
 export const searchFiltersController = async (req, res) => {
   try {
-    const { query, price } = req.body;
+    const { query, price, category } = req.body;
     if (query) {
-      console.log('query', query);
+      console.log('query --->', query);
       await handleQuery(req, res, query);
     }
 
@@ -12,6 +16,11 @@ export const searchFiltersController = async (req, res) => {
     if (price !== undefined) {
       console.log('price ---> ', price);
       await handlePrice(req, res, price);
+    }
+
+    if (category) {
+      console.log('category ---> ', category);
+      await handleCategory(req, res, category);
     }
   } catch (error) {
     console.log('product searchFiltersController controller error: ', error);
