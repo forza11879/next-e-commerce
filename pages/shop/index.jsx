@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import nookies from 'nookies';
+import { useDebounce } from 'use-debounce';
 import { useSelector, useDispatch } from 'react-redux';
-import { QueryClient, useQueryClient } from 'react-query';
+import { QueryClient, useQueryClient, useQuery } from 'react-query';
 import { dehydrate } from 'react-query/hydration';
 import admin from '@/firebase/index';
 import { Menu, Slider, Checkbox } from 'antd';
@@ -34,84 +35,54 @@ async function fetchProductsByFilter(arg) {
   }
 }
 
-// export const getCategories = async () =>
-//   await axios.get(`${process.env.REACT_APP_API}/categories`);
-
 const Shop = ({ count }) => {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [price, setPrice] = useState([0, 0]);
-  const [ok, setOk] = useState(false);
-  const [categories, setCategories] = useState([]);
   const [categoryIds, setCategoryIds] = useState([]);
 
   const dispatch = useDispatch();
   const { text } = useSelector(selectSearch);
 
+  const [textValue] = useDebounce(text, 300);
+  const [priceValue] = useDebounce(price, 300);
+
   const productsQuery = useQueryProducts(count);
   const categoriesQuery = useQueryCategories();
-  // 1. on load
-  useEffect(() => {
-    setProducts(productsQuery.data);
-    setCategories(categoriesQuery.data);
-    setLoading(false);
-  }, []);
 
-  const queryClient = useQueryClient();
-  // 2. on text query
-  useEffect(() => {
-    const delayed = setTimeout(() => {
-      queryClient.prefetchQuery(
-        ['searchProductsByText'],
-        async () => {
-          if (text) {
-            setCategoryIds([]);
-            setPrice([0, 0]);
-            const data = await fetchProductsByFilter({ query: text });
-            setProducts(data);
-            setLoading(false);
-            return data;
-          }
-          if (!text && categoryIds.length < 1) {
-            setProducts(productsQuery.data);
-          }
-        }
-        // { staleTime: Infinity }
-      );
-    }, 300);
-    return () => clearTimeout(delayed);
-  }, [text]);
+  const searchQuery = useQuery(
+    ['searchProductsByText', textValue],
+    async () => {
+      setCategoryIds([]);
+      setPrice([0, 0]);
+      const data = await fetchProductsByFilter({ query: textValue });
+      return data;
+    },
+    {
+      // staleTime: Infinity,
+      enabled: Boolean(textValue),
+    }
+  );
 
-  // 3. on price query
-  useEffect(() => {
-    queryClient.prefetchQuery(
-      ['searchProductsByPrice'],
-      async () => {
-        if (price && price[1] !== 0) {
-          const data = await fetchProductsByFilter({ price });
-          setProducts(data);
-          setLoading(false);
-          return data;
-        } else {
-          setProducts(productsQuery.data);
-        }
-      }
-      // { staleTime: Infinity }
-    );
-  }, [ok]);
+  const priceQuery = useQuery(
+    ['searchProductsByPrice', priceValue],
+    async () => {
+      const data = await fetchProductsByFilter({ price: priceValue });
+      return data;
+    },
+    {
+      // staleTime: Infinity,
+      enabled: priceValue[1] !== 0,
+    }
+  );
 
   const handleSlider = (value) => {
     dispatch(getTextQuery());
     setCategoryIds([]);
     setPrice(value);
-    setTimeout(() => {
-      setOk(!ok);
-    }, 300);
   };
 
   // 4. on categories query
   const showCategories = () =>
-    categories.map((item) => (
+    categoriesQuery.data.map((item) => (
       <div key={item._id}>
         <Checkbox
           onChange={handleCheck}
@@ -140,24 +111,21 @@ const Shop = ({ count }) => {
       inTheState.splice(foundInTheState, 1);
     }
     setCategoryIds(inTheState);
-
-    queryClient.prefetchQuery(
-      ['searchProductsByCategories', inTheState],
-      async () => {
-        if (Array.isArray(inTheState) && inTheState.length > 0) {
-          dispatch(getTextQuery());
-          setPrice([0, 0]);
-          const data = await fetchProductsByFilter({ category: inTheState });
-          setProducts(data);
-          setLoading(false);
-          return data;
-        } else {
-          setProducts(productsQuery.data);
-        }
-      }
-      // { staleTime: Infinity }
-    );
   };
+
+  const checkedQuery = useQuery(
+    ['searchProductsByCategories', categoryIds],
+    async () => {
+      dispatch(getTextQuery());
+      setPrice([0, 0]);
+      const data = await fetchProductsByFilter({ category: categoryIds });
+      return data;
+    },
+    {
+      // staleTime: Infinity,
+      enabled: categoryIds.length > 0,
+    }
+  );
 
   return (
     <div className="container-fluid">
@@ -198,22 +166,58 @@ const Shop = ({ count }) => {
             </SubMenu>
           </Menu>
         </div>
+
         <div className="col-md-9 pt-2">
-          {loading ? (
+          {textValue && searchQuery.isLoading ? (
+            <h4 className="text-danger">Loading...</h4>
+          ) : priceValue[1] !== 0 && priceQuery.isLoading ? (
+            <h4 className="text-danger">Loading...</h4>
+          ) : categoryIds.length > 0 && checkedQuery.isLoading ? (
+            <h4 className="text-danger">Loading...</h4>
+          ) : !textValue &&
+            priceValue[1] === 0 &&
+            categoryIds.length < 1 &&
+            productsQuery.isLoading ? (
             <h4 className="text-danger">Loading...</h4>
           ) : (
             <h4 className="text-danger">Products</h4>
           )}
 
-          {products.length < 1 && <p>No products found</p>}
-
-          <div className="row pb-5">
-            {products.map((item) => (
-              <div key={item._id} className="col-md-4 mt-3">
-                <ProductCard product={item} />
-              </div>
-            ))}
-          </div>
+          {textValue && searchQuery.data?.length > 0 ? (
+            <div className="row pb-5">
+              {searchQuery.data.map((item) => (
+                <div key={item._id} className="col-md-4 mt-3">
+                  <ProductCard product={item} />
+                </div>
+              ))}
+            </div>
+          ) : priceValue[1] !== 0 && priceQuery.data?.length > 0 ? (
+            <div className="row pb-5">
+              {priceQuery.data.map((item) => (
+                <div key={item._id} className="col-md-4 mt-3">
+                  <ProductCard product={item} />
+                </div>
+              ))}
+            </div>
+          ) : categoryIds.length > 0 && checkedQuery.data?.length > 0 ? (
+            <div className="row pb-5">
+              {checkedQuery.data.map((item) => (
+                <div key={item._id} className="col-md-4 mt-3">
+                  <ProductCard product={item} />
+                </div>
+              ))}
+            </div>
+          ) : !textValue && priceValue[1] === 0 && categoryIds.length < 1 ? (
+            <div className="row pb-5">
+              {productsQuery.data.map((item) => (
+                <div key={item._id} className="col-md-4 mt-3">
+                  <ProductCard product={item} />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p>No products found</p>
+          )}
         </div>
       </div>
     </div>
