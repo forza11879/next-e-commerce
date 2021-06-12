@@ -1,17 +1,22 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
 import nookies from 'nookies';
 import { useDebounce } from 'use-debounce';
 import { useSelector, useDispatch } from 'react-redux';
-import { QueryClient, useQueryClient, useQuery } from 'react-query';
+import { QueryClient, useQuery } from 'react-query';
 import { dehydrate } from 'react-query/hydration';
 import admin from '@/firebase/index';
 import { Menu, Slider, Checkbox } from 'antd';
-import { DollarOutlined, DownSquareOutlined } from '@ant-design/icons';
+import {
+  DollarOutlined,
+  DownSquareOutlined,
+  StarOutlined,
+} from '@ant-design/icons';
 import { currentUser } from '@/Models/User/index';
 import { listAllByCountProduct } from '@/Models/Product/index';
 import { listCategory } from '@/Models/Category/index';
 import ProductCard from '@/components/cards/ProductCard';
+import Star from '@/components/forms/Star';
 import { useQueryProducts } from '@/hooks/query/product';
 import { useQueryCategories } from '@/hooks/query/category';
 import { useQuerySearchText } from '@/hooks/query/search';
@@ -38,6 +43,7 @@ async function fetchProductsByFilter(arg) {
 const Shop = ({ count }) => {
   const [price, setPrice] = useState([0, 0]);
   const [categoryIds, setCategoryIds] = useState([]);
+  const [star, setStar] = useState('');
 
   const dispatch = useDispatch();
   const { text } = useSelector(selectSearch);
@@ -53,6 +59,7 @@ const Shop = ({ count }) => {
     async () => {
       setCategoryIds([]);
       setPrice([0, 0]);
+      setStar('');
       const data = await fetchProductsByFilter({ query: textValue });
       return data;
     },
@@ -77,6 +84,7 @@ const Shop = ({ count }) => {
   const handleSlider = (value) => {
     dispatch(getTextQuery());
     setCategoryIds([]);
+    setStar('');
     setPrice(value);
   };
 
@@ -118,6 +126,7 @@ const Shop = ({ count }) => {
     async () => {
       dispatch(getTextQuery());
       setPrice([0, 0]);
+      setStar('');
       const data = await fetchProductsByFilter({ category: categoryIds });
       return data;
     },
@@ -127,6 +136,34 @@ const Shop = ({ count }) => {
     }
   );
 
+  // 5. show products by star rating
+  const handleStarClick = (num) => {
+    // console.log(num);
+    dispatch(getTextQuery());
+    setPrice([0, 0]);
+    setCategoryIds([]);
+    setStar(num);
+  };
+
+  const starQuery = useQuery(
+    ['searchProductsByStar', star],
+    async () => {
+      const data = await fetchProductsByFilter({ stars: star });
+      return data;
+    },
+    {
+      // staleTime: Infinity,
+      enabled: Boolean(star),
+    }
+  );
+
+  const showStars = () => {
+    const starArray = Array.from({ length: 5 }, (_, i) => i + 1); //=> [1, 2, 3, 4, 5]
+    return starArray.map((item) => (
+      <Star key={item} starClick={handleStarClick} numberOfStars={item} />
+    ));
+  };
+
   return (
     <div className="container-fluid">
       <div className="row">
@@ -134,7 +171,7 @@ const Shop = ({ count }) => {
           <h4>Search/Filter</h4>
           <hr />
 
-          <Menu defaultOpenKeys={['1', '2']} mode="inline">
+          <Menu defaultOpenKeys={['1', '2', '3']} mode="inline">
             <SubMenu
               key="1"
               title={
@@ -164,8 +201,23 @@ const Shop = ({ count }) => {
             >
               <div style={{ maringTop: '-10px' }}>{showCategories()}</div>
             </SubMenu>
+
+            {/* stars */}
+            <SubMenu
+              key="3"
+              title={
+                <span className="h6">
+                  <StarOutlined /> Rating
+                </span>
+              }
+            >
+              <div style={{ maringTop: '-10px' }}>
+                <div className="pr-4 pl-4 pb-2">{showStars()}</div>
+              </div>
+            </SubMenu>
           </Menu>
         </div>
+        {/* starQuery.length < 1 && */}
 
         <div className="col-md-9 pt-2">
           {textValue && searchQuery.isLoading ? (
@@ -174,9 +226,12 @@ const Shop = ({ count }) => {
             <h4 className="text-danger">Loading...</h4>
           ) : categoryIds.length > 0 && checkedQuery.isLoading ? (
             <h4 className="text-danger">Loading...</h4>
+          ) : star && starQuery.isLoading ? (
+            <h4 className="text-danger">Loading...</h4>
           ) : !textValue &&
             priceValue[1] === 0 &&
             categoryIds.length < 1 &&
+            !star &&
             productsQuery.isLoading ? (
             <h4 className="text-danger">Loading...</h4>
           ) : (
@@ -207,7 +262,18 @@ const Shop = ({ count }) => {
                 </div>
               ))}
             </div>
-          ) : !textValue && priceValue[1] === 0 && categoryIds.length < 1 ? (
+          ) : star && starQuery.data?.length > 0 ? (
+            <div className="row pb-5">
+              {starQuery.data.map((item) => (
+                <div key={item._id} className="col-md-4 mt-3">
+                  <ProductCard product={item} />
+                </div>
+              ))}
+            </div>
+          ) : !textValue &&
+            priceValue[1] === 0 &&
+            categoryIds.length < 1 &&
+            !star ? (
             <div className="row pb-5">
               {productsQuery.data.map((item) => (
                 <div key={item._id} className="col-md-4 mt-3">

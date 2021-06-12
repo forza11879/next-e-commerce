@@ -323,6 +323,44 @@ const handleCategory = async (req, res, category) => {
   }
 };
 
+const handleStar = async (req, res, stars) => {
+  try {
+    const result = await Product.aggregate([
+      {
+        $project: {
+          document: '$$ROOT', // allows to access each field in the document
+          // title: "$title",
+          floorAverage: {
+            $floor: { $avg: '$ratings.star' }, // floor value of 3.33 will be 3
+          },
+        },
+      },
+      { $match: { floorAverage: stars } },
+    ]).limit(12);
+
+    console.log({ result });
+
+    const products = await Product.find({ _id: result })
+      .populate('category', '_id name')
+      .populate('subcategories', '_id name')
+      .populate('postedBy', '_id name');
+
+    res.status(200).json(products);
+  } catch (error) {
+    console.log(`handleStar error: ${error}`);
+  }
+};
+
+const handleSub = async (req, res, subcategory) => {
+  const products = await Product.find({ subcategories: subcategory })
+    .populate('category', '_id name')
+    .populate('subcategories', '_id name')
+    .populate('postedBy', '_id name')
+    .exec();
+
+  res.status(200).json(products);
+};
+
 export {
   create,
   listProduct,
@@ -342,4 +380,6 @@ export {
   handleQuery,
   handlePrice,
   handleCategory,
+  handleStar,
+  handleSub,
 };
