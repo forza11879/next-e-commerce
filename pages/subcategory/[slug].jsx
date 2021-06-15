@@ -6,7 +6,10 @@ import { currentUser } from '@/Models/User/index';
 import { readSubCategory } from '@/Models/SubCategory/index';
 import { readBySubCategory } from '@/Models/Product/index';
 import ProductCard from '@/components/cards/ProductCard';
-import { useQueryProductsBySubCategory } from '@/hooks/query/subcategory';
+import {
+  useQueryProductsBySubCategory,
+  subcategoryQueryKeys,
+} from '@/hooks/query/subcategory';
 
 const SubCategoryHome = ({ id, slug }) => {
   const useProductsBySubCategoryQuery = useQueryProductsBySubCategory(id, slug);
@@ -59,11 +62,13 @@ export async function getServerSideProps(context) {
 
     // Using Hydration
     const queryClient = new QueryClient();
-
-    await queryClient.prefetchQuery(['productsBySubCategory', id], async () => {
-      const products = await readBySubCategory(subcategory);
-      return JSON.stringify({ subcategory, products });
-    });
+    await queryClient.prefetchQuery(
+      subcategoryQueryKeys.productsBySubCategory(id),
+      async () => {
+        const products = await readBySubCategory(subcategory);
+        return JSON.stringify({ subcategory, products });
+      }
+    );
 
     return {
       props: {

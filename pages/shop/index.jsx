@@ -18,8 +18,7 @@ import { listCategory } from '@/Models/Category/index';
 import ProductCard from '@/components/cards/ProductCard';
 import Star from '@/components/forms/Star';
 import { useQueryProducts, productQueryKeys } from '@/hooks/query/product';
-import { useQueryCategories } from '@/hooks/query/category';
-import { useQuerySearchText } from '@/hooks/query/search';
+import { useQueryCategories, categoryQueryKeys } from '@/hooks/query/category';
 import { selectSearch, getTextQuery } from '@/store/search';
 
 const { SubMenu, ItemGroup } = Menu;
@@ -309,13 +308,11 @@ export async function getServerSideProps(context) {
         const result = await listAllByCountProduct(count);
         return JSON.stringify(result);
       }),
-      queryClient.prefetchQuery(['categories'], async () => {
+      queryClient.prefetchQuery(categoryQueryKeys.categories, async () => {
         const result = await listCategory();
         return JSON.stringify(result);
       }),
     ]);
-
-    const categoryList = await listCategory();
 
     return {
       props: {

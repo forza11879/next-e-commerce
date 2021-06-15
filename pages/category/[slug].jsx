@@ -5,7 +5,10 @@ import admin from '@/firebase/index';
 import { currentUser } from '@/Models/User/index';
 import { readCategory } from '@/Models/Category/index';
 import { readByCategory } from '@/Models/Product/index';
-import { useQueryProductsByCategory } from '@/hooks/query/category';
+import {
+  useQueryProductsByCategory,
+  categoryQueryKeys,
+} from '@/hooks/query/category';
 import ProductCard from '@/components/cards/ProductCard';
 
 const CategoryHome = ({ id, slug }) => {
@@ -58,10 +61,13 @@ export async function getServerSideProps(context) {
     // Using Hydration
     const queryClient = new QueryClient();
 
-    await queryClient.prefetchQuery(['productsByCategory', id], async () => {
-      const products = await readByCategory(category);
-      return JSON.stringify({ category, products });
-    });
+    await queryClient.prefetchQuery(
+      categoryQueryKeys.productsByCategory(id),
+      async () => {
+        const products = await readByCategory(category);
+        return JSON.stringify({ category, products });
+      }
+    );
 
     return {
       props: {

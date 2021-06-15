@@ -15,8 +15,11 @@ import {
   useQueryProductsCount,
   productQueryKeys,
 } from '@/hooks/query/product';
-import { useQueryCategories } from '@/hooks/query/category';
-import { useQuerySubCategories } from '@/hooks/query/subcategory';
+import { useQueryCategories, categoryQueryKeys } from '@/hooks/query/category';
+import {
+  useQuerySubCategories,
+  subcategoryQueryKeys,
+} from '@/hooks/query/subcategory';
 import { listProduct, productsCount } from '@/Models/Product/index';
 import { listCategory } from '@/Models/Category/index';
 import { listSubCategory } from '@/Models/SubCategory/index';
@@ -129,14 +132,17 @@ export async function getServerSideProps(context) {
         // console.log({ productsCountResult });
         return JSON.stringify(productsCountResult);
       }),
-      queryClient.prefetchQuery(['categories'], async () => {
+      queryClient.prefetchQuery(categoryQueryKeys.categories, async () => {
         const categoryList = await listCategory();
         return JSON.stringify(categoryList);
       }),
-      queryClient.prefetchQuery(['subcategories'], async () => {
-        const subCategoryList = await listSubCategory();
-        return JSON.stringify(subCategoryList);
-      }),
+      queryClient.prefetchQuery(
+        subcategoryQueryKeys.subcategories,
+        async () => {
+          const subCategoryList = await listSubCategory();
+          return JSON.stringify(subCategoryList);
+        }
+      ),
     ]);
 
     return {

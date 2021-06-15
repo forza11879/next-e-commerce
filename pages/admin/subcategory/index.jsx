@@ -9,8 +9,9 @@ import {
   useQuerySubCategories,
   useMutationCreateSubCategory,
   useMutationRemoveSubCategory,
+  subcategoryQueryKeys,
 } from '@/hooks/query/subcategory';
-import { useQueryCategories } from '@/hooks/query/category';
+import { useQueryCategories, categoryQueryKeys } from '@/hooks/query/category';
 import AdminRoute from '@/components/lib/AdminRoute';
 import AdminNav from '@/components/nav/AdminNav';
 import CategoryForm from '@/components/forms/CategoryForm';
@@ -161,8 +162,11 @@ export async function getServerSideProps(context) {
     const queryClient = new QueryClient();
 
     await Promise.allSettled([
-      queryClient.prefetchQuery(['categories'], categoryList),
-      queryClient.prefetchQuery(['subcategories'], subCategoryList),
+      queryClient.prefetchQuery(categoryQueryKeys.categories, categoryList),
+      queryClient.prefetchQuery(
+        subcategoryQueryKeys.subcategories,
+        subCategoryList
+      ),
     ]);
 
     return {

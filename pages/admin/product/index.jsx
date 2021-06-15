@@ -12,7 +12,7 @@ import {
   useMutationPhotoUpload,
   useMutationPhotoRemove,
 } from '@/hooks/query/photo';
-import { useQueryCategories } from '@/hooks/query/category';
+import { useQueryCategories, categoryQueryKeys } from '@/hooks/query/category';
 import { useMutationCreateProduct } from '@/hooks/query/product';
 import admin from '@/firebase/index';
 import { currentUser } from '@/Models/User/index';
@@ -240,7 +240,7 @@ export async function getServerSideProps(context) {
 
     // Using Hydration
     const queryClient = new QueryClient();
-    await queryClient.prefetchQuery(['categories'], categoryList);
+    await queryClient.prefetchQuery(categoryQueryKeys.categories, categoryList);
 
     return {
       props: {

@@ -13,7 +13,7 @@ import {
   useMutationPhotoUpload,
   useMutationPhotoRemove,
 } from '@/hooks/query/photo';
-import { useQueryCategories } from '@/hooks/query/category';
+import { useQueryCategories, categoryQueryKeys } from '@/hooks/query/category';
 import {
   useQueryProduct,
   useMutationUpdateProduct,
@@ -233,7 +233,7 @@ export async function getServerSideProps(context) {
       queryClient.prefetchQuery(productQueryKeys.product(slug), () =>
         productRead(slug)
       ),
-      queryClient.prefetchQuery(['categories'], async () => {
+      queryClient.prefetchQuery(categoryQueryKeys.categories, async () => {
         const categoryList = await listCategory();
         return JSON.stringify(categoryList);
       }),

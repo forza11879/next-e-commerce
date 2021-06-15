@@ -9,6 +9,7 @@ import {
   useQueryCategories,
   useMutationCreateCategory,
   useMutationRemoveCategory,
+  categoryQueryKeys,
 } from '@/hooks/query/category';
 import AdminRoute from '@/components/lib/AdminRoute';
 import AdminNav from '@/components/nav/AdminNav';
@@ -144,9 +145,14 @@ export async function getServerSideProps(context) {
 
     // Using Hydration
     const queryClient = new QueryClient();
-    await queryClient.prefetchQuery(['categories'], categoryList, null, {
-      // force: true, // forced prefetch regadless if the data is stale(forced prefetching)
-    });
+    await queryClient.prefetchQuery(
+      categoryQueryKeys.categories,
+      categoryList,
+      null,
+      {
+        // force: true, // forced prefetch regadless if the data is stale(forced prefetching)
+      }
+    );
 
     return {
       props: {

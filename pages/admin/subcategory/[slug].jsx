@@ -11,8 +11,9 @@ import CategoryForm from '@/components/forms/CategoryForm';
 import {
   useQuerySubCategory,
   useMutationUpdateSubCategory,
+  subcategoryQueryKeys,
 } from '@/hooks/query/subcategory';
-import { useQueryCategories } from '@/hooks/query/category';
+import { useQueryCategories, categoryQueryKeys } from '@/hooks/query/category';
 
 const SubUpdate = ({ id, token, slug }) => {
   const [parentInput, setParentInput] = useState('');
@@ -137,8 +138,11 @@ export async function getServerSideProps(context) {
     const queryClient = new QueryClient();
 
     await Promise.allSettled([
-      queryClient.prefetchQuery(['categories'], categoryList),
-      queryClient.prefetchQuery(['subcategories', id], subCategoryRead),
+      queryClient.prefetchQuery(categoryQueryKeys.categories, categoryList),
+      queryClient.prefetchQuery(
+        subcategoryQueryKeys.subCategory(id),
+        subCategoryRead
+      ),
     ]);
 
     return {

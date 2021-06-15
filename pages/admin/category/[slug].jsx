@@ -10,6 +10,7 @@ import CategoryForm from '@/components/forms/CategoryForm';
 import {
   useQueryCategory,
   useMutationUpdateCategory,
+  categoryQueryKeys,
 } from '@/hooks/query/category';
 
 const CategoryUpdate = ({ id, token, slug }) => {
@@ -98,9 +99,14 @@ export async function getServerSideProps(context) {
   try {
     // Using Hydration
     const queryClient = new QueryClient();
-    await queryClient.prefetchQuery(['categories', id], categoryRead, null, {
-      // force: true, // forced prefetch regadless if the data is stale(forced prefetching)
-    });
+    await queryClient.prefetchQuery(
+      categoryQueryKeys.category(id),
+      categoryRead,
+      null,
+      {
+        // force: true, // forced prefetch regadless if the data is stale(forced prefetching)
+      }
+    );
 
     return {
       props: {
