@@ -15,10 +15,15 @@ import {
 import { currentUser } from '@/Models/User/index';
 import { listAllByCountProduct } from '@/Models/Product/index';
 import { listCategory } from '@/Models/Category/index';
+import { listSubCategory } from '@/Models/SubCategory/index';
 import ProductCard from '@/components/cards/ProductCard';
 import Star from '@/components/forms/Star';
 import { useQueryProducts, productQueryKeys } from '@/hooks/query/product';
 import { useQueryCategories, categoryQueryKeys } from '@/hooks/query/category';
+import {
+  useQuerySubCategories,
+  subcategoryQueryKeys,
+} from '@/hooks/query/subcategory';
 import { selectSearch, getTextQuery } from '@/store/search';
 
 const { SubMenu, ItemGroup } = Menu;
@@ -39,10 +44,14 @@ async function fetchProductsByFilter(arg) {
   }
 }
 
+// export const getSubs = async () =>
+//   await axios.get(`${process.env.REACT_APP_API}/subs`);
+
 const Shop = ({ count }) => {
   const [price, setPrice] = useState([0, 0]);
   const [categoryIds, setCategoryIds] = useState([]);
   const [star, setStar] = useState('');
+  const [subCategory, setSubCategory] = useState('');
 
   const dispatch = useDispatch();
   const { text } = useSelector(selectSearch);
@@ -52,6 +61,7 @@ const Shop = ({ count }) => {
 
   const productsQuery = useQueryProducts(count);
   const categoriesQuery = useQueryCategories();
+  const subCategoriesQuery = useQuerySubCategories();
 
   const searchQuery = useQuery(
     ['searchProductsByText', textValue],
@@ -59,6 +69,7 @@ const Shop = ({ count }) => {
       setCategoryIds([]);
       setPrice([0, 0]);
       setStar('');
+      setSubCategory('');
       const data = await fetchProductsByFilter({ query: textValue });
       return data;
     },
@@ -84,6 +95,7 @@ const Shop = ({ count }) => {
     dispatch(getTextQuery());
     setCategoryIds([]);
     setStar('');
+    setSubCategory('');
     setPrice(value);
   };
 
@@ -126,6 +138,7 @@ const Shop = ({ count }) => {
       dispatch(getTextQuery());
       setPrice([0, 0]);
       setStar('');
+      setSubCategory('');
       const data = await fetchProductsByFilter({ category: categoryIds });
       return data;
     },
@@ -141,6 +154,7 @@ const Shop = ({ count }) => {
     dispatch(getTextQuery());
     setPrice([0, 0]);
     setCategoryIds([]);
+    setSubCategory('');
     setStar(num);
   };
 
@@ -163,6 +177,39 @@ const Shop = ({ count }) => {
     ));
   };
 
+  // 6. show products by sub category
+  const showSubs = () =>
+    subCategoriesQuery.data.map((item) => (
+      <div
+        key={item._id}
+        onClick={() => handleSub(item)}
+        className="p-1 m-1 badge badge-secondary"
+        style={{ cursor: 'pointer' }}
+      >
+        {item.name}
+      </div>
+    ));
+
+  const handleSub = async (subcategory) => {
+    dispatch(getTextQuery());
+    setPrice([0, 0]);
+    setCategoryIds([]);
+    setStar('');
+    setSubCategory(subcategory._id);
+  };
+
+  const subCategoryQuery = useQuery(
+    ['searchProductsBySubCategory', subCategory],
+    async () => {
+      const data = await fetchProductsByFilter({ subcategory: subCategory });
+      return data;
+    },
+    {
+      // staleTime: Infinity,
+      enabled: Boolean(subCategory),
+    }
+  );
+
   return (
     <div className="container-fluid">
       <div className="row">
@@ -170,7 +217,7 @@ const Shop = ({ count }) => {
           <h4>Search/Filter</h4>
           <hr />
 
-          <Menu defaultOpenKeys={['1', '2', '3']} mode="inline">
+          <Menu defaultOpenKeys={['1', '2', '3', '4']} mode="inline">
             <SubMenu
               key="1"
               title={
@@ -214,9 +261,22 @@ const Shop = ({ count }) => {
                 <div className="pr-4 pl-4 pb-2">{showStars()}</div>
               </div>
             </SubMenu>
+
+            {/* sub category */}
+            <SubMenu
+              key="4"
+              title={
+                <span className="h6">
+                  <DownSquareOutlined /> Sub Categories
+                </span>
+              }
+            >
+              <div style={{ maringTop: '-10px' }} className="pl-4 pr-4">
+                {showSubs()}
+              </div>
+            </SubMenu>
           </Menu>
         </div>
-        {/* starQuery.length < 1 && */}
 
         <div className="col-md-9 pt-2">
           {textValue && searchQuery.isLoading ? (
@@ -226,6 +286,8 @@ const Shop = ({ count }) => {
           ) : categoryIds.length > 0 && checkedQuery.isLoading ? (
             <h4 className="text-danger">Loading...</h4>
           ) : star && starQuery.isLoading ? (
+            <h4 className="text-danger">Loading...</h4>
+          ) : subCategory && subCategoryQuery.isLoading ? (
             <h4 className="text-danger">Loading...</h4>
           ) : !textValue &&
             priceValue[1] === 0 &&
@@ -269,10 +331,19 @@ const Shop = ({ count }) => {
                 </div>
               ))}
             </div>
+          ) : subCategory && subCategoryQuery.data?.length > 0 ? (
+            <div className="row pb-5">
+              {subCategoryQuery.data.map((item) => (
+                <div key={item._id} className="col-md-4 mt-3">
+                  <ProductCard product={item} />
+                </div>
+              ))}
+            </div>
           ) : !textValue &&
             priceValue[1] === 0 &&
             categoryIds.length < 1 &&
-            !star ? (
+            !star &&
+            !subCategory ? (
             <div className="row pb-5">
               {productsQuery.data.map((item) => (
                 <div key={item._id} className="col-md-4 mt-3">
@@ -312,6 +383,13 @@ export async function getServerSideProps(context) {
         const result = await listCategory();
         return JSON.stringify(result);
       }),
+      queryClient.prefetchQuery(
+        subcategoryQueryKeys.subCategories,
+        async () => {
+          const result = await listSubCategory();
+          return JSON.stringify(result);
+        }
+      ),
     ]);
 
     return {

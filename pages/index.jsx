@@ -137,7 +137,7 @@ export async function getServerSideProps(context) {
         return JSON.stringify(categoryList);
       }),
       queryClient.prefetchQuery(
-        subcategoryQueryKeys.subcategories,
+        subcategoryQueryKeys.subCategories,
         async () => {
           const subCategoryList = await listSubCategory();
           return JSON.stringify(subCategoryList);

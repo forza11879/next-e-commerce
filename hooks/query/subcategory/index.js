@@ -53,7 +53,7 @@ async function fetchSubCategoriesByCategoryId(id) {
   }
 }
 
-const subcategoryQueryKeys = {
+export const subcategoryQueryKeys = {
   subCategories: ['subcategories'],
   subCategory: (id) => [...subcategoryQueryKeys.subCategories, id],
   productsBySubCategory: (id) => [
@@ -224,7 +224,7 @@ export const useMutationRemoveSubCategory = () => {
     {
       onMutate: ({ data: { slug } }) => {
         // Cancel any outgoing refetches (so they don't overwrite(race condition) our optimistic update)
-        queryClient.cancelQueries('categories', { exact: true });
+        queryClient.cancelQueries('categories');
         queryClient.cancelQueries(subcategoryQueryKeys.subCategories, {
           exact: true,
         });
@@ -305,10 +305,8 @@ export const useMutationUpdateSubCategory = () => {
     {
       onMutate: ({ name, slug }) => {
         // Cancel any outgoing refetches (so they don't overwrite(race condition) our optimistic update)
-        queryClient.cancelQueries('categories', { exact: true });
-        queryClient.cancelQueries(subcategoryQueryKeys.subCategories, {
-          exact: true,
-        });
+        queryClient.cancelQueries('categories');
+        queryClient.cancelQueries(subcategoryQueryKeys.subCategories);
 
         // Snapshot the previous value
         const previousQueryDataArray = queryClient.getQueryData(

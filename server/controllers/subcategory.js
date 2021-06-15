@@ -24,8 +24,8 @@ export const createController = async (req, res) => {
 
 export const listController = async (req, res) => {
   try {
-    const categoryList = await listSubCategory();
-    res.status(200).json(categoryList);
+    const subCategories = await listSubCategory();
+    res.status(200).json(subCategories);
   } catch (error) {
     console.log('list controller error: ', error);
     res.status(400).json('Fetch list request failed');
