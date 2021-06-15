@@ -1,7 +1,11 @@
 import React, { useRef, useEffect } from 'react';
 import { Card, Tabs } from 'antd';
 import Link from 'next/link';
-import StarRating from 'react-star-ratings';
+import dynamic from 'next/dynamic';
+const StarRating = dynamic(() => import('react-star-ratings'), {
+  ssr: false,
+});
+// import StarRating from 'react-star-ratings';
 import { HeartOutlined, ShoppingCartOutlined } from '@ant-design/icons';
 // import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';

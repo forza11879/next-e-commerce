@@ -1,4 +1,8 @@
-import StarRating from 'react-star-ratings';
+import dynamic from 'next/dynamic';
+const StarRating = dynamic(() => import('react-star-ratings'), {
+  ssr: false,
+});
+// import StarRating from 'react-star-ratings';
 
 const RatingStar = ({ product }) => {
   const { avgRating, nRatings } = product;
