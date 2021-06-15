@@ -21,7 +21,7 @@ import { listCategory } from '@/Models/Category/index';
 const initialState = {
   title: 'Macbook Pro',
   description: 'This is the best Apple product',
-  price: '45000',
+  price: '2500',
   categories: [],
   category: '',
   subcategories: [],

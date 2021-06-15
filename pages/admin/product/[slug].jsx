@@ -17,6 +17,7 @@ import { useQueryCategories } from '@/hooks/query/category';
 import {
   useQueryProduct,
   useMutationUpdateProduct,
+  productQueryKeys,
 } from '@/hooks/query/product';
 import admin from '@/firebase/index';
 import { currentUser } from '@/Models/User/index';
@@ -229,7 +230,9 @@ export async function getServerSideProps(context) {
     const queryClient = new QueryClient();
 
     await Promise.allSettled([
-      queryClient.prefetchQuery(['products', slug], () => productRead(slug)),
+      queryClient.prefetchQuery(productQueryKeys.product(slug), () =>
+        productRead(slug)
+      ),
       queryClient.prefetchQuery(['categories'], async () => {
         const categoryList = await listCategory();
         return JSON.stringify(categoryList);

@@ -4,6 +4,7 @@ import { dehydrate } from 'react-query/hydration';
 import {
   useQueryProducts,
   useMutationRemoveProduct,
+  productQueryKeys,
 } from '@/hooks/query/product';
 import AdminRoute from '@/components/lib/AdminRoute';
 import AdminNav from '@/components/nav/AdminNav';
@@ -87,7 +88,7 @@ export async function getServerSideProps(context) {
 
     // Using Hydration
     const queryClient = new QueryClient();
-    await queryClient.prefetchQuery(['products'], () =>
+    await queryClient.prefetchQuery(productQueryKeys.products, () =>
       productListByCount(count)
     );
 

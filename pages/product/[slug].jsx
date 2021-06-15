@@ -9,6 +9,7 @@ import {
   useQueryProductStar,
   useQueryProductRelated,
   useMutationStarProduct,
+  productQueryKeys,
 } from '@/hooks/query/product';
 import SingleProduct from '@/components/cards/SingleProduct';
 import ProductCard from '@/components/cards/ProductCard';
@@ -89,24 +90,30 @@ export async function getServerSideProps(context) {
     const queryClient = new QueryClient();
 
     await Promise.allSettled([
-      queryClient.prefetchQuery(['productStar', slug], async () => {
-        const existingRatingObject = product.ratings.find(
-          (item) => item.postedBy.toString() === user._id.toString()
-        );
+      queryClient.prefetchQuery(
+        productQueryKeys.productStar(slug),
+        async () => {
+          const existingRatingObject = product.ratings.find(
+            (item) => item.postedBy.toString() === user._id.toString()
+          );
 
-        if (existingRatingObject) {
-          product.star = existingRatingObject.star;
-        } else {
-          product.star = 0;
+          if (existingRatingObject) {
+            product.star = existingRatingObject.star;
+          } else {
+            product.star = 0;
+          }
+
+          // console.log({ product });
+          return JSON.stringify(product);
         }
-
-        // console.log({ product });
-        return JSON.stringify(product);
-      }),
-      queryClient.prefetchQuery(['productRelated', slug], async () => {
-        const related = await relatedProduct(product);
-        return JSON.stringify(related);
-      }),
+      ),
+      queryClient.prefetchQuery(
+        productQueryKeys.productRelated(slug),
+        async () => {
+          const related = await relatedProduct(product);
+          return JSON.stringify(related);
+        }
+      ),
     ]);
 
     return {

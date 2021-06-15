@@ -13,6 +13,7 @@ import {
   useQueryProductByNewArrivals,
   useQueryProductByBestSellers,
   useQueryProductsCount,
+  productQueryKeys,
 } from '@/hooks/query/product';
 import { useQueryCategories } from '@/hooks/query/category';
 import { useQuerySubCategories } from '@/hooks/query/subcategory';
@@ -108,7 +109,7 @@ export async function getServerSideProps(context) {
 
     await Promise.allSettled([
       queryClient.prefetchQuery(
-        ['productsByNewArrivals', newArrivals.page],
+        productQueryKeys.productsByNewArrivals(newArrivals.page),
         async () => {
           const newArrivalsResult = await listProduct(newArrivals);
           // console.log({ result });
@@ -116,14 +117,14 @@ export async function getServerSideProps(context) {
         }
       ),
       queryClient.prefetchQuery(
-        ['productsByBestSellers', bestSellers.page],
+        productQueryKeys.productsByBestSellers(bestSellers.page),
         async () => {
           const bestSellersResult = await listProduct(bestSellers);
           // console.log({ result });
           return JSON.stringify(bestSellersResult);
         }
       ),
-      queryClient.prefetchQuery('productsCount', async () => {
+      queryClient.prefetchQuery(productQueryKeys.productsCount(), async () => {
         const productsCountResult = await productsCount();
         // console.log({ productsCountResult });
         return JSON.stringify(productsCountResult);

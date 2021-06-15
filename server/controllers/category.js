@@ -62,8 +62,8 @@ export const removeController = async (req, res) => {
   try {
     const deleted = await remove(slug);
     const { _id } = deleted;
-    await cascadeDelete(_id);
-    await cascadeUpdate(_id);
+    // await cascadeDelete(_id);
+    // await cascadeUpdate(_id);
     res.status(200).json({ deleted: deleted });
   } catch (error) {
     console.log('remove controller error: ', error);

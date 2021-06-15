@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { useMutation, useQueryClient } from 'react-query';
 import { toast } from 'react-toastify';
+import { productQueryKeys } from '@/hooks/query/product';
 
 const baseURL = process.env.api;
 
@@ -167,28 +168,33 @@ export const useMutationPhotoRemove = () => {
         { data: { public_id }, props: { setValues, values, id } },
         context
       ) => {
-        queryClient.setQueryData('productsCount', (oldQueryData) => {
-          const oldQueryDataArray = JSON.parse(oldQueryData);
-          console.log('oldQueryDataArray onSuccess: ', oldQueryDataArray);
+        queryClient.setQueryData(
+          productQueryKeys.productsCount(),
+          (oldQueryData) => {
+            const oldQueryDataArray = JSON.parse(oldQueryData);
+            console.log('oldQueryDataArray onSuccess: ', oldQueryDataArray);
 
-          const [result] = oldQueryDataArray
-            .filter((item) => {
-              return item.slug === values.slug;
-            })
-            .map((item) => {
-              for (const [key, value] of Object.entries(item)) {
-                if (key === 'images') {
-                  const idx = value.findIndex((item) => item.public_id === id);
-                  return idx;
+            const [result] = oldQueryDataArray
+              .filter((item) => {
+                return item.slug === values.slug;
+              })
+              .map((item) => {
+                for (const [key, value] of Object.entries(item)) {
+                  if (key === 'images') {
+                    const idx = value.findIndex(
+                      (item) => item.public_id === id
+                    );
+                    return idx;
+                  }
                 }
-              }
-            });
-          setValues({ ...values, index: result });
+              });
+            setValues({ ...values, index: result });
 
-          console.log('result: ', result);
+            console.log('result: ', result);
 
-          return JSON.stringify(oldQueryDataArray);
-        });
+            return JSON.stringify(oldQueryDataArray);
+          }
+        );
         console.log('onSuccess data from back-end: ', data);
         const { images } = values;
         let filteredImages = images.filter((item) => {

@@ -17,7 +17,7 @@ import { listAllByCountProduct } from '@/Models/Product/index';
 import { listCategory } from '@/Models/Category/index';
 import ProductCard from '@/components/cards/ProductCard';
 import Star from '@/components/forms/Star';
-import { useQueryProducts } from '@/hooks/query/product';
+import { useQueryProducts, productQueryKeys } from '@/hooks/query/product';
 import { useQueryCategories } from '@/hooks/query/category';
 import { useQuerySearchText } from '@/hooks/query/search';
 import { selectSearch, getTextQuery } from '@/store/search';
@@ -305,7 +305,7 @@ export async function getServerSideProps(context) {
     const queryClient = new QueryClient();
 
     await Promise.allSettled([
-      queryClient.prefetchQuery(['products'], async () => {
+      queryClient.prefetchQuery(productQueryKeys.products, async () => {
         const result = await listAllByCountProduct(count);
         return JSON.stringify(result);
       }),
