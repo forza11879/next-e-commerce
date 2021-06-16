@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 // const { ObjectId } = mongoose.Schema;
 import Product from './Product';
 import slugify from 'slugify';
+const temp = new Product();
 
 const create = async (values) => {
   // console.log('values: ', values);
@@ -310,8 +311,9 @@ const handlePrice = async (req, res, price) => {
 };
 
 const handleCategory = async (req, res, category) => {
+  const query = { category };
   try {
-    let products = await Product.find({ category })
+    let products = await Product.find(query)
       .populate('category', '_id name')
       .populate('subcategories', '_id name')
       .populate('postedBy', '_id name')
@@ -352,15 +354,86 @@ const handleStar = async (req, res, stars) => {
 };
 
 const handleSub = async (req, res, subcategory) => {
-  console.log({ subcategory });
-  const products = await Product.find({ subcategories: subcategory })
-    .populate('category', '_id name')
-    .populate('subcategories', '_id name')
-    .populate('postedBy', '_id name')
-    .exec();
+  const query = { subcategories: subcategory };
+  try {
+    const products = await Product.find(query)
+      .populate('category', '_id name')
+      .populate('subcategories', '_id name')
+      .populate('postedBy', '_id name')
+      .exec();
 
-  res.status(200).json(products);
+    res.status(200).json(products);
+  } catch (error) {
+    console.log(`handleSub error: ${error}`);
+  }
 };
+
+const handleShipping = async (req, res, shipping) => {
+  const query = { shipping };
+  try {
+    const products = await Product.find(query)
+      .populate('category', '_id name')
+      .populate('subcategories', '_id name')
+      .populate('postedBy', '_id name')
+      .exec();
+
+    res.status(200).json(products);
+  } catch (error) {
+    console.log(`handleShipping error: ${error}`);
+  }
+};
+
+const handleColor = async (req, res, color) => {
+  const query = { color };
+  try {
+    const products = await Product.find(query)
+      .populate('category', '_id name')
+      .populate('subcategories', '_id name')
+      .populate('postedBy', '_id name')
+      .exec();
+
+    res.status(200).json(products);
+  } catch (error) {
+    console.log(`handleColor error: ${error}`);
+  }
+};
+
+const handleBrand = async (req, res, brand) => {
+  const query = { brand };
+  try {
+    const products = await Product.find(query)
+      .populate('category', '_id name')
+      .populate('subcategories', '_id name')
+      .populate('postedBy', '_id name')
+      .exec();
+
+    res.status(200).json(products);
+  } catch (error) {
+    console.log(`handleBrand error: ${error}`);
+  }
+};
+
+const productBrand = () => {
+  try {
+    // const temp = new Product();
+    const brands = temp.schema.path('brand').enumValues;
+    return brands;
+  } catch (error) {
+    console.log(`productBrand error: ${error}`);
+  }
+};
+
+const productColor = () => {
+  try {
+    // const temp = new Product();
+    const colors = temp.schema.path('color').enumValues;
+    return colors;
+  } catch (error) {
+    console.log(`productColor error: ${error}`);
+  }
+};
+
+productColor;
 
 export {
   create,
@@ -383,4 +456,9 @@ export {
   handleCategory,
   handleStar,
   handleSub,
+  handleShipping,
+  handleColor,
+  handleBrand,
+  productBrand,
+  productColor,
 };

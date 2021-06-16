@@ -1,8 +1,7 @@
 import React, { useRef, useState } from 'react';
-import { toast } from 'react-toastify';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import Link from 'next/link';
-import { QueryClient, useQueryClient } from 'react-query';
+import { QueryClient } from 'react-query';
 import { dehydrate } from 'react-query/hydration';
 import nookies from 'nookies';
 import {
@@ -26,7 +25,6 @@ const SubCreate = ({ token, isAdmin }) => {
   const [keyword, setKeyword] = useState('');
   const formRef = useRef();
   const nameInputRef = useRef();
-  const queryClient = useQueryClient();
   // "Parallel" queries are queries that are executed in parallel, or at the same time so as to maximize fetching concurrency.
   // When the number of parallel queries does not change, there is no extra effort to use parallel queries. Just use any number of React Query's useQuery and useInfiniteQuery hooks side-by-side!
   const categoryQuery = useQueryCategories();
@@ -143,15 +141,15 @@ export async function getServerSideProps(context) {
   const { appToken } = nookies.get(context);
   let isAdmin = false;
   try {
-    const categoryList = async () => {
-      const result = await listCategory();
-      return JSON.stringify(result);
-    };
+    // const categoryList = async () => {
+    //   const result = await listCategory();
+    //   return JSON.stringify(result);
+    // };
 
-    const subCategoryList = async () => {
-      const result = await listSubCategory();
-      return JSON.stringify(result);
-    };
+    // const subCategoryList = async () => {
+    //   const result = await listSubCategory();
+    //   return JSON.stringify(result);
+    // };
 
     const { email } = await admin.auth().verifyIdToken(appToken);
     const { role } = await currentUser(email);
@@ -162,10 +160,16 @@ export async function getServerSideProps(context) {
     const queryClient = new QueryClient();
 
     await Promise.allSettled([
-      queryClient.prefetchQuery(categoryQueryKeys.categories, categoryList),
+      queryClient.prefetchQuery(categoryQueryKeys.categories, async () => {
+        const result = await listCategory();
+        return JSON.stringify(result);
+      }),
       queryClient.prefetchQuery(
         subcategoryQueryKeys.subcategories,
-        subCategoryList
+        async () => {
+          const result = await listSubCategory();
+          return JSON.stringify(result);
+        }
       ),
     ]);
 

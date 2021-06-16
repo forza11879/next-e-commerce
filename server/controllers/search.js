@@ -4,11 +4,23 @@ import {
   handleCategory,
   handleStar,
   handleSub,
+  handleShipping,
+  handleColor,
+  handleBrand,
 } from '@/Models/Product/index';
 
 export const searchFiltersController = async (req, res) => {
   try {
-    const { query, price, category, stars, subcategory } = req.body;
+    const {
+      query,
+      price,
+      category,
+      stars,
+      subcategory,
+      shipping,
+      color,
+      brand,
+    } = req.body;
     if (query) {
       console.log('query --->', query);
       await handleQuery(req, res, query);
@@ -33,6 +45,21 @@ export const searchFiltersController = async (req, res) => {
     if (subcategory) {
       console.log('subcategory ---> ', subcategory);
       await handleSub(req, res, subcategory);
+    }
+
+    if (shipping) {
+      console.log('shipping ---> ', shipping);
+      await handleShipping(req, res, shipping);
+    }
+
+    if (color) {
+      console.log('color ---> ', color);
+      await handleColor(req, res, color);
+    }
+
+    if (brand) {
+      console.log('brand ---> ', brand);
+      await handleBrand(req, res, brand);
     }
   } catch (error) {
     console.log('product searchFiltersController controller error: ', error);

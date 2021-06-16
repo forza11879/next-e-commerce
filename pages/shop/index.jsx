@@ -6,19 +6,28 @@ import { useSelector, useDispatch } from 'react-redux';
 import { QueryClient, useQuery } from 'react-query';
 import { dehydrate } from 'react-query/hydration';
 import admin from '@/firebase/index';
-import { Menu, Slider, Checkbox } from 'antd';
+import { Menu, Slider, Checkbox, Radio } from 'antd';
 import {
   DollarOutlined,
   DownSquareOutlined,
   StarOutlined,
 } from '@ant-design/icons';
 import { currentUser } from '@/Models/User/index';
-import { listAllByCountProduct } from '@/Models/Product/index';
+import {
+  listAllByCountProduct,
+  productBrand,
+  productColor,
+} from '@/Models/Product/index';
 import { listCategory } from '@/Models/Category/index';
 import { listSubCategory } from '@/Models/SubCategory/index';
 import ProductCard from '@/components/cards/ProductCard';
 import Star from '@/components/forms/Star';
-import { useQueryProducts, productQueryKeys } from '@/hooks/query/product';
+import {
+  useQueryProducts,
+  useQueryProductsBrands,
+  useQueryProductsColors,
+  productQueryKeys,
+} from '@/hooks/query/product';
 import { useQueryCategories, categoryQueryKeys } from '@/hooks/query/category';
 import {
   useQuerySubCategories,
@@ -44,14 +53,14 @@ async function fetchProductsByFilter(arg) {
   }
 }
 
-// export const getSubs = async () =>
-//   await axios.get(`${process.env.REACT_APP_API}/subs`);
-
 const Shop = ({ count }) => {
   const [price, setPrice] = useState([0, 0]);
   const [categoryIds, setCategoryIds] = useState([]);
   const [star, setStar] = useState('');
   const [subCategory, setSubCategory] = useState('');
+  const [brand, setBrand] = useState('');
+  const [color, setColor] = useState('');
+  const [shipping, setShipping] = useState('');
 
   const dispatch = useDispatch();
   const { text } = useSelector(selectSearch);
@@ -62,6 +71,8 @@ const Shop = ({ count }) => {
   const productsQuery = useQueryProducts(count);
   const categoriesQuery = useQueryCategories();
   const subCategoriesQuery = useQuerySubCategories();
+  const brandsProductQuery = useQueryProductsBrands();
+  const colorsProductQuery = useQueryProductsColors();
 
   const searchQuery = useQuery(
     ['searchProductsByText', textValue],
@@ -70,6 +81,9 @@ const Shop = ({ count }) => {
       setPrice([0, 0]);
       setStar('');
       setSubCategory('');
+      setBrand('');
+      setColor('');
+      setShipping('');
       const data = await fetchProductsByFilter({ query: textValue });
       return data;
     },
@@ -96,6 +110,9 @@ const Shop = ({ count }) => {
     setCategoryIds([]);
     setStar('');
     setSubCategory('');
+    setBrand('');
+    setColor('');
+    setShipping('');
     setPrice(value);
   };
 
@@ -139,6 +156,9 @@ const Shop = ({ count }) => {
       setPrice([0, 0]);
       setStar('');
       setSubCategory('');
+      setBrand('');
+      setColor('');
+      setShipping('');
       const data = await fetchProductsByFilter({ category: categoryIds });
       return data;
     },
@@ -155,6 +175,9 @@ const Shop = ({ count }) => {
     setPrice([0, 0]);
     setCategoryIds([]);
     setSubCategory('');
+    setBrand('');
+    setColor('');
+    setShipping('');
     setStar(num);
   };
 
@@ -195,6 +218,9 @@ const Shop = ({ count }) => {
     setPrice([0, 0]);
     setCategoryIds([]);
     setStar('');
+    setBrand('');
+    setColor('');
+    setShipping('');
     setSubCategory(subcategory._id);
   };
 
@@ -210,6 +236,130 @@ const Shop = ({ count }) => {
     }
   );
 
+  // 7. show products based on brand name
+  const showBrands = () =>
+    brandsProductQuery.data.map((item) => (
+      <Radio
+        key={item}
+        value={item}
+        name={item}
+        checked={item === brand}
+        onChange={handleBrand}
+        className="pb-1 pl-4 pr-4"
+      >
+        {item}
+      </Radio>
+    ));
+
+  const handleBrand = (e) => {
+    setSubCategory('');
+    dispatch(getTextQuery());
+    setPrice([0, 0]);
+    setCategoryIds([]);
+    setStar('');
+    setColor('');
+    setShipping('');
+    setBrand(e.target.value);
+  };
+
+  const brandQuery = useQuery(
+    ['searchProductsByBrand', brand],
+    async () => {
+      const data = await fetchProductsByFilter({ brand: brand });
+      return data;
+    },
+    {
+      // staleTime: Infinity,
+      enabled: Boolean(brand),
+    }
+  );
+
+  // 8. show products based on color
+  const showColors = () =>
+    colorsProductQuery.data.map((item) => (
+      <Radio
+        key={item}
+        value={item}
+        name={item}
+        checked={item === color}
+        onChange={handleColor}
+        className="pb-1 pl-4 pr-4"
+      >
+        {item}
+      </Radio>
+    ));
+
+  const handleColor = (e) => {
+    setSubCategory('');
+    dispatch(getTextQuery());
+    setPrice([0, 0]);
+    setCategoryIds([]);
+    setStar('');
+    setBrand('');
+    setShipping('');
+    setColor(e.target.value);
+    // fetchProducts({ color: e.target.value });
+  };
+
+  const colorQuery = useQuery(
+    ['searchProductsByColor', color],
+    async () => {
+      const data = await fetchProductsByFilter({ color: color });
+      return data;
+    },
+    {
+      // staleTime: Infinity,
+      enabled: Boolean(color),
+    }
+  );
+
+  // 9. show products based on shipping yes/no
+  const showShipping = () => (
+    <>
+      <Checkbox
+        className="pb-2 pl-4 pr-4"
+        onChange={handleShippingchange}
+        value="Yes"
+        checked={shipping === 'Yes'}
+      >
+        Yes
+      </Checkbox>
+      <Checkbox
+        className="pb-2 pl-4 pr-4"
+        onChange={handleShippingchange}
+        value="No"
+        checked={shipping === 'No'}
+      >
+        No
+      </Checkbox>
+    </>
+  );
+
+  const handleShippingchange = (e) => {
+    setSubCategory('');
+    dispatch(getTextQuery());
+    setPrice([0, 0]);
+    setCategoryIds([]);
+    setStar('');
+    setBrand('');
+    setColor('');
+    setShipping(e.target.value);
+  };
+
+  const shippingQuery = useQuery(
+    ['searchProductsByShipping', shipping],
+    async () => {
+      const data = await fetchProductsByFilter({ shipping: shipping });
+      return data;
+    },
+    {
+      // staleTime: Infinity,
+      enabled: Boolean(shipping),
+    }
+  );
+
+  console.log('shippingQuery.data: ', shippingQuery.data);
+
   return (
     <div className="container-fluid">
       <div className="row">
@@ -217,7 +367,10 @@ const Shop = ({ count }) => {
           <h4>Search/Filter</h4>
           <hr />
 
-          <Menu defaultOpenKeys={['1', '2', '3', '4']} mode="inline">
+          <Menu
+            defaultOpenKeys={['1', '2', '3', '4', '5', '6', '7']}
+            mode="inline"
+          >
             <SubMenu
               key="1"
               title={
@@ -275,6 +428,48 @@ const Shop = ({ count }) => {
                 {showSubs()}
               </div>
             </SubMenu>
+
+            {/* brands */}
+            <SubMenu
+              key="5"
+              title={
+                <span className="h6">
+                  <DownSquareOutlined /> Brands
+                </span>
+              }
+            >
+              <div style={{ maringTop: '-10px' }} className="pr-5">
+                {showBrands()}
+              </div>
+            </SubMenu>
+
+            {/* colors */}
+            <SubMenu
+              key="6"
+              title={
+                <span className="h6">
+                  <DownSquareOutlined /> Colors
+                </span>
+              }
+            >
+              <div style={{ maringTop: '-10px' }} className="pr-5">
+                {showColors()}
+              </div>
+            </SubMenu>
+
+            {/* shipping */}
+            <SubMenu
+              key="7"
+              title={
+                <span className="h6">
+                  <DownSquareOutlined /> Shipping
+                </span>
+              }
+            >
+              <div style={{ maringTop: '-10px' }} className="pr-5">
+                {showShipping()}
+              </div>
+            </SubMenu>
           </Menu>
         </div>
 
@@ -288,6 +483,12 @@ const Shop = ({ count }) => {
           ) : star && starQuery.isLoading ? (
             <h4 className="text-danger">Loading...</h4>
           ) : subCategory && subCategoryQuery.isLoading ? (
+            <h4 className="text-danger">Loading...</h4>
+          ) : brand && brandQuery.isLoading ? (
+            <h4 className="text-danger">Loading...</h4>
+          ) : color && colorQuery.isLoading ? (
+            <h4 className="text-danger">Loading...</h4>
+          ) : shipping && shippingQuery.isLoading ? (
             <h4 className="text-danger">Loading...</h4>
           ) : !textValue &&
             priceValue[1] === 0 &&
@@ -339,11 +540,38 @@ const Shop = ({ count }) => {
                 </div>
               ))}
             </div>
+          ) : brand && brandQuery.data?.length > 0 ? (
+            <div className="row pb-5">
+              {brandQuery.data.map((item) => (
+                <div key={item._id} className="col-md-4 mt-3">
+                  <ProductCard product={item} />
+                </div>
+              ))}
+            </div>
+          ) : color && colorQuery.data?.length > 0 ? (
+            <div className="row pb-5">
+              {colorQuery.data.map((item) => (
+                <div key={item._id} className="col-md-4 mt-3">
+                  <ProductCard product={item} />
+                </div>
+              ))}
+            </div>
+          ) : shipping && shippingQuery.data?.length > 0 ? (
+            <div className="row pb-5">
+              {shippingQuery.data.map((item) => (
+                <div key={item._id} className="col-md-4 mt-3">
+                  <ProductCard product={item} />
+                </div>
+              ))}
+            </div>
           ) : !textValue &&
             priceValue[1] === 0 &&
             categoryIds.length < 1 &&
             !star &&
-            !subCategory ? (
+            !subCategory &&
+            !brand &&
+            !color &&
+            !shipping ? (
             <div className="row pb-5">
               {productsQuery.data.map((item) => (
                 <div key={item._id} className="col-md-4 mt-3">
@@ -390,6 +618,14 @@ export async function getServerSideProps(context) {
           return JSON.stringify(result);
         }
       ),
+      queryClient.prefetchQuery(productQueryKeys.productBrands(), () => {
+        const result = productBrand();
+        return JSON.stringify(result);
+      }),
+      queryClient.prefetchQuery(productQueryKeys.productColors(), () => {
+        const result = productColor();
+        return JSON.stringify(result);
+      }),
     ]);
 
     return {

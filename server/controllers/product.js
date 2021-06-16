@@ -11,6 +11,8 @@ import {
   updateRating,
   calculateAvgRating,
   relatedProduct,
+  productBrand,
+  productColor,
 } from '@/Models/Product/index';
 import { currentUser } from '@/Models/User/index';
 import { readCategory } from '@/Models/Category/index';
@@ -134,5 +136,23 @@ export const listRelatedController = async (req, res) => {
     res.status(200).json(related);
   } catch (error) {
     console.log('product listRelatedController controller error: ', error);
+  }
+};
+
+export const productBrandController = (req, res) => {
+  try {
+    const brands = productBrand();
+    res.status(200).json(brands);
+  } catch (error) {
+    console.log('product productBrandController controller error: ', error);
+  }
+};
+
+export const productColorController = (req, res) => {
+  try {
+    const colors = productColor();
+    res.status(200).json(colors);
+  } catch (error) {
+    console.log('product productColorController controller error: ', error);
   }
 };
