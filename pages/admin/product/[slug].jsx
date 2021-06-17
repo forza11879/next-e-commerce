@@ -233,7 +233,7 @@ export async function getServerSideProps(context) {
       queryClient.prefetchQuery(productQueryKeys.product(slug), () =>
         productRead(slug)
       ),
-      queryClient.prefetchQuery(categoryQueryKeys.categories, async () => {
+      queryClient.prefetchQuery(...categoryQueryKeys.categories, async () => {
         const categoryList = await listCategory();
         return JSON.stringify(categoryList);
       }),

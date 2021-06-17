@@ -1,20 +1,15 @@
-import React, { useRef, useEffect } from 'react';
-import { Card, Tabs } from 'antd';
+import React, { useRef, useEffect, useState } from 'react';
+import _ from 'lodash';
+import { Card, Tabs, Tooltip } from 'antd';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 const StarRating = dynamic(() => import('react-star-ratings'), {
   ssr: false,
 });
-// import StarRating from 'react-star-ratings';
 import { HeartOutlined, ShoppingCartOutlined } from '@ant-design/icons';
-// import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
-// import { SideBySideMagnifier, GlassMagnifier } from 'react-image-magnifiers';
-// import Image from 'next/image';
-// import { CloudinaryContext, Transformation, Image } from 'cloudinary-react';
-
-// import ImageSingleProduct from '@/components/images/ImageSingleProduct';
-// import ImageLargeSingleProduct from '@/components/images/ImageLargeSingleProduct';
+import { useSelector, useDispatch } from 'react-redux';
+import { getAddProduct } from '@/store/cart';
 import ProductListItems from '@/components/cards/ProductListItems';
 import RatingModal from '@/components/modal/RatingModal';
 import RatingStar from '@/components/starrating/RatingStar';
@@ -24,6 +19,9 @@ const { TabPane } = Tabs;
 const SingleProduct = ({ product, isUser, token, onStarClick }) => {
   const { title, description, images, slug, _id, star, avgRating, nRatings } =
     product;
+
+  const [tooltip, setTooltip] = useState('Click to add');
+  const dispatch = useDispatch();
 
   const cloudnaryGalleryRef = useRef(null);
 
@@ -49,29 +47,28 @@ const SingleProduct = ({ product, isUser, token, onStarClick }) => {
     };
   }, [slug]);
 
-  // const renderCustomThumbs = (title, images) => {
-  //   const thumbList = images.map((item) => (
-  //     <picture key={item.public_id}>
-  //       <source srcSet={`${item.url}`} type="image/webp" />
-  //       <Image
-  //         alt={title}
-  //         src={item.url}
-  //         // src={images && images.length ? images[0].public_id : laptop}
-  //         // layout="fill"
-  //         objectFit="cover"
-  //         quality={100}
-  //         width={70}
-  //         height={70}
-  //         priority
-  //         ///////////////
-  //         // className="p-1"
-  //         // key={item.public_id}
-  //       />
-  //     </picture>
-  //   ));
-
-  //   return thumbList;
-  // };
+  const handleAddToCart = () => {
+    // create cart array
+    let cart = [];
+    if (typeof window !== 'undefined') {
+      // if cart is in local storage GET it
+      if (localStorage.getItem('cart')) {
+        cart = JSON.parse(localStorage.getItem('cart'));
+      }
+      // push new product to cart
+      cart.push({
+        ...product,
+        count: 1,
+      });
+      // (Array): Returns the new duplicate free array.
+      let unique = _.uniqWith(cart, _.isEqual);
+      // save to local storage
+      // console.log('unique', unique)
+      localStorage.setItem('cart', JSON.stringify(unique));
+      setTooltip('Added');
+      dispatch(getAddProduct(unique));
+    }
+  };
 
   return (
     <>
@@ -97,10 +94,12 @@ const SingleProduct = ({ product, isUser, token, onStarClick }) => {
 
         <Card
           actions={[
-            <>
-              <ShoppingCartOutlined className="text-success" /> <br />
-              Add to Cart
-            </>,
+            <Tooltip title={tooltip}>
+              <a onClick={handleAddToCart}>
+                <ShoppingCartOutlined className="text-success" /> <br />
+                Add to Cart
+              </a>
+            </Tooltip>,
             <Link href="/">
               <a>
                 <HeartOutlined className="text-info" /> <br /> Add to Wishlist

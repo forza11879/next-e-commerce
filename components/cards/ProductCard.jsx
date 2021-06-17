@@ -1,8 +1,12 @@
-import { Card } from 'antd';
+import { useState } from 'react';
+import { Card, Tooltip } from 'antd';
 import { EyeOutlined, ShoppingCartOutlined } from '@ant-design/icons';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useSelector, useDispatch } from 'react-redux';
+import { getAddProduct } from '@/store/cart';
 import RatingStar from '@/components/starrating/RatingStar';
+import _ from 'lodash';
 
 const { Meta } = Card;
 
@@ -11,6 +15,32 @@ const laptop = '/images/laptop.png';
 const ProductCard = ({ product }) => {
   const { images, title, description, price, slug, avgRating, nRatings } =
     product;
+
+  const [tooltip, setTooltip] = useState('Click to add');
+  const dispatch = useDispatch();
+
+  const handleAddToCart = () => {
+    // create cart array
+    let cart = [];
+    if (typeof window !== 'undefined') {
+      // if cart is in local storage GET it
+      if (localStorage.getItem('cart')) {
+        cart = JSON.parse(localStorage.getItem('cart'));
+      }
+      // push new product to cart
+      cart.push({
+        ...product,
+        count: 1,
+      });
+      // (Array): Returns the new duplicate free array.
+      let unique = _.uniqWith(cart, _.isEqual);
+      // save to local storage
+      // console.log('unique', unique)
+      localStorage.setItem('cart', JSON.stringify(unique));
+      setTooltip('Added');
+      dispatch(getAddProduct(unique));
+    }
+  };
   return (
     <>
       {product && avgRating && nRatings > 0 ? (
@@ -40,9 +70,12 @@ const ProductCard = ({ product }) => {
               <EyeOutlined className="text-warning" /> <br /> View Product
             </a>
           </Link>,
-          <>
-            <ShoppingCartOutlined className="text-danger" /> <br /> Add to Cart
-          </>,
+          <Tooltip title={tooltip}>
+            <a onClick={handleAddToCart}>
+              <ShoppingCartOutlined className="text-danger" /> <br /> Add to
+              Cart
+            </a>
+          </Tooltip>,
         ]}
       >
         <Meta

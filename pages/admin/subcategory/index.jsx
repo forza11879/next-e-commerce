@@ -160,12 +160,12 @@ export async function getServerSideProps(context) {
     const queryClient = new QueryClient();
 
     await Promise.allSettled([
-      queryClient.prefetchQuery(categoryQueryKeys.categories, async () => {
+      queryClient.prefetchQuery(...categoryQueryKeys.categories, async () => {
         const result = await listCategory();
         return JSON.stringify(result);
       }),
       queryClient.prefetchQuery(
-        subcategoryQueryKeys.subcategories,
+        ...subcategoryQueryKeys.subCategories,
         async () => {
           const result = await listSubCategory();
           return JSON.stringify(result);

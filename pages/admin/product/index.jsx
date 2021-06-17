@@ -240,7 +240,10 @@ export async function getServerSideProps(context) {
 
     // Using Hydration
     const queryClient = new QueryClient();
-    await queryClient.prefetchQuery(categoryQueryKeys.categories, categoryList);
+    await queryClient.prefetchQuery(
+      ...categoryQueryKeys.categories,
+      categoryList
+    );
 
     return {
       props: {

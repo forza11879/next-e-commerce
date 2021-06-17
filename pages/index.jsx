@@ -132,12 +132,12 @@ export async function getServerSideProps(context) {
         // console.log({ productsCountResult });
         return JSON.stringify(productsCountResult);
       }),
-      queryClient.prefetchQuery(categoryQueryKeys.categories, async () => {
+      queryClient.prefetchQuery(...categoryQueryKeys.categories, async () => {
         const categoryList = await listCategory();
         return JSON.stringify(categoryList);
       }),
       queryClient.prefetchQuery(
-        subcategoryQueryKeys.subCategories,
+        ...subcategoryQueryKeys.subCategories,
         async () => {
           const subCategoryList = await listSubCategory();
           return JSON.stringify(subCategoryList);

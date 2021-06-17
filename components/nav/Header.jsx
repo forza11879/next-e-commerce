@@ -3,7 +3,7 @@ import Link from 'next/link';
 import firebase from 'firebase';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
-import { Menu } from 'antd';
+import { Menu, Badge } from 'antd';
 import {
   AppstoreOutlined,
   SettingOutlined,
@@ -11,9 +11,11 @@ import {
   UserAddOutlined,
   LogoutOutlined,
   ShoppingOutlined,
+  ShoppingCartOutlined,
 } from '@ant-design/icons';
 import { parseCookies, setCookie, destroyCookie } from 'nookies';
 import { selectUser, getUserLoggedOut } from '@/store/user';
+import { selectCart } from '@/store/cart';
 import Search from '@/components/forms/Search';
 
 const { SubMenu, Item } = Menu;
@@ -24,6 +26,7 @@ const Header = () => {
 
   const dispatch = useDispatch();
   const user = useSelector(selectUser);
+  const cart = useSelector(selectCart);
   // console.log('user Select:', !!user.email);
 
   const handleClick = (e) => {
@@ -46,6 +49,14 @@ const Header = () => {
 
       <Item key="shop" icon={<ShoppingOutlined />}>
         <Link href="/shop">Shop</Link>
+      </Item>
+
+      <Item key="cart" icon={<ShoppingCartOutlined />}>
+        <Link href="/cart">
+          <Badge count={cart.length} offset={[9, 0]}>
+            Cart
+          </Badge>
+        </Link>
       </Item>
 
       {!Boolean(user.email && user.token) && (

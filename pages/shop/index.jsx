@@ -358,8 +358,6 @@ const Shop = ({ count }) => {
     }
   );
 
-  console.log('shippingQuery.data: ', shippingQuery.data);
-
   return (
     <div className="container-fluid">
       <div className="row">
@@ -607,12 +605,12 @@ export async function getServerSideProps(context) {
         const result = await listAllByCountProduct(count);
         return JSON.stringify(result);
       }),
-      queryClient.prefetchQuery(categoryQueryKeys.categories, async () => {
+      queryClient.prefetchQuery(...categoryQueryKeys.categories, async () => {
         const result = await listCategory();
         return JSON.stringify(result);
       }),
       queryClient.prefetchQuery(
-        subcategoryQueryKeys.subCategories,
+        ...subcategoryQueryKeys.subCategories,
         async () => {
           const result = await listSubCategory();
           return JSON.stringify(result);

@@ -50,7 +50,7 @@ export const categoryQueryKeys = {
 
 // Queries
 export const useQueryCategories = () =>
-  useQuery(categoryQueryKeys.categories, fetchCategories, {
+  useQuery(...categoryQueryKeys.categories, fetchCategories, {
     // Selectors like the one bellow will also run on every render, because the functional identity changes (it's an inline function). If your transformation is expensive, you can memoize it either with useCallback, or by extracting it to a stable function reference
     select: useCallback((data) => {
       // selectors will only be called if data exists, so you don't have to care about undefined here.
@@ -102,11 +102,11 @@ export const useMutationCreateCategory = () => {
     {
       onMutate: ({ data: { name } }) => {
         // Cancel any outgoing refetches (so they don't overwrite(race condition) our optimistic update)
-        queryClient.cancelQueries(categoryQueryKeys.categories);
+        queryClient.cancelQueries(...categoryQueryKeys.categories);
 
         // Snapshot the previous value
         const previousQueryDataArray = queryClient.getQueryData(
-          categoryQueryKeys.categories
+          ...categoryQueryKeys.categories
         );
         // console.log('previousQueryDataArray: ', previousQueryDataArray);
         // In an optimistic update the UI behaves as though a change was successfully completed before receiving confirmation from the server that it actually was - it is being optimistic that it will eventually get the confirmation rather than an error. This allows for a more responsive user experience.
@@ -115,7 +115,7 @@ export const useMutationCreateCategory = () => {
           name: name,
         };
         queryClient.setQueryData(
-          categoryQueryKeys.categories,
+          ...categoryQueryKeys.categories,
           (oldQueryData) => {
             const oldQueryDataArray = JSON.parse(oldQueryData);
             const newQueryDataArray = oldQueryDataArray.filter(
@@ -128,7 +128,7 @@ export const useMutationCreateCategory = () => {
         // return will pass the function or the value to the onError third argument:
         return () =>
           queryClient.setQueryData(
-            categoryQueryKeys.categories,
+            ...categoryQueryKeys.categories,
             previousQueryDataArray
           );
       },
@@ -148,7 +148,7 @@ export const useMutationCreateCategory = () => {
         // saves http trip to the back-end
         if (data) {
           queryClient.setQueryData(
-            categoryQueryKeys.categories,
+            ...categoryQueryKeys.categories,
             (oldQueryData) => {
               const oldQueryDataArray = JSON.parse(oldQueryData);
               const newQueryDataArray = oldQueryDataArray.filter(
@@ -172,7 +172,7 @@ export const useMutationCreateCategory = () => {
         // Runs on either success or error. It is better to run invalidateQueries
         // onSettled in case there is an error to re-fetch the request
         // it is prefered to invalidateQueries  after using setQueryData inside onSuccess: because you are getting the latest data from the server
-        queryClient.invalidateQueries(categoryQueryKeys.categories);
+        queryClient.invalidateQueries(...categoryQueryKeys.categories);
       },
     }
   );
@@ -195,7 +195,7 @@ export const useMutationRemoveCategory = () => {
         queryClient.cancelQueries(queryKeys.categories);
         // Snapshot the previous value
         const previousQueryDataArray = queryClient.getQueryData(
-          categoryQueryKeys.categories
+          ...categoryQueryKeys.categories
         );
         // In an optimistic update the UI behaves as though a change was successfully completed before receiving confirmation from the server that it actually was - it is being optimistic that it will eventually get the confirmation rather than an error. This allows for a more responsive user experience.
         // queryClient.setQueryData('categoryList', (oldQueryData) => {
@@ -208,7 +208,7 @@ export const useMutationRemoveCategory = () => {
         // if thre is a error return will pass the function or the value to the onError third argument:
         return () =>
           queryClient.setQueryData(
-            categoryQueryKeys.categories,
+            ...categoryQueryKeys.categories,
             previousQueryDataArray
           );
       },
@@ -239,7 +239,7 @@ export const useMutationRemoveCategory = () => {
         // onSettled in case there is an error to re-fetch the request
         if (data) {
           queryClient.setQueryData(
-            categoryQueryKeys.categories,
+            ...categoryQueryKeys.categories,
             (oldQueryData) => {
               const oldQueryDataArray = JSON.parse(oldQueryData);
               const newQueryDataArray = oldQueryDataArray.filter(
@@ -250,7 +250,7 @@ export const useMutationRemoveCategory = () => {
           );
           toast.error(`${data.deleted.name} deleted`);
         }
-        queryClient.invalidateQueries(categoryQueryKeys.categories);
+        queryClient.invalidateQueries(...categoryQueryKeys.categories);
       },
     }
   );
@@ -271,11 +271,11 @@ export const useMutationUpdateCategory = () => {
     {
       onMutate: ({ name, slug }) => {
         // Cancel any outgoing refetches (so they don't overwrite(race condition) our optimistic update)
-        queryClient.cancelQueries(categoryQueryKeys.categories);
+        queryClient.cancelQueries(...categoryQueryKeys.categories);
 
         // Snapshot the previous value
         const previousQueryDataArray = queryClient.getQueryData(
-          categoryQueryKeys.categories
+          ...categoryQueryKeys.categories
         );
         // In an optimistic update the UI behaves as though a change was successfully completed before receiving confirmation from the server that it actually was - it is being optimistic that it will eventually get the confirmation rather than an error. This allows for a more responsive user experience.
         const newObject = {
@@ -283,7 +283,7 @@ export const useMutationUpdateCategory = () => {
           name: name,
         };
         queryClient.setQueryData(
-          categoryQueryKeys.categories,
+          ...categoryQueryKeys.categories,
           (oldQueryData) => {
             const oldQueryDataArray = JSON.parse(oldQueryData);
             const newQueryDataArray = oldQueryDataArray.filter(
@@ -297,7 +297,7 @@ export const useMutationUpdateCategory = () => {
         // return will pass the function or the value to the onError third argument:
         return () =>
           queryClient.setQueryData(
-            categoryQueryKeys.categories,
+            ...categoryQueryKeys.categories,
             previousQueryDataArray
           );
       },
@@ -317,7 +317,7 @@ export const useMutationUpdateCategory = () => {
         // saves http trip to the back-end
         if (data) {
           queryClient.setQueryData(
-            categoryQueryKeys.categories,
+            ...categoryQueryKeys.categories,
             (oldQueryData) => {
               const oldQueryDataArray = JSON.parse(oldQueryData);
               const newQueryDataArray = oldQueryDataArray.filter(
@@ -337,7 +337,7 @@ export const useMutationUpdateCategory = () => {
         // Runs on either success or error. It is better to run invalidateQueries
         // onSettled in case there is an error to re-fetch the request
         // it is prefered to invalidateQueries  after using setQueryData inside onSuccess: because you are getting the latest data from the server
-        queryClient.invalidateQueries(categoryQueryKeys.categories);
+        queryClient.invalidateQueries(...categoryQueryKeys.categories);
       },
     }
   );
