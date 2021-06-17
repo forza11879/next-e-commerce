@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import firebase from 'firebase';
 import { useDispatch, useSelector } from 'react-redux';
@@ -37,8 +37,6 @@ const Header = () => {
   const logout = () => {
     firebase.auth().signOut();
     dispatch(getUserLoggedOut());
-
-    // router.push(`/login`);
   };
 
   return (
@@ -52,11 +50,9 @@ const Header = () => {
       </Item>
 
       <Item key="cart" icon={<ShoppingCartOutlined />}>
-        <Link href="/cart">
-          <Badge count={cart.length} offset={[9, 0]}>
-            Cart
-          </Badge>
-        </Link>
+        <Badge count={cart.length} offset={[9, 0]}>
+          <Link href="/cart">Cart</Link>
+        </Badge>
       </Item>
 
       {!Boolean(user.email && user.token) && (
