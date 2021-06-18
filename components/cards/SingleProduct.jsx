@@ -19,33 +19,40 @@ const { TabPane } = Tabs;
 const SingleProduct = ({ product, isUser, token, onStarClick }) => {
   const { title, description, images, slug, _id, star, avgRating, nRatings } =
     product;
-
+  const [loaded, setLoaded] = useState(false);
   const [tooltip, setTooltip] = useState('Click to add');
   const dispatch = useDispatch();
 
   const cloudnaryGalleryRef = useRef(null);
 
-  const myGallery = window.cloudinary.galleryWidget({
-    container: '#my-gallery',
-    cloudName: 'dhvi46rif',
-    carouselStyle: 'thumbnails', // default value: included for clarity
-    thumbnailProps: {
-      width: 75,
-      height: 75,
-      spacing: 4,
-      navigationColor: 'green',
-    },
-    mediaAssets: [{ tag: slug }],
-  });
+  useEffect(() => {
+    const scriptTag = document.createElement('script');
+    scriptTag.src = 'https://product-gallery.cloudinary.com/all.js';
+    scriptTag.addEventListener('load', () => setLoaded(true));
+    document.body.appendChild(scriptTag);
+  }, []);
 
   useEffect(() => {
+    if (!loaded) return;
+    const myGallery = window.cloudinary.galleryWidget({
+      container: '#my-gallery',
+      cloudName: 'dhvi46rif',
+      carouselStyle: 'thumbnails', // default value: included for clarity
+      thumbnailProps: {
+        width: 75,
+        height: 75,
+        spacing: 4,
+        navigationColor: 'green',
+      },
+      mediaAssets: [{ tag: slug }],
+    });
     if (!cloudnaryGalleryRef.current && typeof window !== 'undefined') {
       cloudnaryGalleryRef.current = myGallery.render();
     }
     return () => {
       cloudnaryGalleryRef.current = myGallery.destroy(); // Important To avoid memory leaks and performance issues, make sure to use the destroy method before removing the Product Gallery widget container element from your DOM.
     };
-  }, [slug]);
+  }, [loaded, slug]);
 
   const handleAddToCart = () => {
     // create cart array

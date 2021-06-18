@@ -7,10 +7,11 @@ class MyDocument extends Document {
       <Html>
         <Head />
         <body>
-          <script
+          {/* <script
             src="https://product-gallery.cloudinary.com/all.js"
             type="text/javascript"
-          ></script>
+            asyn
+          ></script> */}
           <Main />
           <NextScript />
         </body>

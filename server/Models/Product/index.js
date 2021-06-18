@@ -433,8 +433,6 @@ const productColor = () => {
   }
 };
 
-productColor;
-
 export {
   create,
   listProduct,

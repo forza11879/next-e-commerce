@@ -4,6 +4,10 @@ import firebase from 'firebase';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
 import { Menu, Badge } from 'antd';
+// import dynamic from 'next/dynamic';
+// const { Badge } = dynamic(() => import('antd'), {
+//   ssr: false,
+// });
 import {
   AppstoreOutlined,
   SettingOutlined,
@@ -52,6 +56,7 @@ const Header = () => {
       <Item key="cart" icon={<ShoppingCartOutlined />}>
         <Badge count={cart.length} offset={[9, 0]}>
           <Link href="/cart">Cart</Link>
+          {/* fix Badge TODO */}
         </Badge>
       </Item>
 
