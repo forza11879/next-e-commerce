@@ -51,6 +51,8 @@ const LoginPage = () => {
   const intented = router.query.from;
   const userResult = useSelector(selectUser);
 
+  // console.log({ intented });
+
   // useEffect(() => {
   //   if (userResult && userResult.token) router.push(`/`);
   // }, [userResult]);

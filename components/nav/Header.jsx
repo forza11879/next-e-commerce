@@ -31,7 +31,16 @@ const Header = () => {
   const dispatch = useDispatch();
   const user = useSelector(selectUser);
   const cart = useSelector(selectCart);
-  // console.log('user Select:', !!user.email);
+
+  const MyBadge = React.forwardRef(({ onClick, href }, ref) => {
+    return (
+      <a href={href} onClick={onClick} ref={ref}>
+        <Badge count={cart.length} offset={[9, 0]}>
+          Cart
+        </Badge>
+      </a>
+    );
+  });
 
   const handleClick = (e) => {
     // console.log(e.key);
@@ -44,7 +53,12 @@ const Header = () => {
   };
 
   return (
-    <Menu onClick={handleClick} selectedKeys={[current]} mode="horizontal">
+    <Menu
+      // defaultOpenKeys={['1']}
+      onClick={handleClick}
+      selectedKeys={[current]}
+      mode="horizontal"
+    >
       <Item key="home" icon={<AppstoreOutlined />}>
         <Link href="/">Home</Link>
       </Item>
@@ -54,10 +68,18 @@ const Header = () => {
       </Item>
 
       <Item key="cart" icon={<ShoppingCartOutlined />}>
-        <Badge count={cart.length} offset={[9, 0]}>
-          <Link href="/cart">Cart</Link>
+        <Link href="/cart">
+          {/* <MyBadge /> */}
+          <a>
+            <span>
+              <Badge count={cart.length} offset={[9, 0]}>
+                Cart
+              </Badge>
+            </span>
+          </a>
+
           {/* fix Badge TODO */}
-        </Badge>
+        </Link>
       </Item>
 
       {!Boolean(user.email && user.token) && (

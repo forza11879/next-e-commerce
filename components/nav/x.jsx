@@ -30,9 +30,3 @@ const Header = () => {
 };
 
 export default Header;
-
-<Item key="cart" icon={<ShoppingCartOutlined />}>
-  <Link href="/cart" passHref>
-    <MyBadge />
-  </Link>
-</Item>;

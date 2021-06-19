@@ -7,7 +7,7 @@ import { Provider } from 'react-redux';
 import { ToastContainer } from 'react-toastify';
 // import nProgress from 'nprogress';
 import 'react-toastify/dist/ReactToastify.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
+// import 'bootstrap/dist/css/bootstrap.min.css';
 import 'antd/dist/antd.css';
 
 import AuthComponent from '@/lib/auth';
