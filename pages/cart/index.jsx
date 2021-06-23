@@ -38,7 +38,7 @@ const Cart = () => {
         </tr>
       </thead>
 
-      {cart.map((item) => (
+      {cart.map((item, index) => (
         <ProductCardInCheckout key={item._id} item={item} />
       ))}
     </table>

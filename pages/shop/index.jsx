@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import nookies from 'nookies';
 import { useDebounce } from 'use-debounce';
@@ -34,6 +34,7 @@ import {
   subcategoryQueryKeys,
 } from '@/hooks/query/subcategory';
 import {
+  useQuerySearchByText,
   useQuerySearchByPrice,
   useQuerySearchByCategory,
   useQuerySearchByStar,
@@ -45,22 +46,6 @@ import {
 import { selectSearch, getTextQuery } from '@/store/search';
 
 const { SubMenu, ItemGroup } = Menu;
-const baseURL = process.env.api;
-
-async function fetchProductsByFilter(arg) {
-  console.log(`${baseURL}/search/filters`);
-  try {
-    const { data } = await axios.request({
-      baseURL,
-      url: `/search/filters`,
-      method: 'post',
-      data: arg,
-    });
-    return data;
-  } catch (error) {
-    console.log('fetchProductsByFilter error:', error);
-  }
-}
 
 const Shop = ({ count }) => {
   const [price, setPrice] = useState([0, 0]);
@@ -83,10 +68,21 @@ const Shop = ({ count }) => {
   const brandsProductQuery = useQueryProductsBrands();
   const colorsProductQuery = useQueryProductsColors();
 
+  // query filters
+  const searchQuery = useQuerySearchByText({ query: textValue });
+  const priceQuery = useQuerySearchByPrice({ price: priceValue });
+  const checkedQuery = useQuerySearchByCategory({ category: categoryIds });
+  const starQuery = useQuerySearchByStar({ stars: star });
+  const subCategoryQuery = useQuerySearchBySubCategory({
+    subcategory: subCategory,
+  });
+  const brandQuery = useQuerySearchByBrand({ brand: brand });
+  const colorQuery = useQuerySearchByColor({ color: color });
+  const shippingQuery = useQuerySearchByShipping({ shipping: shipping });
+
   // 2. on text query
-  const searchQuery = useQuery(
-    ['searchProductsByText', textValue],
-    async () => {
+  useEffect(() => {
+    if (textValue) {
       setCategoryIds([]);
       setPrice([0, 0]);
       setStar('');
@@ -94,19 +90,10 @@ const Shop = ({ count }) => {
       setBrand('');
       setColor('');
       setShipping('');
-      const data = await fetchProductsByFilter({ query: textValue });
-      return data;
-    },
-    {
-      // staleTime: Infinity,
-      enabled: Boolean(textValue),
     }
-  );
+  }, [textValue]);
 
   // 3. on price query
-
-  const priceQuery = useQuerySearchByPrice({ price: priceValue });
-
   const handleSlider = (value) => {
     dispatch(getTextQuery());
     setCategoryIds([]);
@@ -136,7 +123,6 @@ const Shop = ({ count }) => {
     ));
 
   const handleCheck = (e) => {
-    // console.log(e.target.value);
     let inTheState = [...categoryIds];
     let justChecked = e.target.value;
     let foundInTheState = inTheState.indexOf(justChecked); // index or -1
@@ -157,12 +143,8 @@ const Shop = ({ count }) => {
     setShipping('');
     setCategoryIds(inTheState);
   };
-
-  const checkedQuery = useQuerySearchByCategory({ category: categoryIds });
-
   // 5. show products by star rating
   const handleStarClick = (num) => {
-    // console.log(num);
     dispatch(getTextQuery());
     setPrice([0, 0]);
     setCategoryIds([]);
@@ -172,8 +154,6 @@ const Shop = ({ count }) => {
     setShipping('');
     setStar(num);
   };
-
-  const starQuery = useQuerySearchByStar({ stars: star });
 
   const showStars = () => {
     const starArray = Array.from({ length: 5 }, (_, i) => i + 1); //=> [1, 2, 3, 4, 5]
@@ -206,10 +186,6 @@ const Shop = ({ count }) => {
     setSubCategory(subcategory._id);
   };
 
-  const subCategoryQuery = useQuerySearchBySubCategory({
-    subcategory: subCategory,
-  });
-
   // 7. show products based on brand name
   const showBrands = () =>
     brandsProductQuery.data.map((item) => (
@@ -236,8 +212,6 @@ const Shop = ({ count }) => {
     setBrand(e.target.value);
   };
 
-  const brandQuery = useQuerySearchByBrand({ brand: brand });
-
   // 8. show products based on color
   const showColors = () =>
     colorsProductQuery.data.map((item) => (
@@ -263,7 +237,6 @@ const Shop = ({ count }) => {
     setShipping('');
     setColor(e.target.value);
   };
-  const colorQuery = useQuerySearchByColor({ color: color });
 
   // 9. show products based on shipping yes/no
   const showShipping = () => (
@@ -297,7 +270,6 @@ const Shop = ({ count }) => {
     setColor('');
     setShipping(e.target.value);
   };
-  const shippingQuery = useQuerySearchByShipping({ shipping: shipping });
 
   return (
     <div className="container-fluid">

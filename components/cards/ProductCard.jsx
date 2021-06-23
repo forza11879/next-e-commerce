@@ -19,6 +19,29 @@ const ProductCard = ({ product }) => {
   const [tooltip, setTooltip] = useState('Click to add');
   const dispatch = useDispatch();
 
+  // const handleAddToCart = () => {
+  //   // create cart array
+  //   let cart = [];
+  //   if (typeof window !== 'undefined') {
+  //     // if cart is in local storage GET it
+  //     if (localStorage.getItem('cart')) {
+  //       cart = JSON.parse(localStorage.getItem('cart'));
+  //     }
+  //     // push new product to cart
+  //     cart.push({
+  //       ...product,
+  //       count: 1,
+  //     });
+  //     // (Array): Returns the new duplicate free array.
+  //     let unique = _.uniqWith(cart, _.isEqual);
+  //     // save to local storage
+  //     // console.log('unique', unique)
+  //     localStorage.setItem('cart', JSON.stringify(unique));
+  //     setTooltip('Added');
+  //     dispatch(getAddProduct(unique));
+  //   }
+  // };
+
   const handleAddToCart = () => {
     // create cart array
     let cart = [];
@@ -27,18 +50,32 @@ const ProductCard = ({ product }) => {
       if (localStorage.getItem('cart')) {
         cart = JSON.parse(localStorage.getItem('cart'));
       }
+      console.log({ cart });
+      console.log({ product });
       // push new product to cart
-      cart.push({
-        ...product,
-        count: 1,
-      });
-      // (Array): Returns the new duplicate free array.
-      let unique = _.uniqWith(cart, _.isEqual);
-      // save to local storage
-      // console.log('unique', unique)
-      localStorage.setItem('cart', JSON.stringify(unique));
-      setTooltip('Added');
-      dispatch(getAddProduct(unique));
+      const duplicate = cart.find(
+        (item) => item._id === product._id
+        // && item.color === product.color
+      );
+
+      if (!duplicate) {
+        cart.push({
+          ...product,
+          count: 1,
+        });
+        localStorage.setItem('cart', JSON.stringify(cart));
+        setTooltip('Added');
+        dispatch(getAddProduct(cart));
+      } else {
+        const newCart = cart.map((item) =>
+          item._id === product._id ? { ...item, count: item.count + 1 } : item
+        );
+
+        console.log({ newCart });
+        setTooltip('Duplicate');
+        localStorage.setItem('cart', JSON.stringify(newCart));
+        dispatch(getAddProduct(newCart));
+      }
     }
   };
   return (

@@ -22,6 +22,7 @@ async function fetchProductsByFilter(obj) {
 
 export const searchQueryKeys = {
   search: ['search'],
+  searchByText: (value) => [...searchQueryKeys.search, 'text', value],
   searchByPrice: (value) => [...searchQueryKeys.search, 'price', value],
   searchByCategory: (value) => [...searchQueryKeys.search, 'category', value],
   searchByStar: (value) => [...searchQueryKeys.search, 'star', value],
@@ -36,6 +37,19 @@ export const searchQueryKeys = {
 };
 
 // Queries
+export const useQuerySearchByText = (obj) =>
+  useQuery(
+    searchQueryKeys.searchByText(obj.query),
+    () => fetchProductsByFilter(obj),
+    {
+      select: useCallback((data) => {
+        return data;
+      }, []),
+      staleTime: Infinity,
+      enabled: Boolean(obj.query),
+    }
+  );
+
 export const useQuerySearchByPrice = (obj) =>
   useQuery(
     searchQueryKeys.searchByPrice(obj.price),

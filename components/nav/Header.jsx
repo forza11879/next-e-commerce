@@ -21,6 +21,7 @@ import { parseCookies, setCookie, destroyCookie } from 'nookies';
 import { selectUser, getUserLoggedOut } from '@/store/user';
 import { selectCart } from '@/store/cart';
 import Search from '@/components/forms/Search';
+import ColumnGroup from 'antd/lib/table/ColumnGroup';
 
 const { SubMenu, Item } = Menu;
 
@@ -72,7 +73,12 @@ const Header = () => {
           {/* <MyBadge /> */}
           <a>
             <span>
-              <Badge count={cart.length} offset={[9, 0]}>
+              <Badge
+                count={cart.reduce((acc, currentValue) => {
+                  return (acc = acc + currentValue.count);
+                }, 0)}
+                offset={[9, 0]}
+              >
                 Cart
               </Badge>
             </span>
