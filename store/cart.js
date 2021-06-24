@@ -20,7 +20,7 @@ const slice = createSlice({
   // reducers
   reducers: {
     cartAdded: (state, action) => {
-      Object.assign(state, action.payload.product);
+      Object.assign(state, action.payload.cart);
     },
 
     // cartStoreReseted: (state) => Object.assign(state, []),
