@@ -20,7 +20,7 @@ const ProductCard = ({ product }) => {
   const dispatch = useDispatch();
 
   const handleAddToCart = () => {
-    dispatch(getAddProduct(product));
+    dispatch(getAddProduct(product, undefined, undefined));
   };
 
   return (

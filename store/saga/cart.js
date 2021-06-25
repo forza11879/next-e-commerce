@@ -2,7 +2,9 @@ import { takeEvery, put } from 'redux-saga/effects';
 import * as actions from '../action/saga.js';
 
 function* cart(action) {
-  const { product, onSuccess, onError } = action.payload;
+  const { product, color, count, onSuccess, onError } = action.payload;
+  console.log({ color });
+  console.log({ count });
   let cart = [];
   if (typeof window !== 'undefined') {
     if (localStorage.getItem('cart')) {
@@ -20,7 +22,13 @@ function* cart(action) {
       });
     } else {
       cart = cart.map((item) =>
-        item._id === product._id ? { ...item, count: item.count + 1 } : item
+        item._id === product._id && color
+          ? { ...item, color: color }
+          : item._id === product._id && count
+          ? { ...item, count: Number(count) }
+          : item._id === product._id
+          ? { ...item, count: item.count + 1 }
+          : item
       );
     }
     localStorage.setItem('cart', JSON.stringify(cart));

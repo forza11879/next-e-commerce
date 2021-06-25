@@ -39,7 +39,7 @@ const Cart = () => {
       </thead>
 
       {cart.map((item, index) => (
-        <ProductCardInCheckout key={item._id} item={item} />
+        <ProductCardInCheckout key={item._id} product={item} />
       ))}
     </table>
   );

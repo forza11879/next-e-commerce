@@ -31,9 +31,11 @@ export const { cartAdded } = slice.actions;
 export default slice.reducer;
 
 // Action creators
-export const getAddProduct = (product) =>
+export const getAddProduct = (product, color = '', count = '') =>
   actions.sagaCartCallBegan({
     product: product,
+    color: color,
+    count: count,
     onSuccess: cartAdded.type,
     onError: actions.sagaCartCallFailed.type,
   });

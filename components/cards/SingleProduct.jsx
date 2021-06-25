@@ -55,7 +55,7 @@ const SingleProduct = ({ product, isUser, token, onStarClick }) => {
   }, [loaded, slug]);
 
   const handleAddToCart = () => {
-    dispatch(getAddProduct(product));
+    dispatch(getAddProduct(product, undefined, undefined));
   };
 
   return (
