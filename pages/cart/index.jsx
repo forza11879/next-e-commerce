@@ -10,6 +10,8 @@ const Cart = () => {
   const cart = useSelector(selectCart);
   const user = useSelector(selectUser);
 
+  console.log('after', cart);
+
   const router = useRouter();
   const { asPath } = router;
 

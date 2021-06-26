@@ -15,3 +15,11 @@ export const sagaSearchCallFailed = createAction('saga/searchCallFailed');
 export const sagaCartCallBegan = createAction('saga/cartCallBegan');
 export const sagaCartCallSuccess = createAction('saga/cartCallSuccess');
 export const sagaCartCallFailed = createAction('saga/cartCallFailed');
+
+export const sagaDeleteCartCallBegan = createAction('saga/deleteCartCallBegan');
+export const sagaDeleteCartCallSuccess = createAction(
+  'saga/deleteCartCallSuccess'
+);
+export const sagaDeleteCartCallFailed = createAction(
+  'saga/deleteCartCallFailed'
+);

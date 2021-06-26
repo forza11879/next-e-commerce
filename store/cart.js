@@ -20,14 +20,16 @@ const slice = createSlice({
   // reducers
   reducers: {
     cartAdded: (state, action) => {
+      console.log('action.payload.cart: ', action.payload.cart);
       Object.assign(state, action.payload.cart);
     },
+    cartDeleted: (state, action) => action.payload.cart,
 
     // cartStoreReseted: (state) => Object.assign(state, []),
   },
 });
 
-export const { cartAdded } = slice.actions;
+export const { cartAdded, cartDeleted } = slice.actions;
 export default slice.reducer;
 
 // Action creators
@@ -38,6 +40,13 @@ export const getAddProduct = (product, color = '', count = '') =>
     count: count,
     onSuccess: cartAdded.type,
     onError: actions.sagaCartCallFailed.type,
+  });
+
+export const getDeleteProduct = (product) =>
+  actions.sagaDeleteCartCallBegan({
+    product: product,
+    onSuccess: cartDeleted.type,
+    onError: actions.sagaDeleteCartCallFailed.type,
   });
 
 // Selectors - Memoized Selector - it does not cause multiple re-renders

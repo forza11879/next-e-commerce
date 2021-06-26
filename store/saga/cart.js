@@ -1,20 +1,14 @@
 import { takeEvery, put } from 'redux-saga/effects';
 import * as actions from '../action/saga.js';
 
-function* cart(action) {
-  const { product, color, count, onSuccess, onError } = action.payload;
-  console.log({ color });
-  console.log({ count });
+function update(product, color, count) {
   let cart = [];
   if (typeof window !== 'undefined') {
     if (localStorage.getItem('cart')) {
       cart = JSON.parse(localStorage.getItem('cart'));
     }
-    // push new product to cart
-    const duplicate = cart.find(
-      (item) => item._id === product._id
-      // && item.color === product.color
-    );
+    const duplicate = cart.find((item) => item._id === product._id);
+
     if (!duplicate) {
       cart.push({
         ...product,
@@ -33,12 +27,39 @@ function* cart(action) {
     }
     localStorage.setItem('cart', JSON.stringify(cart));
   }
+
+  return cart;
+}
+
+function remove(product) {
+  let cart = [];
+  if (typeof window !== 'undefined') {
+    if (localStorage.getItem('cart')) {
+      cart = JSON.parse(localStorage.getItem('cart'));
+    }
+
+    cart = cart.filter((item) => item._id !== product._id);
+
+    localStorage.setItem('cart', JSON.stringify(cart));
+  }
+
+  return cart;
+}
+
+function* cart(action) {
+  const { product, color, count, onSuccess, onError } = action.payload;
+  console.log({ color });
+  console.log({ count });
+
+  const cart = yield update(product, color, count);
+
   try {
-    if (onSuccess)
+    if (onSuccess) {
       yield put({
         type: onSuccess,
         payload: { cart: cart },
       });
+    }
   } catch (error) {
     if (onError) yield put({ type: onError, payload: error.message });
   }
@@ -46,4 +67,25 @@ function* cart(action) {
 
 export function* watchCart() {
   yield takeEvery(actions.sagaCartCallBegan.type, cart);
+}
+
+function* deleteCart(action) {
+  const { product, onSuccess, onError } = action.payload;
+
+  const cart = yield remove(product);
+
+  try {
+    if (onSuccess) {
+      yield put({
+        type: onSuccess,
+        payload: { cart: cart },
+      });
+    }
+  } catch (error) {
+    if (onError) yield put({ type: onError, payload: error.message });
+  }
+}
+
+export function* watchDeleteCart() {
+  yield takeEvery(actions.sagaDeleteCartCallBegan.type, deleteCart);
 }

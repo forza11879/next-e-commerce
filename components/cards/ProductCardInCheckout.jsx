@@ -1,7 +1,12 @@
 import ModalImage from 'react-modal-image';
 import { useDispatch } from 'react-redux';
-import { getAddProduct } from '@/store/cart';
 import { toast } from 'react-toastify';
+import {
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+  CloseOutlined,
+} from '@ant-design/icons';
+import { getAddProduct, getDeleteProduct } from '@/store/cart';
 
 const laptop = '/images/laptop.png';
 
@@ -21,8 +26,11 @@ const ProductCardInCheckout = ({ product }) => {
       toast.error(`Max available quantity: ${product.quantity}`);
       return;
     }
-
     dispatch(getAddProduct(product, undefined, count));
+  };
+
+  const handleRemove = () => {
+    dispatch(getDeleteProduct(product));
   };
   return (
     <tbody>
@@ -70,8 +78,19 @@ const ProductCardInCheckout = ({ product }) => {
             onChange={handleQuantityChange}
           />
         </td>
-        <td>Shipping Icon</td>
-        <td>Delete Icon</td>
+        <td className="text-center">
+          {product.shipping === 'Yes' ? (
+            <CheckCircleOutlined className="text-success" />
+          ) : (
+            <CloseCircleOutlined className="text-danger" />
+          )}
+        </td>
+        <td className="text-center">
+          <CloseOutlined
+            onClick={handleRemove}
+            className="text-danger pointer"
+          />
+        </td>
       </tr>
     </tbody>
   );
