@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useSelector, useDispatch } from 'react-redux';
 import { getAddProduct } from '@/store/cart';
+import { getSetVisibleDrawer } from '@/store/drawer';
 import RatingStar from '@/components/starrating/RatingStar';
 import _ from 'lodash';
 
@@ -21,6 +22,7 @@ const ProductCard = ({ product }) => {
 
   const handleAddToCart = () => {
     dispatch(getAddProduct(product, undefined, undefined));
+    dispatch(getSetVisibleDrawer(true));
   };
 
   return (

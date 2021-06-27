@@ -13,6 +13,7 @@ import 'antd/dist/antd.css';
 import AuthComponent from '@/lib/auth';
 import configureAppStore from '@/store/configureAppStore';
 import Header from '@/components/nav/Header';
+import SideDrawer from '@/components/drawer/SideDrawer';
 
 // Router.events.on('routeChangeStart', nProgress.start);
 // Router.events.on('routeChangeComplete', nProgress.done);
@@ -43,6 +44,7 @@ function MyApp({ Component, pageProps }) {
           <Provider store={store}>
             <AuthComponent>
               <Header />
+              <SideDrawer />
               <ToastContainer />
               <Component {...pageProps} />
               <ReactQueryDevtools initialIsOpen={false} />

@@ -23,3 +23,7 @@ export const sagaDeleteCartCallSuccess = createAction(
 export const sagaDeleteCartCallFailed = createAction(
   'saga/deleteCartCallFailed'
 );
+
+export const sagaDrawerCallBegan = createAction('saga/drawerCallBegan');
+export const sagaDrawerCallSuccess = createAction('saga/drawerCallSuccess');
+export const sagaDrawerCallFailed = createAction('saga/drawerCallFailed');

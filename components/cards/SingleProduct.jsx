@@ -10,6 +10,7 @@ import { HeartOutlined, ShoppingCartOutlined } from '@ant-design/icons';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import { useSelector, useDispatch } from 'react-redux';
 import { getAddProduct } from '@/store/cart';
+import { getSetVisibleDrawer } from '@/store/drawer';
 import ProductListItems from '@/components/cards/ProductListItems';
 import RatingModal from '@/components/modal/RatingModal';
 import RatingStar from '@/components/starrating/RatingStar';
@@ -56,6 +57,7 @@ const SingleProduct = ({ product, isUser, token, onStarClick }) => {
 
   const handleAddToCart = () => {
     dispatch(getAddProduct(product, undefined, undefined));
+    dispatch(getSetVisibleDrawer(true));
   };
 
   return (
