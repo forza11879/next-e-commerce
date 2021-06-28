@@ -70,6 +70,11 @@ export const useQuerySubCategories = () =>
     select: useCallback((data) => {
       return JSON.parse(data);
     }, []),
+    // staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
+    // keepPreviousData: true, // to avoid hard loading states between the refetches triggered by a query-key change.
+    onError: (error) => {
+      console.log('useQuerySubCategories error: ', error);
+    }, //  Don't `catch` in the queryFn just to log. It will make your errors return as resolved promises, thus they won't be seen as errors by react-query. use the `onError` callback instead.
   });
 
 export const useQuerySubCategory = (id, slug) =>
@@ -77,7 +82,12 @@ export const useQuerySubCategory = (id, slug) =>
     select: useCallback((data) => {
       return JSON.parse(data);
     }, []),
-    // staleTime: Infinity,
+    // staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
+    enabled: Boolean(id),
+    keepPreviousData: true, // to avoid hard loading states between the refetches triggered by a query-key change.
+    onError: (error) => {
+      console.log('useQuerySubCategory error: ', error);
+    }, //  Don't `catch` in the queryFn just to log. It will make your errors return as resolved promises, thus they won't be seen as errors by react-query. use the `onError` callback instead.
   });
 
 export const useQueryProductsBySubCategory = (id, slug) =>
@@ -88,7 +98,12 @@ export const useQueryProductsBySubCategory = (id, slug) =>
       select: useCallback((data) => {
         return JSON.parse(data);
       }, []),
-      staleTime: Infinity,
+      staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
+      enabled: Boolean(id),
+      keepPreviousData: true, // to avoid hard loading states between the refetches triggered by a query-key change.
+      onError: (error) => {
+        console.log('useQueryProductsBySubCategory error: ', error);
+      }, //  Don't `catch` in the queryFn just to log. It will make your errors return as resolved promises, thus they won't be seen as errors by react-query. use the `onError` callback instead.
     }
   );
 
@@ -100,7 +115,12 @@ export const useQuerySubCategoriesByCategoryId = (id) =>
       select: useCallback((data) => {
         return data;
       }, []),
-      // staleTime: Infinity,
+      // staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
+      enabled: Boolean(id),
+      keepPreviousData: true, // to avoid hard loading states between the refetches triggered by a query-key change.
+      onError: (error) => {
+        console.log('useQuerySubCategoriesByCategoryId error: ', error);
+      }, //  Don't `catch` in the queryFn just to log. It will make your errors return as resolved promises, thus they won't be seen as errors by react-query. use the `onError` callback instead.
     }
   );
 

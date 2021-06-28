@@ -57,7 +57,10 @@ export const useQueryCategories = () =>
       // console.log(JSON.parse(data));
       return JSON.parse(data);
     }, []),
-    staleTime: Infinity,
+    staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
+    onError: (error) => {
+      console.log('useQueryCategories error: ', error);
+    }, //  Don't `catch` in the queryFn just to log. It will make your errors return as resolved promises, thus they won't be seen as errors by react-query. use the `onError` callback instead.
   });
 
 export const useQueryCategory = (id, slug) =>
@@ -68,7 +71,12 @@ export const useQueryCategory = (id, slug) =>
       console.log(JSON.parse(data));
       return JSON.parse(data);
     }, []),
-    staleTime: Infinity,
+    staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
+    enabled: Boolean(id),
+    keepPreviousData: true, // to avoid hard loading states between the refetches triggered by a query-key change.
+    onError: (error) => {
+      console.log('useQueryCategory error: ', error);
+    }, //  Don't `catch` in the queryFn just to log. It will make your errors return as resolved promises, thus they won't be seen as errors by react-query. use the `onError` callback instead.
   });
 
 export const useQueryProductsByCategory = (id, slug) =>
@@ -83,6 +91,11 @@ export const useQueryProductsByCategory = (id, slug) =>
         return JSON.parse(data);
       }, []),
       staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
+      enabled: Boolean(id),
+      keepPreviousData: true, // to avoid hard loading states between the refetches triggered by a query-key change.
+      onError: (error) => {
+        console.log('useQueryProductsByCategory error: ', error);
+      }, //  Don't `catch` in the queryFn just to log. It will make your errors return as resolved promises, thus they won't be seen as errors by react-query. use the `onError` callback instead.
     }
   );
 

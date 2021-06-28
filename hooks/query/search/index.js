@@ -45,8 +45,12 @@ export const useQuerySearchByText = (obj) =>
       select: useCallback((data) => {
         return data;
       }, []),
-      staleTime: Infinity,
+      staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
       enabled: Boolean(obj.query),
+      keepPreviousData: true, // to avoid hard loading states between the refetches triggered by a query-key change.
+      onError: (error) => {
+        console.log('useQuerySearchByText error: ', error);
+      }, //  Don't `catch` in the queryFn just to log. It will make your errors return as resolved promises, thus they won't be seen as errors by react-query. use the `onError` callback instead.
     }
   );
 
@@ -63,6 +67,10 @@ export const useQuerySearchByPrice = (obj) =>
       }, []),
       staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
       enabled: obj.price[1] !== 0,
+      keepPreviousData: true, // to avoid hard loading states between the refetches triggered by a query-key change.
+      onError: (error) => {
+        console.log('useQuerySearchByPrice error: ', error);
+      }, //  Don't `catch` in the queryFn just to log. It will make your errors return as resolved promises, thus they won't be seen as errors by react-query. use the `onError` callback instead.
     }
   );
 
@@ -74,8 +82,12 @@ export const useQuerySearchByCategory = (obj) =>
       select: useCallback((data) => {
         return data;
       }, []),
-      staleTime: Infinity,
+      staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
       enabled: obj.category.length > 0,
+      keepPreviousData: true, // to avoid hard loading states between the refetches triggered by a query-key change.
+      onError: (error) => {
+        console.log('useQuerySearchByCategory error: ', error);
+      }, //  Don't `catch` in the queryFn just to log. It will make your errors return as resolved promises, thus they won't be seen as errors by react-query. use the `onError` callback instead.
     }
   );
 
@@ -87,8 +99,12 @@ export const useQuerySearchByStar = (obj) =>
       select: useCallback((data) => {
         return data;
       }, []),
-      staleTime: Infinity,
+      staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
       enabled: Boolean(obj.stars),
+      keepPreviousData: true, // to avoid hard loading states between the refetches triggered by a query-key change.
+      onError: (error) => {
+        console.log('useQuerySearchByStar error: ', error);
+      }, //  Don't `catch` in the queryFn just to log. It will make your errors return as resolved promises, thus they won't be seen as errors by react-query. use the `onError` callback instead.
     }
   );
 
@@ -100,8 +116,12 @@ export const useQuerySearchBySubCategory = (obj) =>
       select: useCallback((data) => {
         return data;
       }, []),
-      staleTime: Infinity,
+      staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
       enabled: Boolean(obj.subcategory),
+      keepPreviousData: true, // to avoid hard loading states between the refetches triggered by a query-key change.
+      onError: (error) => {
+        console.log('useQuerySearchBySubCategory error: ', error);
+      }, //  Don't `catch` in the queryFn just to log. It will make your errors return as resolved promises, thus they won't be seen as errors by react-query. use the `onError` callback instead.
     }
   );
 
@@ -113,8 +133,12 @@ export const useQuerySearchByBrand = (obj) =>
       select: useCallback((data) => {
         return data;
       }, []),
-      staleTime: Infinity,
+      staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
       enabled: Boolean(obj.brand),
+      keepPreviousData: true, // to avoid hard loading states between the refetches triggered by a query-key change.
+      onError: (error) => {
+        console.log('useQuerySearchByBrand error: ', error);
+      }, //  Don't `catch` in the queryFn just to log. It will make your errors return as resolved promises, thus they won't be seen as errors by react-query. use the `onError` callback instead.
     }
   );
 
@@ -126,8 +150,12 @@ export const useQuerySearchByColor = (obj) =>
       select: useCallback((data) => {
         return data;
       }, []),
-      staleTime: Infinity,
+      staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
       enabled: Boolean(obj.color),
+      keepPreviousData: true, // to avoid hard loading states between the refetches triggered by a query-key change.
+      onError: (error) => {
+        console.log('useQuerySearchByColor error: ', error);
+      }, //  Don't `catch` in the queryFn just to log. It will make your errors return as resolved promises, thus they won't be seen as errors by react-query. use the `onError` callback instead.
     }
   );
 
@@ -139,7 +167,11 @@ export const useQuerySearchByShipping = (obj) =>
       select: useCallback((data) => {
         return data;
       }, []),
-      staleTime: Infinity,
+      staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
       enabled: Boolean(obj.shipping),
+      keepPreviousData: true, // to avoid hard loading states between the refetches triggered by a query-key change.
+      onError: (error) => {
+        console.log('useQuerySearchByShipping error: ', error);
+      }, //  Don't `catch` in the queryFn just to log. It will make your errors return as resolved promises, thus they won't be seen as errors by react-query. use the `onError` callback instead.
     }
   );

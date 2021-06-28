@@ -182,6 +182,11 @@ export const useQueryProducts = (count) =>
       return JSON.parse(data);
     }, []),
     staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
+    enabled: Boolean(count),
+    keepPreviousData: true, // to avoid hard loading states between the refetches triggered by a query-key change.
+    onError: (error) => {
+      console.log('useQueryProducts error: ', error);
+    }, //  Don't `catch` in the queryFn just to log. It will make your errors return as resolved promises, thus they won't be seen as errors by react-query. use the `onError` callback instead.
   });
 
 export const useQueryProduct = (slug) =>
@@ -193,6 +198,11 @@ export const useQueryProduct = (slug) =>
       return JSON.parse(data);
     }, []),
     // staleTime: Infinity,
+    enabled: Boolean(slug),
+    keepPreviousData: true,
+    onError: (error) => {
+      console.log('useQueryProduct error: ', error);
+    },
   });
 
 export const useQueryProductStar = (slug, userId) =>
@@ -207,6 +217,11 @@ export const useQueryProductStar = (slug, userId) =>
         return JSON.parse(data);
       }, []),
       // staleTime: Infinity,
+      enabled: Boolean(slug),
+      keepPreviousData: true,
+      onError: (error) => {
+        console.log('useQueryProductStar error: ', error);
+      },
     }
   );
 
@@ -222,6 +237,11 @@ export const useQueryProductByNewArrivals = (page, body) =>
         return JSON.parse(data);
       }, []),
       // staleTime: Infinity,
+      enabled: Boolean(page),
+      keepPreviousData: true,
+      onError: (error) => {
+        console.log('useQueryProductByNewArrivals error: ', error);
+      },
     }
   );
 
@@ -237,6 +257,11 @@ export const useQueryProductByBestSellers = (page, body) =>
         return JSON.parse(data);
       }, []),
       // staleTime: Infinity,
+      enabled: Boolean(page),
+      keepPreviousData: true,
+      onError: (error) => {
+        console.log('useQueryProductByBestSellers error: ', error);
+      },
     }
   );
 
@@ -249,6 +274,10 @@ export const useQueryProductsCount = () =>
       return JSON.parse(data);
     }, []),
     staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
+    // keepPreviousData: true,
+    onError: (error) => {
+      console.log('useQueryProductsCount error: ', error);
+    },
   });
 
 export const useQueryProductRelated = (slug, productId) =>
@@ -264,6 +293,11 @@ export const useQueryProductRelated = (slug, productId) =>
       }, []),
 
       // staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
+      enabled: Boolean(slug),
+      keepPreviousData: true,
+      onError: (error) => {
+        console.log('useQueryProductRelated error: ', error);
+      },
     }
   );
 
@@ -279,6 +313,11 @@ export const useQueryProductsByCategoryId = (id, slug) =>
         return JSON.parse(data);
       }, []),
       staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
+      enabled: Boolean(id),
+      keepPreviousData: true,
+      onError: (error) => {
+        console.log('useQueryProductsByCategoryId error: ', error);
+      },
     }
   );
 
@@ -291,6 +330,9 @@ export const useQueryProductsBrands = () =>
       return JSON.parse(data);
     }, []),
     staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
+    onError: (error) => {
+      console.log('useQueryProductsBrands error: ', error);
+    },
   });
 
 export const useQueryProductsColors = () =>
@@ -302,6 +344,9 @@ export const useQueryProductsColors = () =>
       return JSON.parse(data);
     }, []),
     staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
+    onError: (error) => {
+      console.log('useQueryProductsColors error: ', error);
+    },
   });
 
 // Mutations
