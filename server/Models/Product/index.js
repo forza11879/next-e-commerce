@@ -159,13 +159,24 @@ const productsCount = async () => {
     console.log('product model productsCount error: ', error);
   }
 };
-
 const productById = async (productId) => {
   const query = { _id: productId };
   try {
     const product = await Product.findById(query);
     console.log('productById: ', product);
     return product;
+  } catch (error) {
+    console.log('product model productStar error: ', error);
+  }
+};
+
+// let { price } = await Product.findById(obj._id).select('price');
+const productPriceById = async (productId) => {
+  const query = { _id: productId };
+  try {
+    const { price } = await Product.findById(query).select('price');
+    // console.log('product price: ', price);
+    return price;
   } catch (error) {
     console.log('product model productStar error: ', error);
   }
@@ -444,6 +455,7 @@ export {
   update,
   productsCount,
   productById,
+  productPriceById,
   addRating,
   updateRating,
   calculateAvgRating,
