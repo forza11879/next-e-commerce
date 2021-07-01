@@ -26,17 +26,17 @@ async function fetchUserCart(body, token) {
 
 export const userQueryKeys = {
   user: ['user'],
-  userCart: (name) => [...userQueryKeys.user, 'cart', name],
+  userCart: (body) => [...userQueryKeys.user, 'cart', body],
 };
 
 // Queries
-export const useQueryUserCart = (name, body, token) => {
+export const useQueryUserCart = (body, token) => {
   // const [name, setName] = useState(null);
 
-  console.log({ name });
+  // console.log({ name });
 
   return useQuery(
-    userQueryKeys.userCart(name),
+    userQueryKeys.userCart(body),
     () => fetchUserCart(body, token),
     {
       // Selectors like the one bellow will also run on every render, because the functional identity changes (it's an inline function). If your transformation is expensive, you can memoize it either with useCallback, or by extracting it to a stable function reference
@@ -47,7 +47,7 @@ export const useQueryUserCart = (name, body, token) => {
       }, []),
       // staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
       // refetchOnWindowFocus: false,
-      enabled: Boolean(name),
+      enabled: Boolean(body),
       // keepPreviousData: true, // to avoid hard loading states between the refetches triggered by a query-key change.
       onError: (error) => {
         console.log('useQueryUserCart error: ', error);

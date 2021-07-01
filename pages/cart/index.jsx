@@ -16,7 +16,7 @@ const Cart = ({ token, userName }) => {
 
   console.log('after', cart);
   // const [data, setName] = useQueryUserCart(cart, token);
-  const userCartUseQuery = useQueryUserCart(userName, cart, token);
+  const userCartUseQuery = useQueryUserCart(cart, token);
 
   const router = useRouter();
   const { asPath } = router;

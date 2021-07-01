@@ -22,7 +22,7 @@ export const searchFiltersController = async (req, res) => {
       brand,
     } = req.body;
     if (query) {
-      console.log('query --->', query);
+      // console.log('query --->', query);
       await handleQuery(req, res, query);
     }
 

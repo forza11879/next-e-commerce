@@ -48,9 +48,9 @@ const listProduct = async (body) => {
   const currentPage = parseInt(page) || 1;
   const perPage = 3; // 3
 
-  console.log('sort', sort);
-  console.log('order', order);
-  console.log('page', page);
+  // console.log('sort', sort);
+  // console.log('order', order);
+  // console.log('page', page);
 
   try {
     const query = {};

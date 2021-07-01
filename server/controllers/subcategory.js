@@ -11,7 +11,7 @@ import { readBySubCategory } from '@/Models/Product/index';
 export const createController = async (req, res) => {
   try {
     const { name, parent } = req.body;
-    console.log('name: ', name);
+    // console.log('name: ', name);
     const newCategory = await create(name, parent);
     res.status(201).json(newCategory);
 

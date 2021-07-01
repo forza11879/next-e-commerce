@@ -11,7 +11,7 @@ import { readByCategory, cascadeUpdate } from '@/Models/Product/index';
 export const createController = async (req, res) => {
   try {
     const { name } = req.body;
-    console.log('name: ', name);
+    // console.log('name: ', name);
     const newCategory = await create(name);
     res.status(201).json(newCategory);
 
@@ -49,7 +49,7 @@ export const updateController = async (req, res) => {
   const { slug } = req.query;
   try {
     const updated = await update(slug, name);
-    console.log('updated: ', updated);
+    // console.log('updated: ', updated);
     res.status(200).json(updated);
   } catch (error) {
     console.log('update controller error: ', error);
