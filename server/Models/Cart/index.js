@@ -2,6 +2,22 @@ import Cart from './Cart';
 import { currentUser } from '@/Models/User/index';
 import { productPriceById } from '@/Models/Product/index';
 
+const getUserCart = async (email) => {
+  try {
+    const user = await currentUser(email);
+
+    const query = { orderedBy: user._id };
+    const cart = await Cart.findOne(query).populate(
+      'products.product',
+      '_id title price totalAfterDiscount'
+    );
+    return cart;
+    // return { products, cartTotal, totalAfterDiscount };
+  } catch (error) {
+    console.log('cart getUserCart error: ', error);
+  }
+};
+
 const userCart = async (cart, email) => {
   try {
     const user = await currentUser(email);
@@ -46,4 +62,4 @@ const userCart = async (cart, email) => {
   }
 };
 
-export { userCart };
+export { getUserCart, userCart };

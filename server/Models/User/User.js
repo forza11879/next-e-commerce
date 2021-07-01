@@ -1,8 +1,6 @@
 import mongoose from 'mongoose';
 const { ObjectId } = mongoose.Schema.Types;
 
-const MODEL_NAME = 'User';
-
 const ParentSchema = new mongoose.Schema(
   {
     name: String,
@@ -25,5 +23,4 @@ const ParentSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export const User =
-  mongoose.models[MODEL_NAME] || mongoose.model(MODEL_NAME, ParentSchema);
+export default mongoose.models.User || mongoose.model('User', ParentSchema);
