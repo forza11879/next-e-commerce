@@ -62,4 +62,17 @@ const userCart = async (cart, email) => {
   }
 };
 
-export { getUserCart, userCart };
+const emptyCart = async (email) => {
+  try {
+    const user = await currentUser(email);
+    console.log('user._id: ', user._id);
+    const query = { orderedBy: user._id };
+    const cart = await Cart.findOneAndRemove(query);
+    console.log({ cart });
+    return cart;
+  } catch (error) {
+    console.log('cart emptyCart error: ', error);
+  }
+};
+
+export { getUserCart, userCart, emptyCart };

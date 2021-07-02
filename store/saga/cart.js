@@ -89,3 +89,20 @@ function* deleteCart(action) {
 export function* watchDeleteCart() {
   yield takeEvery(actions.sagaDeleteCartCallBegan.type, deleteCart);
 }
+
+function* resetCart(action) {
+  const { onSuccess, onError } = action.payload;
+  try {
+    if (onSuccess) {
+      yield put({
+        type: onSuccess,
+      });
+    }
+  } catch (error) {
+    if (onError) yield put({ type: onError, payload: error.message });
+  }
+}
+
+export function* watchResetCart() {
+  yield takeEvery(actions.sagaCartStoreResetedCallBegan.type, resetCart);
+}

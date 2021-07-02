@@ -2,20 +2,47 @@ import nookies from 'nookies';
 import admin from '@/firebase/index';
 import { QueryClient } from 'react-query';
 import { dehydrate } from 'react-query/hydration';
+import { useDispatch } from 'react-redux';
 import { currentUser } from '@/Models/User/index';
 import { getUserCart } from '@/Models/Cart/index';
-import { userQueryKeys, useQueryGetUserCart } from '@/hooks/query/cart/index';
+import {
+  userQueryKeys,
+  useQueryGetUserCart,
+  useMutationRemoveCart,
+} from '@/hooks/query/cart/index';
+import { getCartStoreReseted } from '@/store/cart';
 
 const Checkout = ({ userName, token }) => {
   const getUserCartUseQuery = useQueryGetUserCart(userName, token);
-  const { products, cartTotal, totalAfterDiscount } = JSON.parse(
-    getUserCartUseQuery.data
-  );
-  // console.log(
-  //   'getUserCartUseQuery.data: ',
-  //   JSON.parse(getUserCartUseQuery.data)
-  // );
-  // products, cartTotal, totalAfterDiscount
+  const { _id, products, cartTotal, totalAfterDiscount } =
+    getUserCartUseQuery.data;
+  const dispatch = useDispatch();
+  console.log('getUserCartUseQuery.data: ', getUserCartUseQuery.data);
+
+  const removeCartUseMutation = useMutationRemoveCart();
+
+  const emptyCart = () => {
+    // remove from local storage
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('cart');
+    }
+    // remove from redux
+    dispatch(getCartStoreReseted());
+    const options = {
+      url: `${process.env.api}/cart`,
+      token: token,
+      data: { name: userName, cartId: _id },
+    };
+
+    removeCartUseMutation.mutate(options);
+
+    // remove from backend
+    // emptyUserCart(user.token).then((res) => {
+    //   setProducts([]);
+    //   setTotal(0);
+    //   toast.success('Cart is emapty. Contniue shopping.');
+    // });
+  };
 
   const saveAddressToDb = () => {
     //
@@ -59,7 +86,13 @@ const Checkout = ({ userName, token }) => {
           </div>
 
           <div className="col-md-6">
-            <button className="btn btn-primary">Empty Cart</button>
+            <button
+              disabled={!products.length}
+              onClick={emptyCart}
+              className="btn btn-primary"
+            >
+              Empty Cart
+            </button>
           </div>
         </div>
       </div>

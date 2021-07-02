@@ -3,6 +3,10 @@ import * as actions from './action/saga.js';
 
 export let initialState = [];
 
+// export const initialState = () => ({
+//   cart: [],
+// });
+
 // load cart items from local storage
 if (typeof window !== 'undefined') {
   if (localStorage.getItem('cart')) {
@@ -25,11 +29,11 @@ const slice = createSlice({
     },
     cartDeleted: (state, action) => action.payload.cart,
 
-    // cartStoreReseted: (state) => Object.assign(state, []),
+    cartStoreReseted: (state) => [],
   },
 });
 
-export const { cartAdded, cartDeleted } = slice.actions;
+export const { cartAdded, cartDeleted, cartStoreReseted } = slice.actions;
 export default slice.reducer;
 
 // Action creators
@@ -47,6 +51,12 @@ export const getDeleteProduct = (product) =>
     product: product,
     onSuccess: cartDeleted.type,
     onError: actions.sagaDeleteCartCallFailed.type,
+  });
+
+export const getCartStoreReseted = () =>
+  actions.sagaCartStoreResetedCallBegan({
+    onSuccess: cartStoreReseted.type,
+    onError: actions.sagaCartStoreResetedCallFailed.type,
   });
 
 // Selectors - Memoized Selector - it does not cause multiple re-renders

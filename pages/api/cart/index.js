@@ -1,6 +1,10 @@
 import db from '@/middleware/db';
 import { handler, authCheck, adminCheck } from '@/middleware/index';
-import { getUserCartController, userCartController } from '@/controllers/cart';
+import {
+  getUserCartController,
+  userCartController,
+  emptyCartController,
+} from '@/controllers/cart';
 
 export default async function userHandler(req, res, next) {
   const { method } = req;
@@ -15,8 +19,12 @@ export default async function userHandler(req, res, next) {
       await authCheck(req, res, next);
       await userCartController(req, res);
       break;
+    case 'DELETE':
+      await authCheck(req, res, next);
+      await emptyCartController(req, res);
+      break;
     default:
-      res.setHeader('Allow', ['GET', 'POST']);
+      res.setHeader('Allow', ['GET', 'POST', 'DELETE']);
       res.status(405).end(`Method ${method} Not Allowed`);
   }
 }
