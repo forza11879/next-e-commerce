@@ -4,6 +4,7 @@ export const getUserCartController = async (req, res) => {
   const { email } = req.user;
   try {
     const cart = await getUserCart(email);
+    console.log({ cart });
     res.status(200).json(cart);
   } catch (error) {
     console.log('cart getUserCartController controller error: ', error);

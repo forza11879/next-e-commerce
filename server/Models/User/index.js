@@ -44,4 +44,15 @@ const logOut = (res) => {
   }
 };
 
-export { createOrUpdateUser, currentUser, logOut };
+const saveAddress = async (email, address) => {
+  try {
+    const query = { email: email };
+    const update = { address: address };
+    const userAddress = await User.findOneAndUpdate(query, update);
+    return { ok: true };
+  } catch (error) {
+    console.log('user saveAddress: ', error);
+  }
+};
+
+export { createOrUpdateUser, currentUser, logOut, saveAddress };

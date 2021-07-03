@@ -11,9 +11,9 @@ export async function dbConnect() {
     keepAlive: true,
     poolSize: 10,
     useNewUrlParser: true,
+    useCreateIndex: true,
     useFindAndModify: false,
     useUnifiedTopology: true,
-    useCreateIndex: true,
   };
 
   return await mongoose.connect(uri, options);

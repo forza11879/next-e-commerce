@@ -83,10 +83,14 @@ export const useQueryGetUserCart = (name, token) => {
     // Selectors like the one bellow will also run on every render, because the functional identity changes (it's an inline function). If your transformation is expensive, you can memoize it either with useCallback, or by extracting it to a stable function reference
     select: useCallback((data) => {
       // selectors will only be called if data exists, so you don't have to care about undefined here.
-      // console.log('data: ', data);
-      return JSON.parse(data);
+      const parsedData = JSON.parse(data);
+      if (typeof parsedData === 'string') {
+        return { products: [], cartTotal: 0 };
+      } else {
+        return parsedData;
+      }
     }, []),
-    staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
+    // staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
     enabled: Boolean(name),
     // keepPreviousData: true, // to avoid hard loading states between the refetches triggered by a query-key change.
     onError: (error) => {
@@ -156,7 +160,7 @@ export const useMutationRemoveCart = () => {
           console.log('delete rollback');
         }
       },
-      onSuccess: ({ data: { _id } }, { data: { name, cartId } }, context) => {
+      onSuccess: (data, { data: { name } }, context) => {
         // console.log({ data });
         // console.log({ cartId });
         // console.log({ name });
@@ -181,37 +185,21 @@ export const useMutationRemoveCart = () => {
         //   toast.success('Cart is emapty. Contniue shopping.');
         // }
       },
-      onSettled: (
-        { data: { _id } },
-        error,
-        { data: { name, cartId } },
-        context
-      ) => {
-        // Runs on either success or error. It is better to run invalidateQueries
-        // onSettled in case there is an error to re-fetch the request
-        // console.log({ data });
-        // console.log({ variables });
-        // console.log({ _id });
-        // console.log({ name });
-        // console.log({ cartId });
-        if (cartId === _id) {
-          queryClient.setQueryData(
-            userQueryKeys.getUserCart(name),
-            (oldQueryData) => {
-              console.log('oldQueryData: ', JSON.parse(oldQueryData));
-              const newQueryDataArray = JSON.parse(oldQueryData);
-              newQueryDataArray._id = '';
-              newQueryDataArray.products = [];
-              newQueryDataArray.cartTotal = 0;
-              newQueryDataArray.orderedBy = '';
-              console.log('newQueryDataArray.products: ', newQueryDataArray);
-              return JSON.stringify(newQueryDataArray);
-            }
-          );
-          // toast.error(`${_id} deleted`);
-          toast.success('Cart is emapty. Contniue shopping.');
-        }
-        // queryClient.invalidateQueries(userQueryKeys.getUserCart(name));
+      onSettled: (data, error, { data: { name } }, context) => {
+        queryClient.setQueryData(
+          userQueryKeys.getUserCart(name),
+          (oldQueryData) => {
+            console.log('oldQueryData: ', JSON.parse(oldQueryData));
+            let newQueryDataArray = JSON.parse(oldQueryData);
+            newQueryDataArray = '';
+
+            return JSON.stringify(newQueryDataArray);
+          }
+        );
+        // toast.error(`${_id} deleted`);
+        toast.success('Cart is empty. Contniue shopping.');
+
+        queryClient.invalidateQueries(userQueryKeys.getUserCart(name));
       },
     }
   );

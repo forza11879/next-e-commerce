@@ -1,3 +1,6 @@
+import { useState } from 'react';
+import dynamic from 'next/dynamic';
+const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 import nookies from 'nookies';
 import admin from '@/firebase/index';
 import { QueryClient } from 'react-query';
@@ -10,42 +13,45 @@ import {
   useQueryGetUserCart,
   useMutationRemoveCart,
 } from '@/hooks/query/cart/index';
+import { useMutationSaveUserAddress } from '@/hooks/query/user/index';
 import { getCartStoreReseted } from '@/store/cart';
+import 'react-quill/dist/quill.snow.css';
 
 const Checkout = ({ userName, token }) => {
+  const [address, setAddress] = useState('');
+  const [addressSaved, setAddressSaved] = useState(false);
   const getUserCartUseQuery = useQueryGetUserCart(userName, token);
-  const { _id, products, cartTotal, totalAfterDiscount } =
-    getUserCartUseQuery.data;
+  const { products, cartTotal } = getUserCartUseQuery.data;
   const dispatch = useDispatch();
+  const removeCartUseMutation = useMutationRemoveCart();
+  const saveUserAddressMutation = useMutationSaveUserAddress();
+
   console.log('getUserCartUseQuery.data: ', getUserCartUseQuery.data);
 
-  const removeCartUseMutation = useMutationRemoveCart();
-
   const emptyCart = () => {
-    // remove from local storage
     if (typeof window !== 'undefined') {
       localStorage.removeItem('cart');
     }
-    // remove from redux
+
     dispatch(getCartStoreReseted());
+
     const options = {
       url: `${process.env.api}/cart`,
       token: token,
-      data: { name: userName, cartId: _id },
+      data: { name: userName },
     };
-
     removeCartUseMutation.mutate(options);
-
-    // remove from backend
-    // emptyUserCart(user.token).then((res) => {
-    //   setProducts([]);
-    //   setTotal(0);
-    //   toast.success('Cart is emapty. Contniue shopping.');
-    // });
   };
 
   const saveAddressToDb = () => {
-    //
+    const options = {
+      url: '/user/address',
+      method: 'post',
+      token: token,
+      data: { address: address },
+      props: { setAddressSaved: setAddressSaved },
+    };
+    saveUserAddressMutation.mutate(options);
   };
 
   return (
@@ -54,7 +60,7 @@ const Checkout = ({ userName, token }) => {
         <h4>Delivery Address</h4>
         <br />
         <br />
-        textarea
+        <ReactQuill theme="snow" value={address} onChange={setAddress} />
         <button className="btn btn-primary mt-2" onClick={saveAddressToDb}>
           Save
         </button>
@@ -82,7 +88,12 @@ const Checkout = ({ userName, token }) => {
 
         <div className="row">
           <div className="col-md-6">
-            <button className="btn btn-primary">Place Order</button>
+            <button
+              className="btn btn-primary"
+              disabled={!addressSaved || !products.length}
+            >
+              Place Order
+            </button>
           </div>
 
           <div className="col-md-6">
