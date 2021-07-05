@@ -28,7 +28,7 @@ const Cart = ({ token, userName }) => {
   };
 
   const saveOrderToDb = () => {
-    if (userCartUseQuery.data.ok) router.push('/checkout');
+    if (userCartUseQuery.data?.ok) router.push('/checkout');
   };
 
   const showCartItems = () => (
