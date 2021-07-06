@@ -1,6 +1,6 @@
 import db from '@/middleware/db';
 import { handler, authCheck, adminCheck } from '@/middleware/index';
-import { createController } from '@/controllers/product';
+import { createController } from '@/controllers/coupon';
 
 export default async function userHandler(req, res, next) {
   const { method } = req;

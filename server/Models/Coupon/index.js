@@ -2,6 +2,10 @@ import Coupon from './Coupon';
 
 const createCoupon = async (coupon) => {
   const { name, expiry, discount } = coupon;
+  console.log({ name });
+  console.log({ expiry });
+  console.log({ discount });
+
   try {
     const newCoupon = await new Coupon({ name, expiry, discount }).save();
     return newCoupon;
@@ -21,9 +25,9 @@ const listCoupon = async () => {
 };
 
 const removeCoupon = async (couponId) => {
-  const query = couponId;
+  const query = { _id: couponId };
   try {
-    const result = await Coupon.findByIdAndDelete(query);
+    const result = await Coupon.findOneAndDelete(query);
     return result;
   } catch (error) {
     console.log(`removeCoupon error: ${error}`);
