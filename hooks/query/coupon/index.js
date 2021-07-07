@@ -47,31 +47,40 @@ export const useQueryCoupons = () =>
 export const useMutationRemoveCoupon = () => {
   const queryClient = useQueryClient();
   return useMutation(
-    async ({ url, token, data }) => {
+    async ({ url, token }) => {
+      console.log({ url });
       return await axios.delete(url, {
         headers: {
           token,
         },
-        data,
       });
     },
     {
-      onMutate: ({ data: { slug } }) => {
+      onMutate: ({ data: { couponId } }) => {
+        console.log({ couponId });
         // Cancel any outgoing refetches (so they don't overwrite(race condition) our optimistic update)
-        queryClient.cancelQueries('products', { exact: true });
+        queryClient.cancelQueries(couponQueryKeys.coupons);
         // Snapshot the previous value
-        const previousQueryDataArray = queryClient.getQueryData('products');
+        const previousQueryDataArray = queryClient.getQueryData(
+          couponQueryKeys.coupons
+        );
         // In an optimistic update the UI behaves as though a change was successfully completed before receiving confirmation from the server that it actually was - it is being optimistic that it will eventually get the confirmation rather than an error. This allows for a more responsive user experience.
-        // queryClient.setQueryData('categoryList', (oldQueryData) => {
-        //   const oldQueryDataArray = JSON.parse(oldQueryData);
-        //   const newQueryDataArray = oldQueryDataArray.filter(
-        //     (item) => item.slug !== slug
-        //   );
-        //   return JSON.stringify(newQueryDataArray);
-        // });
+        queryClient.setQueryData(couponQueryKeys.coupons, (oldQueryData) => {
+          let oldQueryDataArray = JSON.parse(oldQueryData);
+          console.log({ oldQueryDataArray });
+          const newQueryDataArray = oldQueryDataArray.filter(
+            (item) => item._id !== couponId
+          );
+
+          console.log({ newQueryDataArray });
+          return JSON.stringify(newQueryDataArray);
+        });
         // if thre is a error return will pass the function or the value to the onError third argument:
         return () =>
-          queryClient.setQueryData('products', previousQueryDataArray);
+          queryClient.setQueryData(
+            couponQueryKeys.coupons,
+            previousQueryDataArray
+          );
       },
       onError: (error, variables, rollback) => {
         // Runs on error
@@ -82,35 +91,35 @@ export const useMutationRemoveCoupon = () => {
           console.log('delete rollback');
         }
       },
-      onSuccess: ({ data }, variables, context) => {
-        // Runs only there is a success
-        // if (data) {
-        //   queryClient.setQueryData('categoryList', (oldQueryData) => {
-        //     const oldQueryDataArray = JSON.parse(oldQueryData);
-        //     const newQueryDataArray = oldQueryDataArray.filter(
-        //       (item) => item.slug !== data.deleted.slug
-        //     );
-        //     return JSON.stringify(newQueryDataArray);
-        //   });
-        //   toast.error(`${data.deleted.name} deleted`);
-        // }
-      },
+      // onSuccess: ({ data }, variables, context) => {
+      //   // Runs only there is a success
+      //   // if (data) {
+      //   //   queryClient.setQueryData('categoryList', (oldQueryData) => {
+      //   //     const oldQueryDataArray = JSON.parse(oldQueryData);
+      //   //     const newQueryDataArray = oldQueryDataArray.filter(
+      //   //       (item) => item.slug !== data.deleted.slug
+      //   //     );
+      //   //     return JSON.stringify(newQueryDataArray);
+      //   //   });
+      //   //   toast.error(`${data.deleted.name} deleted`);
+      //   // }
+      // },
       onSettled: ({ data }, variables, context) => {
         // Runs on either success or error. It is better to run invalidateQueries
         // onSettled in case there is an error to re-fetch the request
-        const { slug } = data;
-        if (data) {
-          // console.log({ slug });
-          queryClient.setQueryData('products', (oldQueryData) => {
-            const oldQueryDataArray = JSON.parse(oldQueryData);
-            const newQueryDataArray = oldQueryDataArray.filter(
-              (item) => item.slug !== slug
-            );
-            return JSON.stringify(newQueryDataArray);
-          });
-          toast.error(`${slug} deleted`);
-        }
-        queryClient.invalidateQueries('products');
+        // const { slug } = data;
+        // if (data) {
+        //   // console.log({ slug });
+        //   queryClient.setQueryData('products', (oldQueryData) => {
+        //     const oldQueryDataArray = JSON.parse(oldQueryData);
+        //     const newQueryDataArray = oldQueryDataArray.filter(
+        //       (item) => item.slug !== slug
+        //     );
+        //     return JSON.stringify(newQueryDataArray);
+        //   });
+        //   toast.error(`${slug} deleted`);
+        // }
+        queryClient.invalidateQueries(couponQueryKeys.coupons);
       },
     }
   );
@@ -119,12 +128,7 @@ export const useMutationRemoveCoupon = () => {
 export const useMutationCreateCoupon = () => {
   const queryClient = useQueryClient();
   return useMutation(
-    async ({ url, method, token, data, props }) => {
-      // console.log({ url });
-      // console.log({ method });
-      // console.log({ data });
-      // console.log({ props });
-
+    async ({ url, method, token, data }) => {
       return await axios.request({
         baseURL,
         url,
@@ -134,50 +138,55 @@ export const useMutationCreateCoupon = () => {
       });
     },
     {
-      // onMutate: ({ data: { values } }) => {
-      onMutate: ({ props: { setName, setExpiry, setDiscount } }) => {
+      onMutate: ({
+        data: { coupon },
+        props: { setName, setExpiry, setDiscount },
+      }) => {
         // Cancel any outgoing refetches (so they don't overwrite(race condition) our optimistic update)
+        queryClient.cancelQueries(couponQueryKeys.coupons);
+
         setName('');
         setExpiry(new Date());
         setDiscount('');
-        // queryClient.cancelQueries(couponQueryKeys.coupons);
-        // console.log('values onMutate: ', values);
-        // console.log('data onMutate: ', data);
-        // Snapshot the previous value
-        // const previousQueryDataArray = queryClient.getQueryData('products');
+
+        const previousQueryDataArray = queryClient.getQueryData(
+          couponQueryKeys.coupons
+        );
         // console.log('previousQueryDataArray: ', previousQueryDataArray);
         // In an optimistic update the UI behaves as though a change was successfully completed before receiving confirmation from the server that it actually was - it is being optimistic that it will eventually get the confirmation rather than an error. This allows for a more responsive user experience.
-        // const newObject = {
-        //   ...values,
-        //   _id: Date.now(),
-        // };
+        const newObject = {
+          ...coupon,
+          _id: Date.now(),
+        };
         // console.log('newObject: ', newObject);
-        // queryClient.setQueryData('productList', (oldQueryData) => {
-        //   const oldQueryDataArray = JSON.parse(oldQueryData);
-        //   console.log('oldQueryDataArray: ', oldQueryDataArray);
-        //   const newQueryDataArray = oldQueryDataArray.filter(
-        //     (item) => item.title !== values.title
-        //   );
-        //   console.log('newQueryDataArray before: ', newQueryDataArray);
-        //   newQueryDataArray.unshift(newObject);
-        //   console.log('newQueryDataArray after: ', newQueryDataArray);
-        //   return JSON.stringify(newQueryDataArray);
-        // });
+        queryClient.setQueryData(couponQueryKeys.coupons, (oldQueryData) => {
+          const oldQueryDataArray = JSON.parse(oldQueryData);
+          // console.log('oldQueryDataArray before: ', oldQueryDataArray);
+
+          oldQueryDataArray.unshift(newObject);
+
+          // console.log('oldQueryDataArray after: ', oldQueryDataArray);
+          return JSON.stringify(oldQueryDataArray);
+        });
         // return will pass the function or the value to the onError third argument:
-        // return () =>
-        //   queryClient.setQueryData('productList', previousQueryDataArray);
+        return () =>
+          queryClient.setQueryData(
+            couponQueryKeys.coupons,
+            previousQueryDataArray
+          );
       },
-      // onError: (error, variables, rollback) => {
-      //   //   If there is an errror, then we will rollback
-      //   // console.log('CreateCategory onError error: ', error.response.data);
-      //   if (rollback) {
-      //     rollback();
-      //     console.log('rollback');
-      //   }
-      //   if (error) {
-      //     toast.error(error.response.data);
-      //   }
-      // },
+      onError: (error, variables, rollback) => {
+        //   If there is an errror, then we will rollback
+        // console.log('CreateCategory onError error: ', error.response.data);
+        if (rollback) {
+          rollback();
+          console.log('rollback');
+        }
+        if (error) {
+          toast.error(error.response.data);
+          // toast.error(error);
+        }
+      },
       onSuccess: (data, values, context) => {
         // if (data) {
         //   toast.success(`"${data.title}" is updated`);
@@ -191,11 +200,7 @@ export const useMutationCreateCoupon = () => {
       },
       onSettled: ({ data }, error, values, context) => {
         if (error) {
-          // console.log(
-          //   'CreateCategory onSettled error: ',
-          //   error.response.data.error
-          // );
-          toast.error(error.response.data.error);
+          toast.error(error.response.data);
         }
         // console.log({ data });
         if (data) {
@@ -205,8 +210,7 @@ export const useMutationCreateCoupon = () => {
         // Runs on either success or error. It is better to run invalidateQueries
         // onSettled in case there is an error to re-fetch the request
         // it is prefered to invalidateQueries  after using setQueryData inside onSuccess: because you are getting the latest data from the server
-        // queryClient.invalidateQueries('products');
-        // router.push(`/admin/products`);
+        queryClient.invalidateQueries(couponQueryKeys.coupons);
       },
     }
   );

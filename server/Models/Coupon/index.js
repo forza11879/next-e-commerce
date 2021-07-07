@@ -2,10 +2,6 @@ import Coupon from './Coupon';
 
 const createCoupon = async (coupon) => {
   const { name, expiry, discount } = coupon;
-  console.log({ name });
-  console.log({ expiry });
-  console.log({ discount });
-
   try {
     const newCoupon = await new Coupon({ name, expiry, discount }).save();
     return newCoupon;

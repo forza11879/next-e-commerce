@@ -1,9 +1,11 @@
-import { createCoupon, listCoupon } from '@/Models/Coupon/index';
+import { createCoupon, listCoupon, removeCoupon } from '@/Models/Coupon/index';
 
 export const createController = async (req, res) => {
   const { coupon } = req.body;
+  console.log({ coupon });
   try {
     const newCoupon = await createCoupon(coupon);
+    console.log({ newCoupon });
     res.status(201).json(newCoupon);
   } catch (error) {
     console.log('coupon createController error: ', error);
@@ -23,6 +25,7 @@ export const listController = async (req, res) => {
 
 export const removeController = async (req, res) => {
   const { couponId } = req.query;
+  console.log({ couponId });
   try {
     const result = await removeCoupon(couponId);
     res.status(201).json(result);

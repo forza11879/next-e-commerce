@@ -1,5 +1,6 @@
 import nookies from 'nookies';
 import admin from '@/firebase/index';
+import { QueryClient } from 'react-query';
 import { currentUser } from '@/Models/User/index';
 
 import { useState } from 'react';
@@ -13,26 +14,29 @@ import DatePicker from 'react-datepicker';
 // } from '../../../functions/coupon';
 import 'react-datepicker/dist/react-datepicker.css';
 import { DeleteOutlined } from '@ant-design/icons';
-import { useQueryCoupons, useMutationCreateCoupon } from '@/hooks/query/coupon';
+import {
+  couponQueryKeys,
+  useQueryCoupons,
+  useMutationCreateCoupon,
+  useMutationRemoveCoupon,
+} from '@/hooks/query/coupon';
 import AdminNav from '@/components/nav/AdminNav';
+import { listCoupon } from '@/Models/Coupon/index';
 
 const CreateCouponPage = ({ token }) => {
   const [name, setName] = useState('');
   const [expiry, setExpiry] = useState(new Date());
   const [discount, setDiscount] = useState('');
-  // const [loading, setLoading] = useState('');
 
-  // const couponsUseQuery = useQueryCoupons();
-  // console.log('couponsUseQuery.data: ', couponsUseQuery.data);
+  const couponsUseQuery = useQueryCoupons();
+  console.log('couponsUseQuery.data: ', couponsUseQuery.data);
 
   const createCouponUseMutation = useMutationCreateCoupon();
-
-  // redux
-  // const { user } = useSelector((state) => ({ ...state }));
+  const removeCouponUseMutation = useMutationRemoveCoupon();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // setLoading(true);
+
     const options = {
       url: '/coupon',
       token: token,
@@ -42,17 +46,25 @@ const CreateCouponPage = ({ token }) => {
     };
 
     createCouponUseMutation.mutate(options);
+  };
 
-    console.table(name, expiry, discount);
-    // createCoupon({ name, expiry, discount }, user.token)
-    //   .then((res) => {
-    //     // setLoading(false);
-    //     // setName('');
-    //     // setDiscount('');
-    //     // setExpiry('');
-    //     // toast.success(`"${res.data.name}" is created`);
-    //   })
-    //   .catch((err) => console.log('create coupon err', err));
+  const handleRemove = (couponId) => {
+    const options = {
+      url: `${process.env.api}/coupon/${couponId}`,
+      token: token,
+      data: { couponId },
+    };
+    if (window.confirm('Delete?')) {
+      removeCouponUseMutation.mutate(options);
+      //   setLoading(true);
+      //   removeCoupon(couponId, user.token)
+      //     .then((res) => {
+      //       loadAllCoupons(); // load all coupons
+      //       setLoading(false);
+      //       toast.error(`Coupon "${res.data.name}" deleted`);
+      //     })
+      //     .catch((err) => console.log(err));
+    }
   };
 
   return (
@@ -62,8 +74,11 @@ const CreateCouponPage = ({ token }) => {
           <AdminNav />
         </div>
         <div className="col-md-10">
-          <h4>Coupon</h4>
-
+          {couponsUseQuery.data?.loading ? (
+            <h4 className="text-danger">Loading...</h4>
+          ) : (
+            <h4>Coupon</h4>
+          )}
           <form onSubmit={handleSubmit}>
             <div className="form-group">
               <label className="text-muted">Name</label>
@@ -102,6 +117,36 @@ const CreateCouponPage = ({ token }) => {
 
             <button className="btn btn-outline-primary">Save</button>
           </form>
+          <br />
+
+          <h4>{couponsUseQuery.data?.length} Coupons</h4>
+
+          <table className="table table-bordered">
+            <thead className="thead-light">
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Expiry</th>
+                <th scope="col">Discount</th>
+                <th scope="col">Action</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {couponsUseQuery.data?.map((item) => (
+                <tr key={item._id}>
+                  <td>{item.name}</td>
+                  <td>{new Date(item.expiry).toLocaleDateString()}</td>
+                  <td>{item.discount}%</td>
+                  <td>
+                    <DeleteOutlined
+                      onClick={() => handleRemove(item._id)}
+                      className="text-danger pointer"
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -115,11 +160,12 @@ export async function getServerSideProps(context) {
   try {
     const { email } = await admin.auth().verifyIdToken(appToken);
     const user = await currentUser(email);
-    // console.log('user getServerSideProps: ', user);
-    // console.log(typeof user.role);
-    // console.log('user.role getServerSideProps: ', user.role);
 
     if (user.role === 'admin') isAdmin = true;
+
+    // Using Hydration
+    const queryClient = new QueryClient();
+    await queryClient.prefetchQuery(...couponQueryKeys.coupons, listCoupon);
 
     // console.log('isAdmin getServerSideProps: ', isAdmin);
     return {
@@ -129,7 +175,9 @@ export async function getServerSideProps(context) {
       },
     };
   } catch (error) {
-    console.log('error FIREBASsE: ', error.errorInfo.message);
+    // console.log('error FIREBASsE: ', error.errorInfo.message);
+    console.log('error FIREBASsE: ', error);
+
     if (error) {
       return {
         // notFound: true,
