@@ -38,13 +38,6 @@ export async function fetchUserCart(token) {
   }
 }
 
-export const getUserCart = async (authtoken) =>
-  await axios.get(`${process.env.REACT_APP_API}/user/cart`, {
-    headers: {
-      authtoken,
-    },
-  });
-
 export const userQueryKeys = {
   user: ['user'],
   userCart: (body) => [...userQueryKeys.user, 'unconfirmed-cart', body],
@@ -91,7 +84,7 @@ export const useQueryGetUserCart = (name, token) => {
       }
     }, []),
     // staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
-    enabled: Boolean(name),
+    // enabled: Boolean(name),
     // keepPreviousData: true, // to avoid hard loading states between the refetches triggered by a query-key change.
     onError: (error) => {
       console.log('useQueryGetUserCart error: ', error);

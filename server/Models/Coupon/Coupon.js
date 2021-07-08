@@ -8,7 +8,7 @@ const ParentSchema = new mongoose.Schema(
       trim: true,
       unique: true,
       uppercase: true,
-      required: 'Nmae is required',
+      required: 'Name is required',
       minlength: [6, 'Too short'],
       maxlength: [12, 'Too long'],
     },

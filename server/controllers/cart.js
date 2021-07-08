@@ -1,9 +1,11 @@
 import { getUserCart, userCart, emptyCart } from '@/Models/Cart/index';
+import { currentUser } from '@/Models/User/index';
 
 export const getUserCartController = async (req, res) => {
   const { email } = req.user;
   try {
-    const cart = await getUserCart(email);
+    const user = await currentUser(email);
+    const cart = await getUserCart(user._id);
     console.log({ cart });
     res.status(200).json(cart);
   } catch (error) {

@@ -56,14 +56,6 @@ const CreateCouponPage = ({ token }) => {
     };
     if (window.confirm('Delete?')) {
       removeCouponUseMutation.mutate(options);
-      //   setLoading(true);
-      //   removeCoupon(couponId, user.token)
-      //     .then((res) => {
-      //       loadAllCoupons(); // load all coupons
-      //       setLoading(false);
-      //       toast.error(`Coupon "${res.data.name}" deleted`);
-      //     })
-      //     .catch((err) => console.log(err));
     }
   };
 

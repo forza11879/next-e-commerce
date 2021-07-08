@@ -30,4 +30,34 @@ const removeCoupon = async (couponId) => {
   }
 };
 
-export { createCoupon, listCoupon, removeCoupon };
+const findCoupon = async (coupon) => {
+  const query = { name: coupon };
+  try {
+    const validCoupon = await Coupon.findOne(query);
+    return validCoupon;
+  } catch (error) {
+    console.log(`findCoupon error: ${error}`);
+  }
+};
+
+const applyCouponToUserCart = async (products, cartTotal, validCoupon) => {
+  try {
+    // console.log('cartTotal', cartTotal, 'discount%', validCoupon.discount);
+
+    // calculate the total after discount
+    let totalAfterDiscount = (
+      cartTotal -
+      (cartTotal * validCoupon.discount) / 100
+    ).toFixed(2);
+
+    return totalAfterDiscount;
+  } catch (error) {}
+};
+
+export {
+  createCoupon,
+  listCoupon,
+  removeCoupon,
+  findCoupon,
+  applyCouponToUserCart,
+};

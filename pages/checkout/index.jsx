@@ -14,17 +14,23 @@ import {
   useMutationRemoveCart,
 } from '@/hooks/query/cart/index';
 import { useMutationSaveUserAddress } from '@/hooks/query/user/index';
+import { useMutationApplyCoupon } from '@/hooks/query/coupon/index';
 import { getCartStoreReseted } from '@/store/cart';
 import 'react-quill/dist/quill.snow.css';
 
 const Checkout = ({ userName, token }) => {
   const [address, setAddress] = useState('');
   const [addressSaved, setAddressSaved] = useState(false);
+  const [coupon, setCoupon] = useState('');
+  const [totalAfterDiscount, setTotalAfterDiscount] = useState('');
+  const [discountError, setDiscountError] = useState('');
+
   const getUserCartUseQuery = useQueryGetUserCart(userName, token);
-  const { products, cartTotal } = getUserCartUseQuery.data;
+  // const { products, cartTotal } = getUserCartUseQuery.data;
   const dispatch = useDispatch();
   const removeCartUseMutation = useMutationRemoveCart();
   const saveUserAddressMutation = useMutationSaveUserAddress();
+  const applyCouponUseMutation = useMutationApplyCoupon();
 
   console.log('getUserCartUseQuery.data: ', getUserCartUseQuery.data);
 
@@ -34,6 +40,13 @@ const Checkout = ({ userName, token }) => {
     }
 
     dispatch(getCartStoreReseted());
+    setDiscountError('');
+    setTotalAfterDiscount(0);
+
+    // setProducts([]);
+    // setTotal(0);
+    // setTotalAfterDiscount(0);
+    // setCoupon("");
 
     const options = {
       url: `${process.env.api}/cart`,
@@ -54,43 +67,108 @@ const Checkout = ({ userName, token }) => {
     saveUserAddressMutation.mutate(options);
   };
 
+  const applyDiscountCoupon = () => {
+    const options = {
+      url: '/user/cart/coupon',
+      method: 'post',
+      token: token,
+      data: { coupon: coupon },
+      props: {
+        setTotalAfterDiscount: setTotalAfterDiscount,
+        setDiscountError: setDiscountError,
+      },
+    };
+    applyCouponUseMutation.mutate(options);
+
+    // console.log('send coupon to backend', coupon);
+    // applyCoupon(user.token, coupon).then((res) => {
+    //   console.log('RES ON COUPON APPLIED', res.data);
+    //   if (res.data) {
+    //     setTotalAfterDiscount(res.data);
+    //     // update redux coupon applied
+    //   }
+    //   // error
+    //   if (res.data.err) {
+    //     setDiscountError(res.data.err);
+    //     // update redux coupon applied
+    //   }
+    // });
+  };
+
+  const showAddress = () => (
+    <>
+      <ReactQuill theme="snow" value={address} onChange={setAddress} />
+      <button className="btn btn-primary mt-2" onClick={saveAddressToDb}>
+        Save
+      </button>
+    </>
+  );
+
+  const showProductSummary = () =>
+    getUserCartUseQuery.data.products.map((item, index) => (
+      <div key={index}>
+        <p>
+          {item.product.title} ({item.color}) x {item.count} ={' '}
+          {item.product.price * item.count}
+        </p>
+      </div>
+    ));
+
+  const showApplyCoupon = () => (
+    <>
+      <input
+        onChange={(e) => {
+          setCoupon(e.target.value);
+          setDiscountError('');
+          setTotalAfterDiscount('');
+        }}
+        value={coupon}
+        type="text"
+        className="form-control"
+      />
+      <button onClick={applyDiscountCoupon} className="btn btn-primary mt-2">
+        Apply
+      </button>
+    </>
+  );
+
   return (
     <div className="row">
       <div className="col-md-6">
         <h4>Delivery Address</h4>
         <br />
         <br />
-        <ReactQuill theme="snow" value={address} onChange={setAddress} />
-        <button className="btn btn-primary mt-2" onClick={saveAddressToDb}>
-          Save
-        </button>
+        {showAddress()}
         <hr />
         <h4>Got Coupon?</h4>
         <br />
-        coupon input and apply button
+        {showApplyCoupon()}
+        <br />
+        {discountError && <p className="bg-danger p-2">{discountError}</p>}
       </div>
 
       <div className="col-md-6">
         <h4>Order Summary</h4>
         <hr />
-        <p>Products {products.length}</p>
+        <p>Products {getUserCartUseQuery.data.products.length}</p>
         <hr />
-        {products.map((item, index) => (
-          <div key={index}>
-            <p>
-              {item.product.title} ({item.color}) x {item.count} ={' '}
-              {item.product.price * item.count}
-            </p>
-          </div>
-        ))}
+        {showProductSummary()}
         <hr />
-        <p>Cart Total: {cartTotal}</p>
+        <p>Cart Total: {getUserCartUseQuery.data.cartTotal}</p>
+
+        {totalAfterDiscount > 0 && (
+          <p className="bg-success p-2">
+            Discount Applied: Total Payable: ${totalAfterDiscount}
+          </p>
+        )}
 
         <div className="row">
           <div className="col-md-6">
             <button
               className="btn btn-primary"
-              disabled={!addressSaved || !products.length}
+              disabled={
+                !addressSaved || !getUserCartUseQuery.data.products.length
+              }
             >
               Place Order
             </button>
@@ -98,7 +176,7 @@ const Checkout = ({ userName, token }) => {
 
           <div className="col-md-6">
             <button
-              disabled={!products.length}
+              disabled={!getUserCartUseQuery.data.products.length}
               onClick={emptyCart}
               className="btn btn-primary"
             >
@@ -117,14 +195,14 @@ export async function getServerSideProps(context) {
 
   try {
     const { email } = await admin.auth().verifyIdToken(appToken);
-    const { name } = await currentUser(email);
+    const user = await currentUser(email);
 
     // Using Hydration
     const queryClient = new QueryClient();
     await queryClient.prefetchQuery(
-      userQueryKeys.getUserCart(name),
+      userQueryKeys.getUserCart(user.name),
       async () => {
-        const cart = await getUserCart(email);
+        const cart = await getUserCart(user._id);
         return JSON.stringify(cart);
       }
     );
@@ -132,7 +210,7 @@ export async function getServerSideProps(context) {
     return {
       props: {
         token: appToken,
-        userName: name,
+        userName: user.name,
         dehydratedState: dehydrate(queryClient),
       }, // will be passed to the page component as props. always return an object with the props key
     };
