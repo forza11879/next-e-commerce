@@ -1,4 +1,6 @@
 import { useCallback } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { getCouponApplied } from '@/store/coupon';
 import axios from 'axios';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { toast } from 'react-toastify';
@@ -219,6 +221,7 @@ export const useMutationCreateCoupon = () => {
 
 export const useMutationApplyCoupon = () => {
   const queryClient = useQueryClient();
+  const dispatch = useDispatch();
   return useMutation(
     async ({ url, method, token, data }) => {
       return await axios.request({
@@ -283,7 +286,9 @@ export const useMutationApplyCoupon = () => {
           // console.log({ error });
           console.log('error.response.data.error: ', error.response.data.error);
           // setTotalAfterDiscount('');
+          dispatch(getCouponApplied(false));
           setDiscountError(error.response.data.error);
+
           // console.log('error.response.error: ', error.response.error);
         }
       },
@@ -308,6 +313,7 @@ export const useMutationApplyCoupon = () => {
         if (data) {
           console.log({ data });
           // setDiscountError('');
+          dispatch(getCouponApplied(true));
           setTotalAfterDiscount(data);
           // toast.success(`"${data.name}" was created`);
         }

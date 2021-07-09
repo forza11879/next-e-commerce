@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
+import { useRouter } from 'next/router';
 import nookies from 'nookies';
 import admin from '@/firebase/index';
 import { QueryClient } from 'react-query';
@@ -24,6 +25,8 @@ const Checkout = ({ userName, token }) => {
   const [coupon, setCoupon] = useState('');
   const [totalAfterDiscount, setTotalAfterDiscount] = useState('');
   const [discountError, setDiscountError] = useState('');
+
+  const router = useRouter();
 
   const getUserCartUseQuery = useQueryGetUserCart(userName, token);
   // const { products, cartTotal } = getUserCartUseQuery.data;
@@ -169,6 +172,7 @@ const Checkout = ({ userName, token }) => {
               disabled={
                 !addressSaved || !getUserCartUseQuery.data.products.length
               }
+              onClick={() => router.push('/payment')}
             >
               Place Order
             </button>
