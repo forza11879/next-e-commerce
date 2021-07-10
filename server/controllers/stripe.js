@@ -2,34 +2,19 @@
 // const Cart = require('../models/cart');
 // const Product = require('../models/product');
 // const Coupon = require('../models/coupon');
-import Stripe from 'stripe';
+// import Stripe from 'stripe';
 import { paymentIntent } from '@/Models/Stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET);
+// const stripe = new Stripe(process.env.stripeKey);
 
-console.log('process.env.STRIPE_SECRET: ', process.env.STRIPE_SECRET);
+// console.log('process.env.STRIPE_SECRET: ', process.env.stripeKey);
 
-export const removeController = async (req, res) => {
+export const createPaymentIntentController = async (req, res) => {
   try {
     // later apply coupon
     // later calculate price
-    const result = await paymentIntent(stripe);
+    const result = await paymentIntent();
 
-    res.send({
-      clientSecret: result,
-    });
+    res.send(result);
   } catch (error) {}
-};
-exports.createPaymentIntentController = async (req, res) => {
-  // later apply coupon
-  // later calculate price
-
-  const paymentIntent = await stripe.paymentIntents.create({
-    amount: 100,
-    currency: 'usd',
-  });
-
-  res.send({
-    clientSecret: paymentIntent.client_secret,
-  });
 };

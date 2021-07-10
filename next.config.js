@@ -4,6 +4,8 @@ module.exports = {
     registerRedirectUrl: process.env.REGISTER_REDIRECT_URL,
     forgotPasswordRedirect: process.env.FORGOT_PASSWORD_REDIRECT,
     api: process.env.API,
+    stripeKey: process.env.STRIPE_KEY,
+    stripeKeyPublic: process.env.STRIPE_KEY_PUBLIC,
   },
   images: {
     domains: ['res.cloudinary.com'],

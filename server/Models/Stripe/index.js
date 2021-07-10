@@ -1,6 +1,8 @@
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET);
+const stripe = new Stripe(process.env.stripeKey);
+
+console.log('process.env.stripeKey: ', process.env.stripeKey);
 
 const paymentIntent = async () => {
   try {

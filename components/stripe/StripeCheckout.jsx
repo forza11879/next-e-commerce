@@ -1,28 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { useSelector, useDispatch } from 'react-redux';
-import { createPaymentIntent } from '../functions/stripe';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 
-const StripeCheckout = ({ history }) => {
+const StripeCheckout = ({ clientSecret }) => {
   const dispatch = useDispatch();
-  const { user } = useSelector((state) => ({ ...state }));
 
   const [succeeded, setSucceeded] = useState(false);
   const [error, setError] = useState(null);
   const [processing, setProcessing] = useState('');
   const [disabled, setDisabled] = useState(true);
-  const [clientSecret, setClientSecret] = useState('');
 
   const stripe = useStripe();
   const elements = useElements();
-
-  useEffect(() => {
-    createPaymentIntent(user.token).then((res) => {
-      console.log('create payment intent', res.data);
-      setClientSecret(res.data.clientSecret);
-    });
-  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,6 +29,9 @@ const StripeCheckout = ({ history }) => {
 
     if (payload.error) {
       setError(`Payment failed ${payload.error.message}`);
+      console.log('payload.error.message: ', payload.error.message);
+      console.log('payload.error: ', payload.error);
+
       setProcessing(false);
     } else {
       // here you get result after successful payment
@@ -80,7 +73,7 @@ const StripeCheckout = ({ history }) => {
     <>
       <p className={succeeded ? 'result-message' : 'result-message hidden'}>
         Payment Successful.{' '}
-        <Link to="/user/history">See it in your purchase history.</Link>
+        <Link href="/user/history">See it in your purchase history.</Link>
       </p>
 
       <form id="payment-form" className="stripe-form" onSubmit={handleSubmit}>
