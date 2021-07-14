@@ -3,7 +3,7 @@ import {
   listCoupon,
   removeCoupon,
   findCoupon,
-  applyCouponToUserCart,
+  calculateTotalAfterDiscount,
 } from '@/Models/Coupon/index';
 import { getUserCart, updateTotalAfterDiscountCart } from '@/Models/Cart/index';
 import { currentUser } from '@/Models/User/index';
@@ -50,8 +50,6 @@ export const applyCouponToUserCartController = async (req, res) => {
 
     const validCoupon = await findCoupon(coupon);
 
-    console.log({ validCoupon });
-
     if (validCoupon === null) {
       return res.status(404).json({
         error: 'Invalid coupon',
@@ -59,28 +57,19 @@ export const applyCouponToUserCartController = async (req, res) => {
     }
 
     const user = await currentUser(email);
-
-    console.log({ user });
-
     const { products, cartTotal } = await getUserCart(user._id);
 
-    console.log({ products });
-    console.log({ cartTotal });
-
-    const totalAfterDiscount = await applyCouponToUserCart(
+    const totalAfterDiscount = await calculateTotalAfterDiscount(
       products,
       cartTotal,
       validCoupon
     );
-
-    console.log({ totalAfterDiscount });
 
     const result = await updateTotalAfterDiscountCart(
       user._id,
       totalAfterDiscount
     );
 
-    console.log({ result });
     res.status(201).json(totalAfterDiscount);
   } catch (error) {
     console.log('coupon applyCouponToUserCartController error: ', error);

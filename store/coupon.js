@@ -1,5 +1,6 @@
 import { createSlice, createSelector } from '@reduxjs/toolkit';
 import * as actions from './action/saga.js';
+import { HYDRATE } from 'next-redux-wrapper';
 
 export const initialState = false;
 // action, actionTypes and reducer
@@ -12,6 +13,20 @@ const slice = createSlice({
 
     // userStoreReseted: (state) => initialState(),
   },
+
+  // extraReducers: {
+  //   [HYDRATE]: (state, action) => {
+  //     console.log('HYDRATE', state, action.payload);
+  //     console.log(
+  //       'action.payload.entities.coupon',
+  //       action.payload.entities.coupon
+  //     );
+  //     return {
+  //       ...state,
+  //       ...action.payload.entities.coupon,
+  //     };
+  //   },
+  // },
 });
 
 export const { couponApplied } = slice.actions;
@@ -24,3 +39,13 @@ export const getCouponApplied = (coupon) =>
     onSuccess: couponApplied.type,
     onError: actions.sagaCouponCallFailed.type,
   });
+
+// Selectors - Memoized Selector - it does not cause multiple re-renders
+const couponSelector = (state) => state.entities.coupon;
+
+export const selectCoupon = createSelector(
+  couponSelector,
+  // if thedrawer remains the same
+  // resolve function will not recalculate again
+  (coupon) => coupon
+);

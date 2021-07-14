@@ -40,12 +40,16 @@ const findCoupon = async (coupon) => {
   }
 };
 
-const applyCouponToUserCart = async (products, cartTotal, validCoupon) => {
+const calculateTotalAfterDiscount = async (
+  products,
+  cartTotal,
+  validCoupon
+) => {
   try {
     // console.log('cartTotal', cartTotal, 'discount%', validCoupon.discount);
 
     // calculate the total after discount
-    let totalAfterDiscount = (
+    const totalAfterDiscount = (
       cartTotal -
       (cartTotal * validCoupon.discount) / 100
     ).toFixed(2);
@@ -59,5 +63,5 @@ export {
   listCoupon,
   removeCoupon,
   findCoupon,
-  applyCouponToUserCart,
+  calculateTotalAfterDiscount,
 };

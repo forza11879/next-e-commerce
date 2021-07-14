@@ -13,6 +13,7 @@ import '../styles/stripe.css';
 
 import AuthComponent from '@/lib/auth';
 import configureAppStore from '@/store/configureAppStore';
+// import { wrapper } from '@/store/configureAppStore';
 import Header from '@/components/nav/Header';
 import SideDrawer from '@/components/drawer/SideDrawer';
 
@@ -57,4 +58,6 @@ function MyApp({ Component, pageProps }) {
   );
 }
 
+// const makeStore = () => store;
 export default MyApp;
+// export default wrapper.withRedux(MyApp);

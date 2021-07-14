@@ -1,4 +1,9 @@
-import { getUserCart, userCart, emptyCart } from '@/Models/Cart/index';
+import {
+  getUserCart,
+  userCart,
+  emptyCart,
+  cartByUser,
+} from '@/Models/Cart/index';
 import { currentUser } from '@/Models/User/index';
 
 export const getUserCartController = async (req, res) => {
@@ -17,7 +22,9 @@ export const userCartController = async (req, res) => {
   const { cart } = req.body;
   const { email } = req.user;
   try {
-    const result = await userCart(cart, email);
+    const user = await currentUser(email);
+    const cartOfUser = await cartByUser(user._id);
+    const result = await userCart(cart, cartOfUser, user._id);
     res.status(200).json({ ok: result });
   } catch (error) {
     console.log('cart userCartController controller error: ', error);

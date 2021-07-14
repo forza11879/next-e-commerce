@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { useSelector, useDispatch } from 'react-redux';
 import Link from 'next/link';
@@ -19,6 +19,7 @@ const StripeCheckout = ({ clientSecret }) => {
     setProcessing(true);
 
     const payload = await stripe.confirmCardPayment(clientSecret, {
+      // console.log('e.target.name.value: ',e.target.name.value)
       payment_method: {
         card: elements.getElement(CardElement),
         billing_details: {
@@ -29,8 +30,8 @@ const StripeCheckout = ({ clientSecret }) => {
 
     if (payload.error) {
       setError(`Payment failed ${payload.error.message}`);
-      console.log('payload.error.message: ', payload.error.message);
-      console.log('payload.error: ', payload.error);
+      // console.log('payload.error.message: ', payload.error.message);
+      // console.log('payload.error: ', payload.error);
 
       setProcessing(false);
     } else {

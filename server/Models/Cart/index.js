@@ -2,12 +2,6 @@ import Cart from './Cart';
 import { currentUser } from '@/Models/User/index';
 import { productPriceById } from '@/Models/Product/index';
 
-// let { products, cartTotal } = await (
-//   await Cart.findOne({ orderedBy: user._id })
-// )
-//   .populat('products.product', '_id title price')
-//   .exec();
-
 const getUserCart = async (userId) => {
   try {
     const query = { orderedBy: userId };
@@ -22,14 +16,20 @@ const getUserCart = async (userId) => {
   }
 };
 
-const userCart = async (cart, email) => {
+const cartByUser = async (userId) => {
   try {
-    const user = await currentUser(email);
-    const queryCart = { orderedBy: user._id };
-    const cartByUser = await Cart.findOne(queryCart);
+    const query = { orderedBy: userId };
+    const cartByUser = await Cart.findOne(query);
+    return cartByUser;
+  } catch (error) {
+    console.log('cart cartByUser error: ', error);
+  }
+};
 
-    if (cartByUser) {
-      cartByUser.remove();
+const userCart = async (cart, cartOfUser, userId) => {
+  try {
+    if (cartOfUser) {
+      cartOfUser.remove();
       console.log('removed old cart');
     }
 
@@ -56,7 +56,7 @@ const userCart = async (cart, email) => {
     const newCart = await new Cart({
       products: newCartObj.products,
       cartTotal: newCartObj.cartTotal,
-      orderedBy: user._id,
+      orderedBy: userId,
     }).save();
 
     // console.log('new -----> cart', newCart);
@@ -91,4 +91,10 @@ const updateTotalAfterDiscountCart = async (userId, totalAfterDiscount) => {
   }
 };
 
-export { getUserCart, userCart, emptyCart, updateTotalAfterDiscountCart };
+export {
+  getUserCart,
+  userCart,
+  emptyCart,
+  updateTotalAfterDiscountCart,
+  cartByUser,
+};
