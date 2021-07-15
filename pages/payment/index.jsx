@@ -1,16 +1,16 @@
 // import { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import nookies from 'nookies';
-// import { QueryClient } from 'react-query';
-// import { dehydrate } from 'react-query/hydration';
+import { QueryClient } from 'react-query';
+import { dehydrate } from 'react-query/hydration';
 import admin from '@/firebase/index';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import { currentUser } from '@/Models/User/index';
-// import { paymentIntent } from '@/Models/Stripe/index';
-// import { cartByUser } from '@/Models/Cart/index';
+import { paymentIntent } from '@/Models/Stripe/index';
+import { cartByUser } from '@/Models/Cart/index';
 import {
-  // stripeQueryKeys,
+  stripeQueryKeys,
   useQueryStripePayment,
 } from '@/hooks/query/stripe/index';
 import StripeCheckout from '@/components/stripe/StripeCheckout';
@@ -20,15 +20,10 @@ import { wrapper } from '@/store/configureAppStore';
 // load stripe outside of components render to avoid recreating stripe object on every render
 const promise = loadStripe(process.env.stripeKeyPublic);
 
-const Payment = ({ name, token }) => {
-  const coupon = useSelector(selectCoupon);
-  console.log({ coupon });
+const Payment = ({ name, token, coupon }) => {
+  // const coupon = useSelector(selectCoupon);
+  // console.log({ coupon });
   const stripePaymentUseQuery = useQueryStripePayment(name, token, coupon);
-  // console.log('stripePaymentUseQuery.data: ', stripePaymentUseQuery.data);
-  // console.log(
-  //   'stripePaymentUseQuery.data.clientSecret: ',
-  //   stripePaymentUseQuery.data?.clientSecret
-  // );
   return (
     <div className="container p-5 text-center">
       <h4>Complete your purchase</h4>
@@ -46,32 +41,35 @@ const Payment = ({ name, token }) => {
 export async function getServerSideProps(context) {
   // const { req, res } = context;
 
-  const { appToken } = nookies.get(context);
+  const { appToken, appCoupon } = nookies.get(context);
+  console.log('ssr appCoupon: ', appCoupon);
 
   try {
     const { email } = await admin.auth().verifyIdToken(appToken);
     const user = await currentUser(email);
     // Using Hydration
-    // const queryClient = new QueryClient();
+    const queryClient = new QueryClient();
 
-    // if (user) {
-    //   console.log('user.name: ', user.name);
-    //   queryClient.prefetchQuery(
-    //     stripeQueryKeys.stripePayment(user.name),
-    //     async () => {
-    //       const result = await paymentIntent();
-    //       console.log('pre-fetch - result: ', result);
-    //       return result;
-    //       // return JSON.stringify(result);
-    //     }
-    //   );
-    // }
+    if (user) {
+      // console.log('user.name: ', user.name);
+      queryClient.prefetchQuery(
+        stripeQueryKeys.stripePayment(user.name),
+        async () => {
+          const cart = await cartByUser(user._id);
+          const result = await paymentIntent(cart, appCoupon);
+          console.log('pre-fetch - result: ', result);
+          // return result;
+          return JSON.stringify(result);
+        }
+      );
+    }
 
     return {
       props: {
         token: appToken,
+        coupon: appCoupon,
         name: user.name,
-        // dehydratedState: dehydrate(queryClient),
+        dehydratedState: dehydrate(queryClient),
       }, // will be passed to the page component as props. always return an object with the props key
     };
   } catch (error) {

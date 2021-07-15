@@ -23,6 +23,7 @@ const authCheck = async (req, res, next) => {
         httpOnly: true,
         path: '/',
       });
+
       // nookies.set({ res }, 'appToken', token, {
       //   // maxAge: 72576000,
       //   httpOnly: true,

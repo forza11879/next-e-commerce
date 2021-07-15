@@ -16,8 +16,8 @@ async function fetchStripePayment(token, coupon) {
       data: { couponApplied: coupon },
     });
     // console.log({ data });
-    return data;
-    // return JSON.stringify(data);
+    // return data;
+    return JSON.stringify(data);
   } catch (error) {
     console.log('fetchStripePayment error:', error);
   }
@@ -38,11 +38,11 @@ export const useQueryStripePayment = (name, token, coupon) =>
       select: useCallback((data) => {
         // selectors will only be called if data exists, so you don't have to care about undefined here.
         // console.log(JSON.parse(data));
-        return data;
-        // return JSON.parse(data);
+        // return data;
+        return JSON.parse(data);
       }, []),
-      // staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
-      // enabled: Boolean(count),
+      staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
+      // enabled: coupon,
       // keepPreviousData: true, // to avoid hard loading states between the refetches triggered by a query-key change.
       onError: (error) => {
         console.log('useQueryStripePayment error: ', error);

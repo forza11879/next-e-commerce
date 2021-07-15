@@ -2,11 +2,11 @@ import { useState } from 'react';
 import dynamic from 'next/dynamic';
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 import { useRouter } from 'next/router';
+import { useSelector, useDispatch } from 'react-redux';
 import nookies from 'nookies';
 import admin from '@/firebase/index';
 import { QueryClient } from 'react-query';
 import { dehydrate } from 'react-query/hydration';
-import { useDispatch } from 'react-redux';
 import { currentUser } from '@/Models/User/index';
 import { getUserCart } from '@/Models/Cart/index';
 import {
@@ -15,8 +15,12 @@ import {
   useMutationRemoveCart,
 } from '@/hooks/query/cart/index';
 import { useMutationSaveUserAddress } from '@/hooks/query/user/index';
-import { useMutationApplyCoupon } from '@/hooks/query/coupon/index';
+import {
+  useMutationApplyCoupon,
+  useMutationApplyCouponHeader,
+} from '@/hooks/query/coupon/index';
 import { getCartStoreReseted } from '@/store/cart';
+import { selectCoupon } from '@/store/coupon';
 import 'react-quill/dist/quill.snow.css';
 
 const Checkout = ({ userName, token }) => {
@@ -25,6 +29,7 @@ const Checkout = ({ userName, token }) => {
   const [coupon, setCoupon] = useState('');
   const [totalAfterDiscount, setTotalAfterDiscount] = useState('');
   const [discountError, setDiscountError] = useState('');
+  const couponRedux = useSelector(selectCoupon);
 
   const router = useRouter();
 
@@ -34,6 +39,7 @@ const Checkout = ({ userName, token }) => {
   const removeCartUseMutation = useMutationRemoveCart();
   const saveUserAddressMutation = useMutationSaveUserAddress();
   const applyCouponUseMutation = useMutationApplyCoupon();
+  const applyCouponHeaderUseMutation = useMutationApplyCouponHeader();
 
   console.log('getUserCartUseQuery.data: ', getUserCartUseQuery.data);
 
@@ -68,6 +74,15 @@ const Checkout = ({ userName, token }) => {
       props: { setAddressSaved: setAddressSaved },
     };
     saveUserAddressMutation.mutate(options);
+  };
+
+  const placeOrder = () => {
+    const options = {
+      url: '/coupon/header',
+      method: 'post',
+      coupon: couponRedux,
+    };
+    applyCouponHeaderUseMutation.mutate(options);
   };
 
   const applyDiscountCoupon = () => {
@@ -172,7 +187,8 @@ const Checkout = ({ userName, token }) => {
               disabled={
                 !addressSaved || !getUserCartUseQuery.data.products.length
               }
-              onClick={() => router.push('/payment')}
+              // onClick={() => router.push(`/payment/${couponRedux}`)}
+              onClick={placeOrder}
             >
               Place Order
             </button>

@@ -1,3 +1,4 @@
+import nookies, { setCookie } from 'nookies';
 import {
   createCoupon,
   listCoupon,
@@ -43,6 +44,20 @@ export const removeController = async (req, res) => {
   }
 };
 
+export const couponSessionController = async (req, res) => {
+  const { coupon } = req.headers;
+  try {
+    setCookie({ res }, 'appCoupon', coupon, {
+      // maxAge: 72576000,
+      httpOnly: true,
+      path: '/',
+    });
+    res.status(201).json({ ok: true });
+  } catch (error) {
+    console.log('coupon couponSessionController error: ', error);
+  }
+};
+
 export const applyCouponToUserCartController = async (req, res) => {
   try {
     const { coupon } = req.body;
@@ -65,10 +80,7 @@ export const applyCouponToUserCartController = async (req, res) => {
       validCoupon
     );
 
-    const result = await updateTotalAfterDiscountCart(
-      user._id,
-      totalAfterDiscount
-    );
+    await updateTotalAfterDiscountCart(user._id, totalAfterDiscount);
 
     res.status(201).json(totalAfterDiscount);
   } catch (error) {

@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { useRouter } from 'next/router';
 import { getCouponApplied } from '@/store/coupon';
 import axios from 'axios';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
@@ -318,6 +319,105 @@ export const useMutationApplyCoupon = () => {
           // toast.success(`"${data.name}" was created`);
         }
 
+        // Runs on either success or error. It is better to run invalidateQueries
+        // onSettled in case there is an error to re-fetch the request
+        // it is prefered to invalidateQueries  after using setQueryData inside onSuccess: because you are getting the latest data from the server
+        // queryClient.invalidateQueries(couponQueryKeys.coupons);
+      },
+    }
+  );
+};
+
+export const useMutationApplyCouponHeader = () => {
+  const queryClient = useQueryClient();
+  const router = useRouter();
+  const dispatch = useDispatch();
+  return useMutation(
+    async ({ url, method, coupon }) => {
+      return await axios.request({
+        baseURL,
+        url,
+        method,
+        headers: { coupon },
+      });
+    },
+    {
+      // onMutate: ({
+      //   data: { coupon },
+      //   props: { setTotalAfterDiscount, setDiscountError },
+      // }) => {
+      //   // Cancel any outgoing refetches (so they don't overwrite(race condition) our optimistic update)
+      //   // queryClient.cancelQueries(couponQueryKeys.coupon(coupon));
+      //   console.log({ coupon });
+      //   console.log({ setTotalAfterDiscount });
+      //   console.log({ setDiscountError });
+      //   // const previousQueryDataArray = queryClient.getQueryData(
+      //   //   couponQueryKeys.coupons
+      //   // );
+      //   // console.log('previousQueryDataArray: ', previousQueryDataArray);
+      //   // In an optimistic update the UI behaves as though a change was successfully completed before receiving confirmation from the server that it actually was - it is being optimistic that it will eventually get the confirmation rather than an error. This allows for a more responsive user experience.
+      //   // const newObject = {
+      //   //   ...coupon,
+      //   //   _id: Date.now(),
+      //   // };
+      //   // console.log('newObject: ', newObject);
+      //   // queryClient.setQueryData(couponQueryKeys.coupons, (oldQueryData) => {
+      //   //   const oldQueryDataArray = JSON.parse(oldQueryData);
+      //   //   // console.log('oldQueryDataArray before: ', oldQueryDataArray);
+      //   //   oldQueryDataArray.unshift(newObject);
+      //   //   // console.log('oldQueryDataArray after: ', oldQueryDataArray);
+      //   //   return JSON.stringify(oldQueryDataArray);
+      //   // });
+      //   // return will pass the function or the value to the onError third argument:
+      //   // return () =>
+      //   //   queryClient.setQueryData(
+      //   //     couponQueryKeys.coupons,
+      //   //     previousQueryDataArray
+      //   //   );
+      // },
+      // onError: (
+      //   error,
+      //   { props: { setTotalAfterDiscount, setDiscountError } },
+      //   rollback
+      // ) => {
+      //   //   If there is an errror, then we will rollback
+      //   // console.log('CreateCategory onError error: ', error.response.data);
+      //   if (rollback) {
+      //     rollback();
+      //     console.log('rollback');
+      //   }
+      //   if (error) {
+      //     // toast.error(error.response.data);
+      //     // toast.error(error);
+      //     // console.log({ error });
+      //     console.log('error.response.data.error: ', error.response.data.error);
+      //     // setTotalAfterDiscount('');
+      //     dispatch(getCouponApplied(false));
+      //     setDiscountError(error.response.data.error);
+      //     // console.log('error.response.error: ', error.response.error);
+      //   }
+      // },
+      // onSuccess: (data, values, context) => {
+      //   // if (data) {
+      //   //   toast.success(`"${data.title}" is updated`);
+      //   // }
+      //   // console.log({ data });
+      //   // console.log({ values });
+      //   // console.log({ props });
+      //   // setName('');
+      //   // setExpiry('');
+      //   // setDiscount('');
+      // },
+      onSettled: ({ data: { ok } }, error, variables, context) => {
+        console.log(ok);
+        if (ok) {
+          router.push('/payment');
+          // dispatch(getCouponApplied(false));
+          // setDiscountError('');
+          // dispatch(getCouponApplied(true));
+          // setTotalAfterDiscount(data);
+          // toast.success(`"${data.name}" was created`);
+        }
         // Runs on either success or error. It is better to run invalidateQueries
         // onSettled in case there is an error to re-fetch the request
         // it is prefered to invalidateQueries  after using setQueryData inside onSuccess: because you are getting the latest data from the server
