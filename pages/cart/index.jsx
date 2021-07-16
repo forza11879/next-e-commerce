@@ -109,9 +109,6 @@ const Cart = ({ token, userName }) => {
 export async function getServerSideProps(context) {
   // const { req, res } = context;
   const { appToken } = nookies.get(context);
-  // let isAdmin = false;
-
-  // const count = 100;
 
   try {
     const { email } = await admin.auth().verifyIdToken(appToken);

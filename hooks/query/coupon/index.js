@@ -375,28 +375,25 @@ export const useMutationApplyCouponHeader = () => {
       //   //     previousQueryDataArray
       //   //   );
       // },
-      // onError: (
-      //   error,
-      //   { props: { setTotalAfterDiscount, setDiscountError } },
-      //   rollback
-      // ) => {
-      //   //   If there is an errror, then we will rollback
-      //   // console.log('CreateCategory onError error: ', error.response.data);
-      //   if (rollback) {
-      //     rollback();
-      //     console.log('rollback');
-      //   }
-      //   if (error) {
-      //     // toast.error(error.response.data);
-      //     // toast.error(error);
-      //     // console.log({ error });
-      //     console.log('error.response.data.error: ', error.response.data.error);
-      //     // setTotalAfterDiscount('');
-      //     dispatch(getCouponApplied(false));
-      //     setDiscountError(error.response.data.error);
-      //     // console.log('error.response.error: ', error.response.error);
-      //   }
-      // },
+      onError: (error, variables, rollback) => {
+        //   If there is an errror, then we will rollback
+        // console.log('CreateCategory onError error: ', error.response.data);
+        if (rollback) {
+          rollback();
+          console.log('rollback');
+        }
+        if (error) {
+          // toast.error(error.response.data);
+          // toast.error(error);
+          console.log({ error });
+          dispatch(getCouponApplied(false));
+          // console.log('error.response.data.error: ', error.response.data.error);
+          // setTotalAfterDiscount('');
+          // dispatch(getCouponApplied(false));
+          // setDiscountError(error.response.data.error);
+          // console.log('error.response.error: ', error.response.error);
+        }
+      },
       // onSuccess: (data, values, context) => {
       //   // if (data) {
       //   //   toast.success(`"${data.title}" is updated`);
@@ -409,10 +406,9 @@ export const useMutationApplyCouponHeader = () => {
       //   // setDiscount('');
       // },
       onSettled: ({ data: { ok } }, error, variables, context) => {
-        console.log(ok);
         if (ok) {
+          dispatch(getCouponApplied(false));
           router.push('/payment');
-          // dispatch(getCouponApplied(false));
           // setDiscountError('');
           // dispatch(getCouponApplied(true));
           // setTotalAfterDiscount(data);

@@ -5,7 +5,11 @@ import { toast } from 'react-toastify';
 
 const baseURL = process.env.api;
 
-async function fetchStripePayment(token, coupon) {
+async function fetchStripePayment({
+  token,
+  coupon,
+  props: { setCartTotal, setTotalAfterDiscount, setPayable },
+}) {
   console.log(`${baseURL}/create-payment-intent`);
   try {
     const { data } = await axios.request({
@@ -16,6 +20,9 @@ async function fetchStripePayment(token, coupon) {
       data: { couponApplied: coupon },
     });
     // console.log({ data });
+    setCartTotal(data.cartTotal);
+    setTotalAfterDiscount(data.totalAfterDiscount);
+    setPayable(data.payable);
     // return data;
     return JSON.stringify(data);
   } catch (error) {
@@ -29,10 +36,15 @@ export const stripeQueryKeys = {
 };
 
 // Queries
-export const useQueryStripePayment = (name, token, coupon) =>
-  useQuery(
+export const useQueryStripePayment = ({ name, token, coupon, props }) => {
+  const options = {
+    token,
+    coupon,
+    props,
+  };
+  return useQuery(
     stripeQueryKeys.stripePayment(name),
-    () => fetchStripePayment(token, coupon),
+    () => fetchStripePayment(options),
     {
       // Selectors like the one bellow will also run on every render, because the functional identity changes (it's an inline function). If your transformation is expensive, you can memoize it either with useCallback, or by extracting it to a stable function reference
       select: useCallback((data) => {
@@ -49,3 +61,4 @@ export const useQueryStripePayment = (name, token, coupon) =>
       }, //  Don't `catch` in the queryFn just to log. It will make your errors return as resolved promises, thus they won't be seen as errors by react-query. use the `onError` callback instead.
     }
   );
+};

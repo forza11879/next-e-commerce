@@ -4,7 +4,7 @@ const stripe = new Stripe(process.env.stripeKey);
 
 const paymentIntent = async (cart, couponApplied) => {
   const { cartTotal, totalAfterDiscount } = cart;
-  console.log({ totalAfterDiscount });
+  console.log({ couponApplied });
 
   let finalAmount = 0;
 

@@ -1,11 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import Image from 'next/image';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import { useSelector, useDispatch } from 'react-redux';
+import { Card } from 'antd';
+import { DollarOutlined, CheckOutlined } from '@ant-design/icons';
 import Link from 'next/link';
+const laptop = '/images/laptop.png';
 
-const StripeCheckout = ({ clientSecret }) => {
-  const dispatch = useDispatch();
-
+const StripeCheckout = ({
+  clientSecret,
+  coupon,
+  cartTotal,
+  totalAfterDiscount,
+  payable,
+}) => {
   const [succeeded, setSucceeded] = useState(false);
   const [error, setError] = useState(null);
   const [processing, setProcessing] = useState('');
@@ -72,10 +79,42 @@ const StripeCheckout = ({ clientSecret }) => {
 
   return (
     <>
-      <p className={succeeded ? 'result-message' : 'result-message hidden'}>
-        Payment Successful.{' '}
-        <Link href="/user/history">See it in your purchase history.</Link>
-      </p>
+      {!succeeded && (
+        <div>
+          {coupon && totalAfterDiscount !== undefined ? (
+            <p className="alert alert-success">{`Total after discount: $${totalAfterDiscount}`}</p>
+          ) : (
+            <p className="alert alert-danger">No coupon applied</p>
+          )}
+        </div>
+      )}
+      <div className="text-center pb-5">
+        <Card
+          cover={
+            <Image
+              src={laptop}
+              objectFit="cover"
+              quality={100}
+              width={350}
+              height={350}
+              marginBottom={-50}
+              priority
+              ///////////////
+              // className="p-1"
+            />
+          }
+          actions={[
+            <>
+              <DollarOutlined className="text-info" /> <br /> Total: $
+              {cartTotal}
+            </>,
+            <>
+              <CheckOutlined className="text-info" /> <br /> Total payable : $
+              {(payable / 100).toFixed(2)}
+            </>,
+          ]}
+        />
+      </div>
 
       <form id="payment-form" className="stripe-form" onSubmit={handleSubmit}>
         <CardElement
@@ -97,6 +136,11 @@ const StripeCheckout = ({ clientSecret }) => {
             {error}
           </div>
         )}
+        <br />
+        <p className={succeeded ? 'result-message' : 'result-message hidden'}>
+          Payment Successful.{' '}
+          <Link href="/user/history">See it in your purchase history.</Link>
+        </p>
       </form>
     </>
   );
