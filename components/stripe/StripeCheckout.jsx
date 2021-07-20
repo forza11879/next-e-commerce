@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { Card } from 'antd';
 import { DollarOutlined, CheckOutlined } from '@ant-design/icons';
-import Link from 'next/link';
+import { useMutationCreateOrder } from '@/hooks/query/order';
+import { useMutationRemoveCart } from '@/hooks/query/cart';
 const laptop = '/images/laptop.png';
 
 const StripeCheckout = ({
@@ -12,11 +14,16 @@ const StripeCheckout = ({
   cartTotal,
   totalAfterDiscount,
   payable,
+  token,
+  userName,
 }) => {
   const [succeeded, setSucceeded] = useState(false);
   const [error, setError] = useState(null);
   const [processing, setProcessing] = useState('');
   const [disabled, setDisabled] = useState(true);
+
+  const createOrderUseMutation = useMutationCreateOrder();
+  const removeCartUseMutation = useMutationRemoveCart();
 
   const stripe = useStripe();
   const elements = useElements();
@@ -45,6 +52,39 @@ const StripeCheckout = ({
       // here you get result after successful payment
       // create order and save in database for admin to process
       // empty user cart from redux store and local storage
+      const createOrderOptions = {
+        url: '/user/order',
+        method: 'post',
+        token,
+        data: { stripeResponse: payload },
+      };
+      createOrderUseMutation.mutate(createOrderOptions);
+
+      const removeCartOptions = {
+        url: `${process.env.api}/cart`,
+        token: token,
+        data: { name: userName },
+      };
+      removeCartUseMutation.mutate(removeCartOptions);
+
+      // createOrder(payload, user.token).then((res) => {
+      //   if (res.data.ok) {
+      //     // empty cart from local storage
+      //     if (typeof window !== 'undefined') localStorage.removeItem('cart');
+      //     // empty cart from redux
+      //     dispatch({
+      //       type: 'ADD_TO_CART',
+      //       payload: [],
+      //     });
+      //     // reset coupon to false
+      //     dispatch({
+      //       type: 'COUPON_APPLIED',
+      //       payload: false,
+      //     });
+      //     // empty cart from database
+      //     emptyUserCart(user.token);
+      //   }
+      // });
       console.log(JSON.stringify(payload, null, 4));
       setError(null);
       setProcessing(false);
@@ -99,8 +139,6 @@ const StripeCheckout = ({
               height={350}
               marginBottom={-50}
               priority
-              ///////////////
-              // className="p-1"
             />
           }
           actions={[

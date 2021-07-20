@@ -17,13 +17,13 @@ import StripeCheckout from '@/components/stripe/StripeCheckout';
 // load stripe outside of components render to avoid recreating stripe object on every render
 const promise = loadStripe(process.env.stripeKeyPublic);
 
-const Payment = ({ name, token, coupon }) => {
+const Payment = ({ userName, token, coupon }) => {
   const [cartTotal, setCartTotal] = useState(0);
   const [totalAfterDiscount, setTotalAfterDiscount] = useState(0);
   const [payable, setPayable] = useState(0);
 
   const options = {
-    name,
+    name: userName,
     token,
     coupon,
     props: {
@@ -45,6 +45,8 @@ const Payment = ({ name, token, coupon }) => {
             cartTotal={cartTotal}
             totalAfterDiscount={totalAfterDiscount}
             payable={payable}
+            token={token}
+            userName={userName}
           />
         </div>
       </Elements>
@@ -75,7 +77,7 @@ export async function getServerSideProps(context) {
       props: {
         token: appToken,
         coupon: appCoupon,
-        name: user.name,
+        userName: user.name,
         dehydratedState: dehydrate(queryClient),
       }, // will be passed to the page component as props. always return an object with the props key
     };
