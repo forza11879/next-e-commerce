@@ -2,9 +2,13 @@ import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.stripeKey);
 
-const paymentIntent = async (cart, couponApplied) => {
+const paymentIntent = async (
+  cart,
+  couponApplied,
+  appPaymentIntentId = null
+) => {
+  let paymentIntent;
   const { cartTotal, totalAfterDiscount } = cart;
-  console.log({ couponApplied });
 
   let finalAmount = 0;
 
@@ -14,16 +18,19 @@ const paymentIntent = async (cart, couponApplied) => {
     finalAmount = cartTotal * 100;
   }
 
-  console.log({ finalAmount });
-
   try {
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: finalAmount,
-      currency: 'usd',
-    });
+    if (appPaymentIntentId) {
+      paymentIntent = await stripe.paymentIntents.retrieve(appPaymentIntentId);
+    } else {
+      paymentIntent = await stripe.paymentIntents.create({
+        amount: finalAmount,
+        currency: 'usd',
+      });
+    }
 
     return {
       clientSecret: paymentIntent.client_secret,
+      paymentIntent,
       cartTotal,
       totalAfterDiscount,
       payable: finalAmount,

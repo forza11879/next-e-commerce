@@ -1,31 +1,35 @@
-// const User = require('../models/user');
-// const Cart = require('../models/cart');
-// const Product = require('../models/product');
-// const Coupon = require('../models/coupon');
-// import Stripe from 'stripe';
+import { parseCookies, setCookie } from 'nookies';
 import { paymentIntent } from '@/Models/Stripe';
 import { cartByUser } from '@/Models/Cart';
 import { currentUser } from '@/Models/User';
-
-// const stripe = new Stripe(process.env.stripeKey);
-
-// console.log('process.env.STRIPE_SECRET: ', process.env.stripeKey);
 
 export const createPaymentIntentController = async (req, res) => {
   const { email } = req.user;
   const { couponApplied } = req.body;
 
-  try {
-    // later apply coupon
-    // later calculate price
+  const { appPaymentIntentId } = parseCookies({ req });
+  console.log({ appPaymentIntentId });
 
-    // 1 find user
-    // const user = await User.findOne({ email: req.user.email }).exec();
+  try {
     const user = await currentUser(email);
-    // 2 get user cart total
-    // const { cartTotal } = await Cart.findOne({ orderdBy: user._id }).exec();
     const cart = await cartByUser(user._id);
-    const result = await paymentIntent(cart, couponApplied);
+    const result = await paymentIntent(cart, couponApplied, appPaymentIntentId);
+
+    if (!appPaymentIntentId) {
+      console.log({ appPaymentIntentId });
+      const paymentIntendId = result.paymentIntent.id;
+      console.log(
+        'paymentIntendId: ',
+        JSON.parse(JSON.stringify(paymentIntendId))
+      );
+      // JSON.parse(JSON.stringify(paymentIntendId))
+
+      setCookie({ res }, 'appPaymentIntentId', paymentIntendId, {
+        // maxAge: 72576000,
+        httpOnly: true,
+        path: '/',
+      });
+    }
 
     res.send(result);
   } catch (error) {

@@ -1,10 +1,12 @@
 import initMiddleware from '@/middleware/init-middelware';
 import admin from '@/firebase/index';
 
-import nookies, { setCookie } from 'nookies';
+import nookies, { parseCookies, setCookie } from 'nookies';
 
 const authCheck = async (req, res, next) => {
   const { token } = req.headers;
+  // const { appToken } = parseCookies({ req });
+  // console.log({ appToken });
   console.log('authCheck');
 
   try {

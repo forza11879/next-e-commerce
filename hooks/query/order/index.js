@@ -1,10 +1,11 @@
 import { useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useRouter } from 'next/router';
-import { getCartStoreReseted } from '@/store/cart';
 import axios from 'axios';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { toast } from 'react-toastify';
+import { getCartStoreReseted } from '@/store/cart';
+import { useMutationRemoveCart } from '@/hooks/query/cart';
 
 const baseURL = process.env.api;
 
@@ -48,6 +49,7 @@ export const orderQueryKeys = {
 
 // Mutations
 export const useMutationCreateOrder = () => {
+  const removeCartUseMutation = useMutationRemoveCart();
   const queryClient = useQueryClient();
   const dispatch = useDispatch();
   return useMutation(
@@ -117,28 +119,28 @@ export const useMutationCreateOrder = () => {
       //   // setExpiry('');
       //   // setDiscount('');
       // },
-      onSettled: ({ data }, error, values, context) => {
+      onSettled: ({ data }, error, { token, userName }, context) => {
         if (error) {
           toast.error(error.response.data);
         }
         // console.log({ data });
         if (data) {
           //   toast.success(`"${data.name}" was created`);
-          console.log({ data });
+          // console.log({ data });
         }
 
         if (data.ok) {
-          // empty cart from local storage
-          if (typeof window !== 'undefined') localStorage.removeItem('cart');
           // empty cart from redux
           dispatch(getCartStoreReseted());
-          // // reset coupon to false
-          // dispatch({
-          //   type: 'COUPON_APPLIED',
-          //   payload: false,
-          // });
-          // // empty cart from database
-          // emptyUserCart(user.token);
+          // empty cart from local storage
+          if (typeof window !== 'undefined') localStorage.removeItem('cart');
+          // empty cart from database
+          const removeCartOptions = {
+            url: `${process.env.api}/cart`,
+            token: token,
+            data: { name: userName },
+          };
+          removeCartUseMutation.mutate(removeCartOptions);
         }
         // Runs on either success or error. It is better to run invalidateQueries
         // onSettled in case there is an error to re-fetch the request

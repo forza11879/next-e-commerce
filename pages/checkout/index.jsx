@@ -123,7 +123,7 @@ const Checkout = ({ userName, token }) => {
   );
 
   const showProductSummary = () =>
-    getUserCartUseQuery.data.products.map((item, index) => (
+    getUserCartUseQuery.data?.products.map((item, index) => (
       <div key={index}>
         <p>
           {item.product.title} ({item.color}) x {item.count} ={' '}
@@ -168,11 +168,11 @@ const Checkout = ({ userName, token }) => {
       <div className="col-md-6">
         <h4>Order Summary</h4>
         <hr />
-        <p>Products {getUserCartUseQuery.data.products.length}</p>
+        <p>Products {getUserCartUseQuery.data?.products.length}</p>
         <hr />
         {showProductSummary()}
         <hr />
-        <p>Cart Total: {getUserCartUseQuery.data.cartTotal}</p>
+        <p>Cart Total: {getUserCartUseQuery.data?.cartTotal}</p>
 
         {totalAfterDiscount > 0 && (
           <p className="bg-success p-2">
@@ -185,7 +185,7 @@ const Checkout = ({ userName, token }) => {
             <button
               className="btn btn-primary"
               disabled={
-                !addressSaved || !getUserCartUseQuery.data.products.length
+                !addressSaved || !getUserCartUseQuery.data?.products.length
               }
               // onClick={() => router.push(`/payment/${couponRedux}`)}
               onClick={placeOrder}
@@ -196,7 +196,7 @@ const Checkout = ({ userName, token }) => {
 
           <div className="col-md-6">
             <button
-              disabled={!getUserCartUseQuery.data.products.length}
+              disabled={!getUserCartUseQuery.data?.products.length}
               onClick={emptyCart}
               className="btn btn-primary"
             >
