@@ -1,11 +1,10 @@
 import nookies from 'nookies';
-import axios from 'axios';
 import admin from '@/firebase/index';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import { currentUser } from '@/Models/User/index';
-// import { paymentIntent } from '@/Models/Stripe/index';
-// import { cartByUser } from '@/Models/Cart/index';
+import { paymentIntent } from '@/Models/Stripe/index';
+import { cartByUser } from '@/Models/Cart/index';
 import StripeCheckout from '@/components/stripe/StripeCheckout';
 
 // load stripe outside of components render to avoid recreating stripe object on every render
@@ -42,39 +41,36 @@ const Payment = ({
 
 export async function getServerSideProps(context) {
   // const { req, res } = context;
-  const { appToken, appCoupon } = nookies.get(context);
+  const { appToken, appCoupon, appPaymentId } = nookies.get(context);
+
+  console.log({ appPaymentId });
+
   try {
     const { email } = await admin.auth().verifyIdToken(appToken);
     const user = await currentUser(email);
 
-    const baseURL = process.env.api;
+    const cart = await cartByUser(user._id);
+    const {
+      clientSecret,
+      cartTotal,
+      totalAfterDiscount,
+      payable,
+      paymentIntent: { id },
+    } = await paymentIntent(cart, appCoupon, appPaymentId);
 
-    async function fetchStripePayment(appToken, appCoupon) {
-      console.log(`${baseURL}/create-payment-intent`);
-      try {
-        const { data } = await axios.request({
-          baseURL,
-          url: '/create-payment-intent',
-          method: 'post',
-          headers: { token: appToken },
-          data: { couponApplied: appCoupon },
-        });
-        // console.log({ data });
-        return data;
-        // return JSON.stringify(data);
-      } catch (error) {
-        console.log('fetchStripePayment error:', error);
-      }
+    if (!appPaymentId) {
+      console.log({ appPaymentId });
+      // const paymentIntendId = id;
+      // console.log({ paymentIntendId });
+      console.log({ id });
+
+      // Set
+      nookies.set(context, 'appPaymentId', id, {
+        // maxAge: 72576000,
+        httpOnly: true,
+        path: '/',
+      });
     }
-
-    // const result =
-    const { clientSecret, cartTotal, totalAfterDiscount, payable } =
-      await fetchStripePayment(appToken, appCoupon);
-    // console.log({ result });
-
-    // const cart = await cartByUser(user._id);
-    // const { clientSecret, cartTotal, totalAfterDiscount, payable } =
-    //   await paymentIntent(cart, appCoupon);
 
     return {
       props: {

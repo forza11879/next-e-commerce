@@ -1,3 +1,4 @@
+import nookies, { destroyCookie, setCookie } from 'nookies';
 import { useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useRouter } from 'next/router';
@@ -119,7 +120,12 @@ export const useMutationCreateOrder = () => {
       //   // setExpiry('');
       //   // setDiscount('');
       // },
-      onSettled: ({ data }, error, { token, userName }, context) => {
+      onSettled: (
+        { data },
+        error,
+        { token, userName, appPaymentId },
+        context
+      ) => {
         if (error) {
           toast.error(error.response.data);
         }
@@ -141,6 +147,9 @@ export const useMutationCreateOrder = () => {
             data: { name: userName },
           };
           removeCartUseMutation.mutate(removeCartOptions);
+          // Destroy
+          // nookies.destroy(context, 'appPaymentId');
+          // destroyCookie(null, 'appPaymentId');
         }
         // Runs on either success or error. It is better to run invalidateQueries
         // onSettled in case there is an error to re-fetch the request
