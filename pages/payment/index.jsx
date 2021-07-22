@@ -1,10 +1,11 @@
 import nookies from 'nookies';
+import axios from 'axios';
 import admin from '@/firebase/index';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import { currentUser } from '@/Models/User/index';
-import { paymentIntent } from '@/Models/Stripe/index';
-import { cartByUser } from '@/Models/Cart/index';
+// import { paymentIntent } from '@/Models/Stripe/index';
+// import { cartByUser } from '@/Models/Cart/index';
 import StripeCheckout from '@/components/stripe/StripeCheckout';
 
 // load stripe outside of components render to avoid recreating stripe object on every render
@@ -49,22 +50,16 @@ export async function getServerSideProps(context) {
     const { email } = await admin.auth().verifyIdToken(appToken);
     const user = await currentUser(email);
 
-    const cart = await cartByUser(user._id);
     const {
-      clientSecret,
       cartTotal,
       totalAfterDiscount,
       payable,
-      paymentIntent: { id },
-    } = await paymentIntent(cart, appCoupon, appPaymentId);
+      paymentIntent: { id, client_secret },
+    } = await fetchStripePayment(appToken, appCoupon, appPaymentId);
 
     if (!appPaymentId) {
-      console.log({ appPaymentId });
-      // const paymentIntendId = id;
-      // console.log({ paymentIntendId });
       console.log({ id });
 
-      // Set
       nookies.set(context, 'appPaymentId', id, {
         // maxAge: 72576000,
         httpOnly: true,
@@ -72,10 +67,12 @@ export async function getServerSideProps(context) {
       });
     }
 
+    // nookies.destroy(context, 'appPaymentId');
+
     return {
       props: {
         token: appToken,
-        clientSecret,
+        clientSecret: client_secret,
         coupon: appCoupon,
         userName: user.name,
         cartTotal,
@@ -98,3 +95,23 @@ export async function getServerSideProps(context) {
 }
 
 export default Payment;
+
+const baseURL = process.env.api;
+
+async function fetchStripePayment(token, couponApplied, appPaymentId = null) {
+  console.log(`${baseURL}/create-payment-intent`);
+  try {
+    const { data } = await axios.request({
+      baseURL,
+      url: '/create-payment-intent',
+      method: 'post',
+      headers: { token },
+      data: { couponApplied, appPaymentId },
+    });
+    // console.log({ data });
+    return data;
+    // return JSON.stringify(data);
+  } catch (error) {
+    console.log('fetchStripePayment error:', error);
+  }
+}

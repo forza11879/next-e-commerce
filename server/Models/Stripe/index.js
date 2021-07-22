@@ -29,7 +29,6 @@ const paymentIntent = async (
     }
 
     return {
-      clientSecret: paymentIntent.client_secret,
       paymentIntent,
       cartTotal,
       totalAfterDiscount,
