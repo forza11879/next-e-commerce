@@ -4,8 +4,8 @@ import admin from '@/firebase/index';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import { currentUser } from '@/Models/User/index';
-// import { paymentIntent } from '@/Models/Stripe/index';
-// import { cartByUser } from '@/Models/Cart/index';
+import { paymentIntent } from '@/Models/Stripe/index';
+import { cartByUser } from '@/Models/Cart/index';
 import StripeCheckout from '@/components/stripe/StripeCheckout';
 
 // load stripe outside of components render to avoid recreating stripe object on every render
@@ -44,18 +44,17 @@ export async function getServerSideProps(context) {
   // const { req, res } = context;
   const { appToken, appCoupon, appPaymentId } = nookies.get(context);
 
-  console.log({ appPaymentId });
-
   try {
     const { email } = await admin.auth().verifyIdToken(appToken);
     const user = await currentUser(email);
 
+    const cart = await cartByUser(user._id);
     const {
       cartTotal,
       totalAfterDiscount,
       payable,
       paymentIntent: { id, client_secret },
-    } = await fetchStripePayment(appToken, appCoupon, appPaymentId);
+    } = await paymentIntent(cart, appCoupon, appPaymentId);
 
     if (!appPaymentId) {
       console.log({ id });
@@ -95,23 +94,3 @@ export async function getServerSideProps(context) {
 }
 
 export default Payment;
-
-const baseURL = process.env.api;
-
-async function fetchStripePayment(token, couponApplied, appPaymentId = null) {
-  console.log(`${baseURL}/create-payment-intent`);
-  try {
-    const { data } = await axios.request({
-      baseURL,
-      url: '/create-payment-intent',
-      method: 'post',
-      headers: { token },
-      data: { couponApplied, appPaymentId },
-    });
-    // console.log({ data });
-    return data;
-    // return JSON.stringify(data);
-  } catch (error) {
-    console.log('fetchStripePayment error:', error);
-  }
-}
