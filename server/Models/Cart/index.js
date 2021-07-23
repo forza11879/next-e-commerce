@@ -71,7 +71,8 @@ const emptyCart = async (email) => {
     const user = await currentUser(email);
     console.log('user._id: ', user._id);
     const query = { orderedBy: user._id };
-    const cart = await Cart.findOneAndRemove(query);
+    // const cart = await Cart.findOneAndRemove(query);
+    const cart = await Cart.deleteMany(query);
     console.log({ cart });
     return cart;
   } catch (error) {

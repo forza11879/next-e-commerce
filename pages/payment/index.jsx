@@ -1,5 +1,4 @@
 import nookies from 'nookies';
-import axios from 'axios';
 import admin from '@/firebase/index';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
@@ -7,6 +6,7 @@ import { currentUser } from '@/Models/User/index';
 import { paymentIntent } from '@/Models/Stripe/index';
 import { cartByUser } from '@/Models/Cart/index';
 import StripeCheckout from '@/components/stripe/StripeCheckout';
+import cookie from 'cookie';
 
 // load stripe outside of components render to avoid recreating stripe object on every render
 const promise = loadStripe(process.env.stripeKeyPublic);
@@ -41,7 +41,7 @@ const Payment = ({
 };
 
 export async function getServerSideProps(context) {
-  // const { req, res } = context;
+  const { req, res } = context;
   const { appToken, appCoupon, appPaymentId } = nookies.get(context);
 
   try {
@@ -59,11 +59,21 @@ export async function getServerSideProps(context) {
     if (!appPaymentId) {
       console.log({ id });
 
-      nookies.set(context, 'appPaymentId', id, {
-        // maxAge: 72576000,
-        httpOnly: true,
-        path: '/',
-      });
+      // nookies.set(context, 'appPaymentId', id, {
+      //   // maxAge: 72576000,
+      //   httpOnly: true,
+      //   path: '/',
+      // });
+      res.setHeader(
+        'Set-Cookie',
+        cookie.serialize('appPaymentId', id, {
+          httpOnly: true,
+          // secure: process.env.NODE_ENV !== "development",
+          // expires: new Date(0),
+          // sameSite: 'strict',
+          path: '/',
+        })
+      );
     }
 
     // nookies.destroy(context, 'appPaymentId');

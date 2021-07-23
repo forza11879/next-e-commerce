@@ -33,7 +33,6 @@ export const userCartController = async (req, res) => {
 
 export const emptyCartController = async (req, res) => {
   const { email } = req.user;
-  console.log({ email });
   try {
     const cart = await emptyCart(email);
     res.status(200).json(cart);

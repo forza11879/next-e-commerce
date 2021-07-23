@@ -7,6 +7,7 @@ import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { toast } from 'react-toastify';
 import { getCartStoreReseted } from '@/store/cart';
 import { useMutationRemoveCart } from '@/hooks/query/cart';
+import { useMutationRemoveStripeCookie } from '@/hooks/query/cookies';
 
 const baseURL = process.env.api;
 
@@ -51,6 +52,7 @@ export const orderQueryKeys = {
 // Mutations
 export const useMutationCreateOrder = () => {
   const removeCartUseMutation = useMutationRemoveCart();
+  const removeStripeCookieUseMutation = useMutationRemoveStripeCookie();
   const queryClient = useQueryClient();
   const dispatch = useDispatch();
   return useMutation(
@@ -120,12 +122,7 @@ export const useMutationCreateOrder = () => {
       //   // setExpiry('');
       //   // setDiscount('');
       // },
-      onSettled: (
-        { data },
-        error,
-        { token, userName, appPaymentId },
-        context
-      ) => {
+      onSettled: ({ data }, error, { token, userName }, context) => {
         if (error) {
           toast.error(error.response.data);
         }
@@ -147,9 +144,14 @@ export const useMutationCreateOrder = () => {
             data: { name: userName },
           };
           removeCartUseMutation.mutate(removeCartOptions);
-          // Destroy
-          // nookies.destroy(context, 'appPaymentId');
-          // destroyCookie(null, 'appPaymentId');
+          // Destroy cookie
+          const removeStripeCookieOptions = {
+            url: '/cookies',
+            token: token,
+            method: 'post',
+            data: { cookieName: 'appPaymentId' },
+          };
+          removeStripeCookieUseMutation.mutate(removeStripeCookieOptions);
         }
         // Runs on either success or error. It is better to run invalidateQueries
         // onSettled in case there is an error to re-fetch the request
