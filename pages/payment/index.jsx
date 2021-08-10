@@ -82,7 +82,7 @@ export async function getServerSideProps(context) {
         coupon: appCoupon,
         userName: user.name,
         cartTotal,
-        totalAfterDiscount: totalAfterDiscount,
+        totalAfterDiscount: totalAfterDiscount || null,
         payable,
       }, // will be passed to the page component as props. always return an object with the props key
     };
