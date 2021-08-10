@@ -66,7 +66,7 @@ export const removeController = async (req, res) => {
 
 export const readController = async (req, res) => {
   const { slug } = req.query;
-  console.log({ slug });
+  // console.log({ slug });
   try {
     const product = await read(slug);
     res.status(200).json(product);

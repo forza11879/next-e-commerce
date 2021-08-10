@@ -77,7 +77,7 @@ export async function getServerSideProps(context) {
 
   const productListByCount = async (count) => {
     const result = await listAllByCountProduct(count);
-    console.log('result: ', result);
+    // console.log('result: ', result);
     return JSON.stringify(result);
   };
   try {

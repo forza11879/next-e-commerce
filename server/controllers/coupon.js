@@ -11,10 +11,10 @@ import { currentUser } from '@/Models/User/index';
 
 export const createController = async (req, res) => {
   const { coupon } = req.body;
-  console.log({ coupon });
+  // console.log({ coupon });
   try {
     const newCoupon = await createCoupon(coupon);
-    console.log({ newCoupon });
+    // console.log({ newCoupon });
     res.status(201).json(newCoupon);
   } catch (error) {
     console.log('coupon createController error: ', error);
@@ -34,7 +34,7 @@ export const listController = async (req, res) => {
 
 export const removeController = async (req, res) => {
   const { couponId } = req.query;
-  console.log({ couponId });
+  // console.log({ couponId });
   try {
     const result = await removeCoupon(couponId);
     res.status(201).json(result);

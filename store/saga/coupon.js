@@ -3,7 +3,7 @@ import * as actions from '../action/saga.js';
 
 function* coupon(action) {
   const { coupon, onSuccess, onError } = action.payload;
-  console.log({ coupon });
+  // console.log({ coupon });
   try {
     if (onSuccess) {
       yield put({

@@ -48,8 +48,8 @@ function remove(product) {
 
 function* cart(action) {
   const { product, color, count, onSuccess, onError } = action.payload;
-  console.log({ color });
-  console.log({ count });
+  // console.log({ color });
+  // console.log({ count });
 
   const cart = yield update(product, color, count);
 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Card, Tooltip } from 'antd';
+import { Card, Tooltip, Typography } from 'antd';
 import { EyeOutlined, ShoppingCartOutlined } from '@ant-design/icons';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -14,8 +14,16 @@ const { Meta } = Card;
 const laptop = '/images/laptop.png';
 
 const ProductCard = ({ product }) => {
-  const { images, title, description, price, slug, avgRating, nRatings } =
-    product;
+  const {
+    images,
+    title,
+    description,
+    price,
+    slug,
+    avgRating,
+    nRatings,
+    quantity,
+  } = product;
 
   const [tooltip, setTooltip] = useState('Click to add');
   const dispatch = useDispatch();
@@ -55,10 +63,14 @@ const ProductCard = ({ product }) => {
             </a>
           </Link>,
           <Tooltip title={tooltip}>
-            <a onClick={handleAddToCart}>
-              <ShoppingCartOutlined className="text-danger" /> <br /> Add to
-              Cart
-            </a>
+            <Typography.Link
+              // onClick={quantity < 1 ? null : handleAddToCart}
+              onClick={handleAddToCart}
+              disabled={quantity < 1}
+            >
+              <ShoppingCartOutlined className="text-danger" /> <br />
+              {quantity < 1 ? 'Out of stock' : 'Add to Cart'}
+            </Typography.Link>
           </Tooltip>,
         ]}
       >

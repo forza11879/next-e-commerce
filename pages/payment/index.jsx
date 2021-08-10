@@ -55,10 +55,9 @@ export async function getServerSideProps(context) {
       payable,
       paymentIntent: { id, client_secret },
     } = await paymentIntent(cart, appCoupon, appPaymentId);
+    console.log({ totalAfterDiscount });
 
     if (!appPaymentId) {
-      console.log({ id });
-
       // nookies.set(context, 'appPaymentId', id, {
       //   // maxAge: 72576000,
       //   httpOnly: true,
@@ -76,8 +75,6 @@ export async function getServerSideProps(context) {
       );
     }
 
-    // nookies.destroy(context, 'appPaymentId');
-
     return {
       props: {
         token: appToken,
@@ -85,7 +82,7 @@ export async function getServerSideProps(context) {
         coupon: appCoupon,
         userName: user.name,
         cartTotal,
-        totalAfterDiscount,
+        totalAfterDiscount: totalAfterDiscount || null,
         payable,
       }, // will be passed to the page component as props. always return an object with the props key
     };

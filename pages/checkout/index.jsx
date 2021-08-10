@@ -41,7 +41,7 @@ const Checkout = ({ userName, token }) => {
   const applyCouponUseMutation = useMutationApplyCoupon();
   const applyCouponHeaderUseMutation = useMutationApplyCouponHeader();
 
-  console.log('getUserCartUseQuery.data: ', getUserCartUseQuery.data);
+  // console.log('getUserCartUseQuery.data: ', getUserCartUseQuery.data);
 
   const emptyCart = () => {
     if (typeof window !== 'undefined') {

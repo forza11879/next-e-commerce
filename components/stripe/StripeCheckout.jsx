@@ -59,7 +59,6 @@ const StripeCheckout = ({
       };
       createOrderUseMutation.mutate(createOrderOptions);
 
-      console.log(JSON.stringify(payload, null, 4));
       setError(null);
       setProcessing(false);
       setSucceeded(true);
@@ -95,7 +94,7 @@ const StripeCheckout = ({
     <>
       {!succeeded && (
         <div>
-          {coupon && totalAfterDiscount !== undefined ? (
+          {coupon && totalAfterDiscount !== null ? (
             <p className="alert alert-success">{`Total after discount: $${totalAfterDiscount}`}</p>
           ) : (
             <p className="alert alert-danger">No coupon applied</p>

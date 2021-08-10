@@ -28,37 +28,37 @@ export const searchFiltersController = async (req, res) => {
 
     // price [20, 200]
     if (price !== undefined) {
-      console.log('price ---> ', price);
+      // console.log('price ---> ', price);
       await handlePrice(req, res, price);
     }
 
     if (category) {
-      console.log('category ---> ', category);
+      // console.log('category ---> ', category);
       await handleCategory(req, res, category);
     }
 
     if (stars) {
-      console.log('stars ---> ', stars);
+      // console.log('stars ---> ', stars);
       await handleStar(req, res, stars);
     }
 
     if (subcategory) {
-      console.log('subcategory ---> ', subcategory);
+      // console.log('subcategory ---> ', subcategory);
       await handleSub(req, res, subcategory);
     }
 
     if (shipping) {
-      console.log('shipping ---> ', shipping);
+      // console.log('shipping ---> ', shipping);
       await handleShipping(req, res, shipping);
     }
 
     if (color) {
-      console.log('color ---> ', color);
+      // console.log('color ---> ', color);
       await handleColor(req, res, color);
     }
 
     if (brand) {
-      console.log('brand ---> ', brand);
+      // console.log('brand ---> ', brand);
       await handleBrand(req, res, brand);
     }
   } catch (error) {

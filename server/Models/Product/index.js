@@ -95,7 +95,7 @@ const remove = async (slug) => {
 
 const read = async (slug) => {
   const query = { slug: slug };
-  console.log({ slug });
+  // console.log({ slug });
   try {
     // https://stackoverflow.com/questions/67677767/deep-copy-of-the-object-to-add-a-key-value/67677884#67677884
     const product = await Product.findOne(query)
@@ -163,7 +163,7 @@ const productById = async (productId) => {
   const query = { _id: productId };
   try {
     const product = await Product.findById(query);
-    console.log('productById: ', product);
+    // console.log('productById: ', product);
     return product;
   } catch (error) {
     console.log('product model productStar error: ', error);
@@ -197,8 +197,8 @@ const addRating = async (productId, userId, star) => {
 };
 
 const updateRating = async (userId, star, productId) => {
-  console.log({ userId });
-  console.log({ productId });
+  // console.log({ userId });
+  // console.log({ productId });
 
   const query = { _id: productId };
   const update = { $set: { 'ratings.$.star': star } };
@@ -215,8 +215,8 @@ const updateRating = async (userId, star, productId) => {
 };
 
 const cascadeUpdate = async (productId, categoryId) => {
-  console.log({ categoryId });
-  console.log({ productId });
+  // console.log({ categoryId });
+  // console.log({ productId });
 
   const query = { _id: productId };
   // https://stackoverflow.com/questions/5890898/confused-as-to-how-pullall-works-in-mongodb
@@ -313,7 +313,7 @@ const handlePrice = async (req, res, price) => {
       .populate('subcategories', '_id name')
       .populate('postedBy', '_id name')
       .exec();
-    console.log({ products });
+    // console.log({ products });
 
     res.status(200).json(products);
   } catch (error) {
@@ -351,7 +351,7 @@ const handleStar = async (req, res, stars) => {
       { $match: { floorAverage: stars } },
     ]).limit(12);
 
-    console.log({ result });
+    // console.log({ result });
 
     const products = await Product.find({ _id: result })
       .populate('category', '_id name')
@@ -444,6 +444,19 @@ const productColor = () => {
   }
 };
 
+const decrementQuantityIncrementSoldProduct = async (products) => {
+  const bulkOption = products.map((item) => {
+    return {
+      updateOne: {
+        filter: { _id: item.product._id },
+        update: { $inc: { quantity: -item.count, sold: +item.count } }, // decrement quantity, increment sold
+      },
+    };
+  });
+
+  await Product.bulkWrite(bulkOption);
+};
+
 export {
   create,
   listProduct,
@@ -471,4 +484,5 @@ export {
   handleBrand,
   productBrand,
   productColor,
+  decrementQuantityIncrementSoldProduct,
 };

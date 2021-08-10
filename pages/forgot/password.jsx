@@ -19,7 +19,7 @@ const ForgotPasswordPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    console.log('forgotPasswordRedirect: ', process.env.forgotPasswordRedirect);
+    // console.log('forgotPasswordRedirect: ', process.env.forgotPasswordRedirect);
     const config = {
       url: process.env.forgotPasswordRedirect,
       handleCodeInApp: true,

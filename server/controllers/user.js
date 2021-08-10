@@ -7,7 +7,7 @@ import {
 import dbMiddleware from '@/middleware/db';
 
 export const postUser = async (req, res) => {
-  console.log('postUser from api/user route');
+  // console.log('postUser from api/user route');
 };
 
 export const getCurrentUser = async (req, res) => {
@@ -35,7 +35,7 @@ export const postCreateOrUpdateUser = async (req, res) => {
 
 export const getLogOutUser = async (req, res) => {
   try {
-    console.log('req.user', req.user);
+    // console.log('req.user', req.user);
     logOut(res);
     // console.log('user: ', user);
     res.status(200).json({ message: 'user logged out' });

@@ -3,7 +3,7 @@ import * as actions from '../action/saga.js';
 
 function* drawer(action) {
   const { visible, onSuccess, onError } = action.payload;
-  console.log({ visible });
+  // console.log({ visible });
   try {
     if (onSuccess) {
       yield put({

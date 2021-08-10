@@ -133,8 +133,6 @@ export const useMutationCreateOrder = () => {
         }
 
         if (data.ok) {
-          // empty cart from redux
-          dispatch(getCartStoreReseted());
           // empty cart from local storage
           if (typeof window !== 'undefined') localStorage.removeItem('cart');
           // empty cart from database
@@ -144,6 +142,8 @@ export const useMutationCreateOrder = () => {
             data: { name: userName },
           };
           removeCartUseMutation.mutate(removeCartOptions);
+          // empty cart from redux
+          dispatch(getCartStoreReseted());
           // Destroy cookie
           const removeStripeCookieOptions = {
             url: '/cookies',

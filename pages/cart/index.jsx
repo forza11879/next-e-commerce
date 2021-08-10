@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import nookies from 'nookies';
 import admin from '@/firebase/index';
 import { currentUser } from '@/Models/User/index';
@@ -8,15 +9,27 @@ import { selectCart } from '@/store/cart';
 import { selectUser } from '@/store/user';
 import ProductCardInCheckout from '@/components/cards/ProductCardInCheckout';
 import { useQueryUserCart } from '@/hooks/query/cart';
+import { useMutationRemoveStripeCookie } from '@/hooks/query/cookies';
 
 const Cart = ({ token, userName }) => {
   //   const dispatch = useDispatch();
   const cart = useSelector(selectCart);
   const user = useSelector(selectUser);
 
-  console.log('after', cart);
+  // console.log('after', cart);
   // const [data, setName] = useQueryUserCart(cart, token);
   const userCartUseQuery = useQueryUserCart(cart, token);
+  const removeStripeCookieUseMutation = useMutationRemoveStripeCookie();
+  useEffect(() => {
+    // Destroy cookie
+    const removeStripeCookieOptions = {
+      url: '/cookies',
+      token: token,
+      method: 'post',
+      data: { cookieName: 'appPaymentId' },
+    };
+    removeStripeCookieUseMutation.mutate(removeStripeCookieOptions);
+  }, []);
 
   const router = useRouter();
   const { asPath } = router;

@@ -24,7 +24,7 @@ const slice = createSlice({
   // reducers
   reducers: {
     cartAdded: (state, action) => {
-      console.log('action.payload.cart: ', action.payload.cart);
+      // console.log('action.payload.cart: ', action.payload.cart);
       Object.assign(state, action.payload.cart);
     },
     cartDeleted: (state, action) => action.payload.cart,

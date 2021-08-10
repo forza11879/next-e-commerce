@@ -24,7 +24,7 @@ const Product = ({ productId, userId, slug, isUser, token }) => {
 
   const onStarClick = (newRating, productId) => {
     setStar(newRating);
-    console.log(`/product/star/${productId}`);
+    // console.log(`/product/star/${productId}`);
     const options = {
       url: `/product/star/${productId}`,
       method: 'put',

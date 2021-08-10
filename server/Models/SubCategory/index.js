@@ -62,7 +62,7 @@ const remove = async (slug) => {
 
 const getSubCategories = async (id) => {
   const query = { parent: id };
-  console.log('getSubCategories id', id);
+  // console.log('getSubCategories id', id);
   try {
     const subCategoriesList = await SubCategory.find(query);
     return subCategoriesList;

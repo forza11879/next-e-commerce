@@ -69,11 +69,11 @@ const userCart = async (cart, cartOfUser, userId) => {
 const emptyCart = async (email) => {
   try {
     const user = await currentUser(email);
-    console.log('user._id: ', user._id);
+    // console.log('user._id: ', user._id);
     const query = { orderedBy: user._id };
-    // const cart = await Cart.findOneAndRemove(query);
-    const cart = await Cart.deleteMany(query);
-    console.log({ cart });
+    const cart = await Cart.findOneAndRemove(query);
+    // const cart = await Cart.deleteMany(query);
+    // console.log({ cart });
     return cart;
   } catch (error) {
     console.log('cart emptyCart error: ', error);

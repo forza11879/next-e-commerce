@@ -3,7 +3,7 @@ import Link from 'next/link';
 import firebase from 'firebase';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
-import { Menu, Badge } from 'antd';
+import { Menu, Badge, Typography } from 'antd';
 // import dynamic from 'next/dynamic';
 // const { Badge } = dynamic(() => import('antd'), {
 //   ssr: false,
@@ -72,16 +72,18 @@ const Header = () => {
         <Link href="/cart">
           {/* <MyBadge /> */}
           <a>
-            <span>
-              <Badge
-                count={cart.reduce((acc, currentValue) => {
-                  return (acc = acc + currentValue.count);
-                }, 0)}
-                offset={[9, 0]}
-              >
-                Cart
-              </Badge>
-            </span>
+            {/* <span>
+              <sup> */}
+            <Badge
+              count={cart.reduce((acc, currentValue) => {
+                return (acc = acc + currentValue.count);
+              }, 0)}
+              offset={[9, 0]}
+            >
+              Cart
+            </Badge>
+            {/* </sup>
+            </span> */}
           </a>
 
           {/* fix Badge TODO */}

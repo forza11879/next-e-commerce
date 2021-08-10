@@ -11,7 +11,7 @@ export const getUserCartController = async (req, res) => {
   try {
     const user = await currentUser(email);
     const cart = await getUserCart(user._id);
-    console.log({ cart });
+    // console.log({ cart });
     res.status(200).json(cart);
   } catch (error) {
     console.log('cart getUserCartController controller error: ', error);

@@ -47,7 +47,7 @@ const RegisterCompletePage = () => {
         await user.updatePassword(password);
         const { token } = await user.getIdTokenResult();
         // redux store
-        console.log('user', user, 'token', { token });
+        // console.log('user', user, 'token', { token });
         dispatch(
           getHttpRequest({
             url: '/user',

@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import _ from 'lodash';
-import { Card, Tabs, Tooltip } from 'antd';
+import { Card, Tabs, Tooltip, Typography } from 'antd';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 const StarRating = dynamic(() => import('react-star-ratings'), {
@@ -18,8 +18,17 @@ import RatingStar from '@/components/starrating/RatingStar';
 const { TabPane } = Tabs;
 
 const SingleProduct = ({ product, isUser, token, onStarClick }) => {
-  const { title, description, images, slug, _id, star, avgRating, nRatings } =
-    product;
+  const {
+    title,
+    description,
+    images,
+    slug,
+    _id,
+    star,
+    avgRating,
+    nRatings,
+    quantity,
+  } = product;
   const [loaded, setLoaded] = useState(false);
   const [tooltip, setTooltip] = useState('Click to add');
   const dispatch = useDispatch();
@@ -85,10 +94,13 @@ const SingleProduct = ({ product, isUser, token, onStarClick }) => {
         <Card
           actions={[
             <Tooltip title={tooltip}>
-              <a onClick={handleAddToCart}>
+              <Typography.Link
+                onClick={handleAddToCart}
+                disabled={quantity < 1}
+              >
                 <ShoppingCartOutlined className="text-success" /> <br />
-                Add to Cart
-              </a>
+                {quantity < 1 ? 'Out of stock' : 'Add to Cart'}
+              </Typography.Link>
             </Tooltip>,
             <Link href="/">
               <a>
