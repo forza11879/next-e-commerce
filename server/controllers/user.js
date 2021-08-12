@@ -4,6 +4,7 @@ import {
   logOut,
   saveAddress,
 } from '@/Models/User/index';
+import { findUserOrders } from '@/Models/Order/index';
 import dbMiddleware from '@/middleware/db';
 
 export const postUser = async (req, res) => {
@@ -55,6 +56,21 @@ export const saveAddressController = async (req, res) => {
     res.status(200).json(result);
   } catch (error) {
     console.log('saveAddressController error: ', error);
+    res.status(400).json({
+      error: 'something went wrong',
+    });
+  }
+};
+
+export const ordersController = async (req, res) => {
+  const { email } = req.user;
+  // console.log({ email });
+  try {
+    const user = await currentUser(email);
+    const userOrders = await findUserOrders(user._id);
+    res.status(200).json(userOrders);
+  } catch (error) {
+    console.log('ordersController error: ', error);
     res.status(400).json({
       error: 'something went wrong',
     });

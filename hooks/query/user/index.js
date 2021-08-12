@@ -21,9 +21,27 @@ async function fetchProducts(body) {
   }
 }
 
+async function fetchUserOrders(token) {
+  console.log(`${baseURL}/user/history`);
+  try {
+    const { data } = await axios.request({
+      baseURL,
+      url: `/user/history`,
+      method: 'get',
+      headers: { token },
+    });
+    console.log({ data });
+    return JSON.stringify(data);
+    // return data;
+  } catch (error) {
+    console.log('fetchUserOrders error:', error);
+  }
+}
+
 export const userQueryKeys = {
   user: ['user'],
   userAddress: () => [...userQueryKeys.user, 'address'],
+  userOrders: () => [...userQueryKeys.user, 'orders'],
 };
 
 // Queries
@@ -43,16 +61,23 @@ export const useQueryUserAddress = () =>
     }, //  Don't `catch` in the queryFn just to log. It will make your errors return as resolved promises, thus they won't be seen as errors by react-query. use the `onError` callback instead.
   });
 
-// export const saveUserAddress = async (authtoken, address) =>
-//   await axios.post(
-//     `${process.env.REACT_APP_API}/user/address`,
-//     { address },
-//     {
-//       headers: {
-//         authtoken,
-//       },
-//     }
-//   );
+export const useQueryUserOrders = (token) =>
+  useQuery(userQueryKeys.userOrders(), () => fetchUserOrders(token), {
+    // Selectors like the one bellow will also run on every render, because the functional identity changes (it's an inline function). If your transformation is expensive, you can memoize it either with useCallback, or by extracting it to a stable function reference
+    select: useCallback((data) => {
+      // selectors will only be called if data exists, so you don't have to care about undefined here.
+      // console.log(JSON.parse(data));
+      // console.log(data);
+      // return data;
+      return JSON.parse(data);
+    }, []),
+    staleTime: Infinity, // stays in fresh State for ex:1000ms(or Infinity) then turns into Stale State
+    // enabled: Boolean(),
+    // keepPreviousData: true, // to avoid hard loading states between the refetches triggered by a query-key change.
+    onError: (error) => {
+      console.log('useQueryUserAddress error: ', error);
+    }, //  Don't `catch` in the queryFn just to log. It will make your errors return as resolved promises, thus they won't be seen as errors by react-query. use the `onError` callback instead.
+  });
 
 // Mutations
 export const useMutationSaveUserAddress = () => {

@@ -14,4 +14,15 @@ const createOrder = async ({ products, orderedBy, paymentIntent }) => {
   }
 };
 
-export { createOrder };
+const findUserOrders = async (userId) => {
+  const query = { orderedBy: userId };
+  try {
+    const userOrders = await Order.find(query).populate('products.product');
+
+    return userOrders;
+  } catch (error) {
+    console.log('user findUserOrders: ', error);
+  }
+};
+
+export { createOrder, findUserOrders };
