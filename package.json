@@ -9,6 +9,8 @@
   },
   "dependencies": {
     "@ant-design/icons": "^4.6.2",
+    "@david.kucsai/react-pdf-table": "^0.3.0",
+    "@react-pdf/renderer": "^2.0.18",
     "@reduxjs/toolkit": "^1.6.0",
     "@stripe/react-stripe-js": "^1.4.1",
     "antd": "^4.15.6",

@@ -5,6 +5,8 @@ import admin from '@/firebase/index';
 import { currentUser } from '@/Models/User/index';
 import { findUserOrders } from '@/Models/Order/index';
 import UserNav from '@/components/nav/UserNav';
+import ShowPaymentInfo from '@/components/cards/ShowPaymentInfo';
+import { showDownloadLink } from '@/components/pdf/showDownloadLink';
 import { useSelector, useDispatch } from 'react-redux';
 import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { toast } from 'react-toastify';
@@ -50,14 +52,12 @@ const History = ({ token }) => {
   );
 
   const showEachOrders = () =>
-    userOrdersUseQuery.data.map((item, idex) => (
-      <div key={idex} className="m-5 p-3 card">
-        <p>show payment info</p>
+    userOrdersUseQuery.data.map((item, index) => (
+      <div key={index} className="m-5 p-3 card">
+        <ShowPaymentInfo order={item} />
         {showOrderInTable(item)}
         <div className="row">
-          <div className="col">
-            <p>PDF download</p>
-          </div>
+          <div className="col">{showDownloadLink(item)}</div>
         </div>
       </div>
     ));
