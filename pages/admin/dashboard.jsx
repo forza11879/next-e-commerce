@@ -1,10 +1,33 @@
 import AdminRoute from '@/components/lib/AdminRoute';
 import AdminNav from '@/components/nav/AdminNav';
 import nookies from 'nookies';
+import { QueryClient } from 'react-query';
+import { dehydrate } from 'react-query/hydration';
 import admin from '@/firebase/index';
 import { currentUser } from '@/Models/User/index';
+import { findAllOrders } from '@/Models/Order/index';
+import Orders from '@/components/order/Orders';
+import {
+  orderQueryKeys,
+  useQueryUserOrders,
+  useMutationUpdateOrderStatus,
+} from '@/hooks/query/order';
 
-const AdminDashBoard = ({ isAdmin }) => {
+const AdminDashBoard = ({ token, isAdmin, userId }) => {
+  const userOrdersUseQuery = useQueryUserOrders(userId, token);
+  const updateOrderStatusUseMutation = useMutationUpdateOrderStatus();
+
+  const handleStatusChange = (orderId, orderStatus) => {
+    const updateOrderStatusOptions = {
+      url: '/admin/order-status',
+      method: 'put',
+      token,
+      userId,
+      data: { orderId, orderStatus },
+    };
+    updateOrderStatusUseMutation.mutate(updateOrderStatusOptions);
+  };
+
   return (
     <div className="container-fluid">
       <AdminRoute isAdmin={isAdmin}>
@@ -12,7 +35,13 @@ const AdminDashBoard = ({ isAdmin }) => {
           <div className="col-md-2">
             <AdminNav />
           </div>
-          <div className="col">admin dashboard page</div>
+          <div className="col-md-10">
+            <h4>Admin Dashboard</h4>
+            <Orders
+              orders={userOrdersUseQuery.data}
+              handleStatusChange={handleStatusChange}
+            />
+          </div>
         </div>
       </AdminRoute>
     </div>
@@ -26,25 +55,32 @@ export async function getServerSideProps(context) {
 
   try {
     const { email } = await admin.auth().verifyIdToken(appToken);
-    const { role } = await currentUser(email);
+    const user = await currentUser(email);
 
-    if (role === 'admin') isAdmin = true;
+    if (user.role === 'admin') isAdmin = true;
+
+    const userId = JSON.parse(JSON.stringify(user._id));
 
     // Using Hydration
-    // const queryClient = new QueryClient();
-    // await queryClient.prefetchQuery('productListByCount', () =>
-    //   productListByCount(count)
-    // );
+    const queryClient = new QueryClient();
+    await queryClient.prefetchQuery(
+      orderQueryKeys.userOrders(userId),
+      async () => {
+        const orders = await findAllOrders(user._id);
+        return JSON.stringify(orders);
+      }
+    );
 
     return {
       props: {
         token: appToken,
         isAdmin: isAdmin,
-        // dehydratedState: dehydrate(queryClient),
+        userId,
+        dehydratedState: dehydrate(queryClient),
       }, // will be passed to the page component as props. always return an object with the props key
     };
   } catch (error) {
-    console.log('error FIREBASsE: ', error.errorInfo.message);
+    console.log('error FIREBASsE: ', error);
     if (error) {
       return {
         // notFound: true,
