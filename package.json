@@ -27,7 +27,7 @@
     "lodash.debounce": "^4.0.8",
     "loglevel": "^1.7.1",
     "mongoose": "^5.12.5",
-    "next": "^11.0.1",
+    "next": "^11.1.0",
     "next-connect": "^0.10.1",
     "next-redux-wrapper": "^7.0.2",
     "nookies": "^2.5.2",

@@ -3,6 +3,9 @@ import {
   currentUser,
   logOut,
   saveAddress,
+  updateUserWishList,
+  findUserWishList,
+  removeProductFromUserWishList,
 } from '@/Models/User/index';
 import { findUserOrders } from '@/Models/Order/index';
 import dbMiddleware from '@/middleware/db';
@@ -71,6 +74,47 @@ export const ordersController = async (req, res) => {
     res.status(200).json(userOrders);
   } catch (error) {
     console.log('ordersController error: ', error);
+    res.status(400).json({
+      error: 'something went wrong',
+    });
+  }
+};
+
+export const addToWishlistController = async (req, res) => {
+  const { productId } = req.body;
+  const { email } = req.user;
+  try {
+    await updateUserWishList(email, productId);
+    res.status(200).json({ ok: true });
+  } catch (error) {
+    console.log('user addToWishlistController error: ', error);
+    res.status(400).json({
+      error: 'something went wrong',
+    });
+  }
+};
+
+export const wishlistController = async (req, res) => {
+  const { email } = req.user;
+  try {
+    const userWishList = await findUserWishList(email);
+    res.status(200).json(userWishList);
+  } catch (error) {
+    console.log('user wishlistController error: ', error);
+    res.status(400).json({
+      error: 'something went wrong',
+    });
+  }
+};
+
+export const removeFromWishlistController = async (req, res) => {
+  const { email } = req.user;
+  const { productId } = req.params;
+  try {
+    await removeProductFromUserWishList(email, productId);
+    res.status(200).json({ ok: true });
+  } catch (error) {
+    console.log('user removeFromWishlistController error: ', error);
     res.status(400).json({
       error: 'something went wrong',
     });

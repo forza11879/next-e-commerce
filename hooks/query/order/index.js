@@ -197,18 +197,18 @@ export const useMutationUpdateOrderStatus = () => {
     },
     {
       onMutate: ({ userId, data: { orderId, orderStatus } }) => {
-        console.log({ userId });
-        console.log({ orderId, orderStatus });
+        // console.log({ userId });
+        // console.log({ orderId, orderStatus });
         // Cancel any outgoing refetches (so they don't overwrite(race condition) our optimistic update)
         queryClient.cancelQueries(orderQueryKeys.userOrders(userId));
 
         const previousQueryDataArray = queryClient.getQueryData(
           orderQueryKeys.userOrders(userId)
         );
-        console.log(
-          'previousQueryDataArray: ',
-          JSON.parse(previousQueryDataArray)
-        );
+        // console.log(
+        //   'previousQueryDataArray: ',
+        //   JSON.parse(previousQueryDataArray)
+        // );
         // In an optimistic update the UI behaves as though a change was successfully completed before receiving confirmation from the server that it actually was - it is being optimistic that it will eventually get the confirmation rather than an error. This allows for a more responsive user experience.
         // const newObject = {
         //   ...coupon,
@@ -219,15 +219,14 @@ export const useMutationUpdateOrderStatus = () => {
           orderQueryKeys.userOrders(userId),
           (oldQueryData) => {
             const oldQueryDataArray = JSON.parse(oldQueryData);
-            console.log('oldQueryDataArray before: ', oldQueryDataArray);
-            oldQueryDataArray.indexOf;
+            // console.log('oldQueryDataArray before: ', oldQueryDataArray);
             const index = oldQueryDataArray.findIndex(
               (item) => item._id === orderId
             );
             // console.log({ index });
             oldQueryDataArray[index].orderStatus = orderStatus;
             // oldQueryDataArray.unshift(newObject);
-            console.log('oldQueryDataArray after: ', oldQueryDataArray);
+            // console.log('oldQueryDataArray after: ', oldQueryDataArray);
             return JSON.stringify(oldQueryDataArray);
           }
         );
@@ -262,8 +261,8 @@ export const useMutationUpdateOrderStatus = () => {
       //   // setDiscount('');
       // },
       onSettled: ({ data }, error, { userId }, context) => {
-        console.log({ data });
-        // toast.success('Status updated');
+        // console.log({ data });
+        toast.success('Status updated');
         // if (error) {
         //   toast.error(error.response.data);
         // }

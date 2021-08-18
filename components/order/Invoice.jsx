@@ -56,7 +56,10 @@ const Invoice = ({ order }) => (
         {'\n'}
         <Text>
           Total Paid: {'       '}
-          {order.paymentIntent.amount}
+          {(order.paymentIntent.amount / 100).toLocaleString('en-US', {
+            style: 'currency',
+            currency: 'USD',
+          })}
         </Text>
       </Text>
 

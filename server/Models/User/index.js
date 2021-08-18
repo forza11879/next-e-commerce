@@ -51,8 +51,54 @@ const saveAddress = async (email, address) => {
     const userAddress = await User.findOneAndUpdate(query, update);
     return { ok: true };
   } catch (error) {
-    console.log('user saveAddress: ', error);
+    console.log('user saveAddress error: ', error);
   }
 };
 
-export { createOrUpdateUser, currentUser, logOut, saveAddress };
+const updateUserWishList = async (email, productId) => {
+  try {
+    const query = { email };
+    const update = { $addToSet: { wishlist: productId } };
+    // const options = { new: true };
+
+    await User.findOneAndUpdate(query, update);
+  } catch (error) {
+    console.log('user updateUserWishList error: ', error);
+  }
+};
+
+const findUserWishList = async (email) => {
+  try {
+    const query = { email };
+
+    const userWishList = await User.findOne(query)
+      .select('wishlist')
+      .populate('wishlist');
+
+    return userWishList;
+  } catch (error) {
+    console.log('user findUserWishList error: ', error);
+  }
+};
+
+const removeProductFromUserWishList = async (email, productId) => {
+  try {
+    const query = { email };
+    const update = { $pull: { wishlist: productId } };
+    // const options = { new: true };
+
+    await User.findOneAndUpdate(query, update);
+  } catch (error) {
+    console.log('user removeProductFromUserWishList error: ', error);
+  }
+};
+
+export {
+  createOrUpdateUser,
+  currentUser,
+  logOut,
+  saveAddress,
+  updateUserWishList,
+  findUserWishList,
+  removeProductFromUserWishList,
+};

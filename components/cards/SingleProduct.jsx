@@ -14,6 +14,7 @@ import { getSetVisibleDrawer } from '@/store/drawer';
 import ProductListItems from '@/components/cards/ProductListItems';
 import RatingModal from '@/components/modal/RatingModal';
 import RatingStar from '@/components/starrating/RatingStar';
+import { useMutationAddToWishList } from '@/hooks/query/user';
 
 const { TabPane } = Tabs;
 
@@ -32,6 +33,8 @@ const SingleProduct = ({ product, isUser, token, onStarClick }) => {
   const [loaded, setLoaded] = useState(false);
   const [tooltip, setTooltip] = useState('Click to add');
   const dispatch = useDispatch();
+
+  const addToWishListUseMutation = useMutationAddToWishList();
 
   const cloudnaryGalleryRef = useRef(null);
 
@@ -69,6 +72,22 @@ const SingleProduct = ({ product, isUser, token, onStarClick }) => {
     dispatch(getSetVisibleDrawer(true));
   };
 
+  const handleAddToWishlist = (e) => {
+    e.preventDefault();
+    const options = {
+      url: '/user/wishlist',
+      method: 'post',
+      token,
+      data: { productId: _id },
+    };
+    addToWishListUseMutation.mutate(options);
+    // addToWishlist(product._id, user.token).then((res) => {
+    //   console.log("ADDED TO WISHLIST", res.data);
+    //   toast.success("Added to wishlist");
+    //   history.push("/user/wishlist");
+    // });
+  };
+
   return (
     <>
       <div className="col-md-7">
@@ -102,11 +121,9 @@ const SingleProduct = ({ product, isUser, token, onStarClick }) => {
                 {quantity < 1 ? 'Out of stock' : 'Add to Cart'}
               </Typography.Link>
             </Tooltip>,
-            <Link href="/">
-              <a>
-                <HeartOutlined className="text-info" /> <br /> Add to Wishlist
-              </a>
-            </Link>,
+            <a onClick={handleAddToWishlist}>
+              <HeartOutlined className="text-info" /> <br /> Add to Wishlist
+            </a>,
             <RatingModal isUser={isUser} token={token}>
               <StarRating
                 name={_id}

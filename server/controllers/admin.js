@@ -11,7 +11,6 @@ export const ordersController = async (req, res) => {
 
 export const orderStatusController = async (req, res) => {
   const { orderId, orderStatus } = req.body;
-  console.log('req.body: ', req.body);
 
   try {
     const updated = await updateOrder(orderId, orderStatus);
