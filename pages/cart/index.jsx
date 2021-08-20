@@ -7,7 +7,11 @@ import { useRouter } from 'next/router';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectCart } from '@/store/cart';
 import { selectUser } from '@/store/user';
-import { getCashOnDeliveryApplied } from '@/store/cashOnDelivery';
+import {
+  getCashOnDeliveryApplied,
+  cashOnDeliveryStoreReseted,
+} from '@/store/cashOnDelivery';
+import { couponStoreReseted } from '@/store/coupon';
 import ProductCardInCheckout from '@/components/cards/ProductCardInCheckout';
 import { useQueryUserCart } from '@/hooks/query/cart';
 import { useMutationRemoveStripeCookie } from '@/hooks/query/cookies';
@@ -30,6 +34,8 @@ const Cart = ({ token, userName }) => {
       data: { cookieName: 'appPaymentId' },
     };
     removeStripeCookieUseMutation.mutate(removeStripeCookieOptions);
+    dispatch(cashOnDeliveryStoreReseted());
+    dispatch(couponStoreReseted());
   }, []);
 
   const router = useRouter();

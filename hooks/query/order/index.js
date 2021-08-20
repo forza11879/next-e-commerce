@@ -177,10 +177,119 @@ export const useMutationCreateOrder = () => {
   );
 };
 
-// changeStatus(orderId, orderStatus, user.token).then((res) => {
-//   toast.success('Status updated');
-//   loadOrders();
-// });
+export const useMutationCreateCashOrder = () => {
+  const router = useRouter();
+  const removeCartUseMutation = useMutationRemoveCart();
+  // const removeStripeCookieUseMutation = useMutationRemoveStripeCookie();
+  const queryClient = useQueryClient();
+  const dispatch = useDispatch();
+  return useMutation(
+    async ({ url, method, token, data }) => {
+      return await axios.request({
+        baseURL,
+        url,
+        method,
+        data,
+        headers: { token },
+      });
+    },
+    {
+      // onMutate: ({
+      //   data: { coupon },
+      //   props: { setName, setExpiry, setDiscount },
+      // }) => {
+      //   // Cancel any outgoing refetches (so they don't overwrite(race condition) our optimistic update)
+      //   queryClient.cancelQueries(couponQueryKeys.coupons);
+      //   setName('');
+      //   setExpiry(new Date());
+      //   setDiscount('');
+      //   const previousQueryDataArray = queryClient.getQueryData(
+      //     couponQueryKeys.coupons
+      //   );
+      //   // console.log('previousQueryDataArray: ', previousQueryDataArray);
+      //   // In an optimistic update the UI behaves as though a change was successfully completed before receiving confirmation from the server that it actually was - it is being optimistic that it will eventually get the confirmation rather than an error. This allows for a more responsive user experience.
+      //   const newObject = {
+      //     ...coupon,
+      //     _id: Date.now(),
+      //   };
+      //   // console.log('newObject: ', newObject);
+      //   queryClient.setQueryData(couponQueryKeys.coupons, (oldQueryData) => {
+      //     const oldQueryDataArray = JSON.parse(oldQueryData);
+      //     // console.log('oldQueryDataArray before: ', oldQueryDataArray);
+      //     oldQueryDataArray.unshift(newObject);
+      //     // console.log('oldQueryDataArray after: ', oldQueryDataArray);
+      //     return JSON.stringify(oldQueryDataArray);
+      //   });
+      //   // return will pass the function or the value to the onError third argument:
+      //   return () =>
+      //     queryClient.setQueryData(
+      //       couponQueryKeys.coupons,
+      //       previousQueryDataArray
+      //     );
+      // },
+      // onError: (error, variables, rollback) => {
+      //   //   If there is an errror, then we will rollback
+      //   // console.log('CreateCategory onError error: ', error.response.data);
+      //   if (rollback) {
+      //     rollback();
+      //     console.log('rollback');
+      //   }
+      //   if (error) {
+      //     toast.error(error.response.data);
+      //     // toast.error(error);
+      //   }
+      // },
+      // onSuccess: (data, values, context) => {
+      //   // if (data) {
+      //   //   toast.success(`"${data.title}" is updated`);
+      //   // }
+      //   // console.log({ data });
+      //   // console.log({ values });
+      //   // console.log({ props });
+      //   // setName('');
+      //   // setExpiry('');
+      //   // setDiscount('');
+      // },
+      onSettled: ({ data }, error, { token, userName }, context) => {
+        if (error) {
+          toast.error(error.response.data);
+        }
+        // console.log({ data });
+        if (data) {
+          //   toast.success(`"${data.name}" was created`);
+          // console.log({ data });
+        }
+        if (data.ok) {
+          // empty cart from local storage
+          console.log({ data });
+          if (typeof window !== 'undefined') localStorage.removeItem('cart');
+          // empty cart from database
+          const removeCartOptions = {
+            url: `${process.env.api}/cart`,
+            token: token,
+            data: { name: userName },
+          };
+          removeCartUseMutation.mutate(removeCartOptions);
+          // empty cart from redux
+          dispatch(getCartStoreReseted());
+          // Destroy cookie
+          // const removeStripeCookieOptions = {
+          //   url: '/cookies',
+          //   token: token,
+          //   method: 'post',
+          //   data: { cookieName: 'appPaymentId' },
+          // };
+          // removeStripeCookieUseMutation.mutate(removeStripeCookieOptions);
+          router.push('/user/history');
+        }
+        // Runs on either success or error. It is better to run invalidateQueries
+        // onSettled in case there is an error to re-fetch the request
+        // it is prefered to invalidateQueries  after using setQueryData inside onSuccess: because you are getting the latest data from the server
+        // queryClient.invalidateQueries(couponQueryKeys.coupons);
+      },
+    }
+  );
+};
 
 export const useMutationUpdateOrderStatus = () => {
   const queryClient = useQueryClient();

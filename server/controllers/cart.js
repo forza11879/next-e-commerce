@@ -40,5 +40,3 @@ export const emptyCartController = async (req, res) => {
     console.log('cart emptyCartController controller error: ', error);
   }
 };
-
-emptyCartController;

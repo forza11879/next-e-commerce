@@ -10,8 +10,7 @@ const slice = createSlice({
   // reducers
   reducers: {
     couponApplied: (state, action) => action.payload.coupon,
-
-    // userStoreReseted: (state) => initialState(),
+    couponStoreReseted: (state) => false,
   },
 
   // extraReducers: {
@@ -29,7 +28,7 @@ const slice = createSlice({
   // },
 });
 
-export const { couponApplied } = slice.actions;
+export const { couponApplied, couponStoreReseted } = slice.actions;
 export default slice.reducer;
 
 // Action creators

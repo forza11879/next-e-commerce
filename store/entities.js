@@ -12,5 +12,5 @@ export default combineReducers({
   cart: cartReducer,
   drawer: drawerReducer,
   coupon: couponReducer,
-  cashOnDeliveryReducer: cashOnDeliveryReducer,
+  cashondelivery: cashOnDeliveryReducer,
 });

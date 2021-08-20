@@ -19,6 +19,7 @@ import {
   useMutationApplyCoupon,
   useMutationApplyCouponHeader,
 } from '@/hooks/query/coupon/index';
+import { useMutationCreateCashOrder } from '@/hooks/query/order';
 import { getCartStoreReseted } from '@/store/cart';
 import { selectCoupon } from '@/store/coupon';
 import { selectCashOnDelivery } from '@/store/cashOnDelivery';
@@ -36,12 +37,12 @@ const Checkout = ({ userName, token }) => {
   const router = useRouter();
 
   const getUserCartUseQuery = useQueryGetUserCart(userName, token);
-  // const { products, cartTotal } = getUserCartUseQuery.data;
   const dispatch = useDispatch();
   const removeCartUseMutation = useMutationRemoveCart();
   const saveUserAddressMutation = useMutationSaveUserAddress();
   const applyCouponUseMutation = useMutationApplyCoupon();
   const applyCouponHeaderUseMutation = useMutationApplyCouponHeader();
+  const creatCashOrderUseMutation = useMutationCreateCashOrder();
 
   // console.log('getUserCartUseQuery.data: ', getUserCartUseQuery.data);
 
@@ -89,17 +90,43 @@ const Checkout = ({ userName, token }) => {
 
   const createCashOrder = () => {
     const options = {
-      url: '',
+      url: '/user/order-cash',
       method: 'post',
       token,
-      coupon: couponRedux,
-      COD,
+      userName,
+      data: { couponApplied: couponRedux, COD },
     };
+
     creatCashOrderUseMutation.mutate(options);
-    createCashOrderForUser(user.token).then((res) => {
-      console.log('USER CASH ORDER CREATED RES ', res);
-      // empty cart form redux, local Storage, reset coupon, reset COD, redirect
-    });
+    // createCashOrderForUser(user.token, COD, couponTrueOrFalse).then((res) => {
+    //   console.log('USER CASH ORDER CREATED RES ', res);
+    //   // empty cart form redux, local Storage, reset coupon, reset COD, redirect
+    //   if (res.data.ok) {
+    //     // empty local storage
+    //     if (typeof window !== 'undefined') localStorage.removeItem('cart');
+    //     // empty redux cart
+    //     dispatch({
+    //       type: 'ADD_TO_CART',
+    //       payload: [],
+    //     });
+    //     // empty redux coupon
+    //     dispatch({
+    //       type: 'COUPON_APPLIED',
+    //       payload: false,
+    //     });
+    //     // empty redux COD
+    //     dispatch({
+    //       type: 'COD',
+    //       payload: false,
+    //     });
+    //     // mepty cart from backend
+    //     emptyUserCart(user.token);
+    //     // redirect
+    //     setTimeout(() => {
+    //       history.push('/user/history');
+    //     }, 1000);
+    //   }
+    // });
   };
 
   const applyDiscountCoupon = () => {

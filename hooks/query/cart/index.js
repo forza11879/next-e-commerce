@@ -98,8 +98,6 @@ export const useMutationRemoveCart = () => {
   const queryClient = useQueryClient();
   return useMutation(
     async ({ url, token }) => {
-      console.log({ url });
-      console.log({ token });
       return await axios.delete(url, {
         headers: {
           token,

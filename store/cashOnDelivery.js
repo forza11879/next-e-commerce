@@ -10,8 +10,8 @@ const slice = createSlice({
   // reducers
   reducers: {
     cashOnDeliveryApplied: (state, action) => action.payload.cashondelivery,
-
-    // userStoreReseted: (state) => initialState(),
+    cashOnDeliveryStoreReseted: (state) => false,
+    // cashOnDeliveryStoreReseted: (state) => state.entities.cashondelivery,
   },
 
   // extraReducers: {
@@ -29,7 +29,8 @@ const slice = createSlice({
   // },
 });
 
-export const { cashOnDeliveryApplied } = slice.actions;
+export const { cashOnDeliveryApplied, cashOnDeliveryStoreReseted } =
+  slice.actions;
 export default slice.reducer;
 
 // Action creators
@@ -41,8 +42,10 @@ export const getCashOnDeliveryApplied = (cashondelivery) =>
   });
 
 // Selectors - Memoized Selector - it does not cause multiple re-renders
-const cashOnDeliverySelector = (state) => state.entities.cashondelivery;
-
+const cashOnDeliverySelector = (state) => {
+  // console.log('state.entities: ', state.entities);
+  return state.entities.cashondelivery;
+};
 export const selectCashOnDelivery = createSelector(
   cashOnDeliverySelector,
   // if the drawer remains the same

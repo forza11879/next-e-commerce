@@ -15,19 +15,20 @@ const createOrder = async ({ products, orderedBy, paymentIntent }) => {
   }
 };
 
-const createCashOrder = async ({ products, cartTotal, orderedBy }) => {
+const createCashOrder = async ({ products, amount, orderedBy }) => {
   try {
     await new Order({
       products,
       paymentIntent: {
         id: uniqueid(),
-        amount: cartTotal,
+        amount,
         currency: 'usd',
         status: 'Cash On Delivery',
         created: Date.now(),
         payment_method_types: ['cash'],
       },
       orderedBy,
+      orderStatus: 'Cash On Delivery',
     }).save();
 
     return { ok: true };
