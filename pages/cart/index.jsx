@@ -7,12 +7,13 @@ import { useRouter } from 'next/router';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectCart } from '@/store/cart';
 import { selectUser } from '@/store/user';
+import { getCashOnDeliveryApplied } from '@/store/cashOnDelivery';
 import ProductCardInCheckout from '@/components/cards/ProductCardInCheckout';
 import { useQueryUserCart } from '@/hooks/query/cart';
 import { useMutationRemoveStripeCookie } from '@/hooks/query/cookies';
 
 const Cart = ({ token, userName }) => {
-  //   const dispatch = useDispatch();
+  const dispatch = useDispatch();
   const cart = useSelector(selectCart);
   const user = useSelector(selectUser);
 
@@ -41,6 +42,13 @@ const Cart = ({ token, userName }) => {
   };
 
   const saveOrderToDb = () => {
+    if (userCartUseQuery.data?.ok) router.push('/checkout');
+  };
+
+  const saveCashOrderToDb = () => {
+    // console.log("cart", JSON.stringify(cart, null, 4));
+    dispatch(getCashOnDeliveryApplied(true));
+
     if (userCartUseQuery.data?.ok) router.push('/checkout');
   };
 
@@ -94,13 +102,23 @@ const Cart = ({ token, userName }) => {
           Total: <b>${getTotal()}</b>
           <hr />
           {user._id ? (
-            <button
-              onClick={saveOrderToDb}
-              className="btn btn-sm btn-primary mt-2"
-              disabled={!cart.length}
-            >
-              Proceed to Checkout
-            </button>
+            <>
+              <button
+                onClick={saveOrderToDb}
+                className="btn btn-sm btn-primary mt-2"
+                disabled={!cart.length}
+              >
+                Proceed to Checkout
+              </button>
+              <br />
+              <button
+                onClick={saveCashOrderToDb}
+                className="btn btn-sm btn-warning mt-2"
+                disabled={!cart.length}
+              >
+                Pay Cash on Delivery
+              </button>
+            </>
           ) : (
             <button className="btn btn-sm btn-primary mt-2">
               <Link

@@ -1,4 +1,5 @@
 import Order from './Order';
+import uniqueid from 'uniqueid';
 
 const createOrder = async ({ products, orderedBy, paymentIntent }) => {
   try {
@@ -6,6 +7,27 @@ const createOrder = async ({ products, orderedBy, paymentIntent }) => {
       products,
       orderedBy,
       paymentIntent,
+    }).save();
+
+    return { ok: true };
+  } catch (error) {
+    console.log('order createOrder error: ', error);
+  }
+};
+
+const createCashOrder = async ({ products, cartTotal, orderedBy }) => {
+  try {
+    await new Order({
+      products,
+      paymentIntent: {
+        id: uniqueid(),
+        amount: cartTotal,
+        currency: 'usd',
+        status: 'Cash On Delivery',
+        created: Date.now(),
+        payment_method_types: ['cash'],
+      },
+      orderedBy,
     }).save();
 
     return { ok: true };
@@ -52,4 +74,10 @@ const updateOrder = async (orderId, orderStatus) => {
   }
 };
 
-export { createOrder, findUserOrders, findAllOrders, updateOrder };
+export {
+  createOrder,
+  createCashOrder,
+  findUserOrders,
+  findAllOrders,
+  updateOrder,
+};

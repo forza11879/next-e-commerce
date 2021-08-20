@@ -41,3 +41,13 @@ export const sagaCartStoreResetedCallFailed = createAction(
 export const sagaCouponCallBegan = createAction('saga/couponCallBegan');
 export const sagaCouponCallSuccess = createAction('saga/couponCallSuccess');
 export const sagaCouponCallFailed = createAction('saga/couponCallFailed');
+//CashOnDelivery
+export const sagaCashOnDeliveryCallBegan = createAction(
+  'saga/cashOnDeliveryCallBegan'
+);
+export const sagaCashOnDeliveryCallSuccess = createAction(
+  'saga/cashOnDeliveryCallSuccess'
+);
+export const sagaCashOnDeliveryCallFailed = createAction(
+  'saga/cashOnDeliveryCallFailed'
+);

@@ -51,6 +51,7 @@
     "slugify": "^1.5.0",
     "stripe": "^8.160.0",
     "typewriter-effect": "^2.17.0",
+    "uniqueid": "^1.0.0",
     "use-debounce": "^6.0.1"
   },
   "devDependencies": {

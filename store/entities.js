@@ -4,6 +4,7 @@ import searchReducer from './search';
 import cartReducer from './cart';
 import drawerReducer from './drawer';
 import couponReducer from './coupon';
+import cashOnDeliveryReducer from './cashOnDelivery';
 // combining multiple reducers into one entity
 export default combineReducers({
   user: userReducer,
@@ -11,4 +12,5 @@ export default combineReducers({
   cart: cartReducer,
   drawer: drawerReducer,
   coupon: couponReducer,
+  cashOnDeliveryReducer: cashOnDeliveryReducer,
 });

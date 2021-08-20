@@ -4,6 +4,7 @@ import { watchSearch } from './search';
 import { watchCart, watchDeleteCart, watchResetCart } from './cart';
 import { watchDrawer } from './drawer';
 import { watchCoupon } from './coupon';
+import { watchCashOnDelivery } from './cashondelivery';
 
 export default function* rootSaga() {
   yield fork(watchAuth);
@@ -14,4 +15,5 @@ export default function* rootSaga() {
   yield fork(watchResetCart);
   yield fork(watchDrawer);
   yield fork(watchCoupon);
+  yield fork(watchCashOnDelivery);
 }

@@ -21,6 +21,7 @@ import {
 } from '@/hooks/query/coupon/index';
 import { getCartStoreReseted } from '@/store/cart';
 import { selectCoupon } from '@/store/coupon';
+import { selectCashOnDelivery } from '@/store/cashOnDelivery';
 import 'react-quill/dist/quill.snow.css';
 
 const Checkout = ({ userName, token }) => {
@@ -30,6 +31,7 @@ const Checkout = ({ userName, token }) => {
   const [totalAfterDiscount, setTotalAfterDiscount] = useState('');
   const [discountError, setDiscountError] = useState('');
   const couponRedux = useSelector(selectCoupon);
+  const COD = useSelector(selectCashOnDelivery);
 
   const router = useRouter();
 
@@ -85,6 +87,21 @@ const Checkout = ({ userName, token }) => {
     applyCouponHeaderUseMutation.mutate(options);
   };
 
+  const createCashOrder = () => {
+    const options = {
+      url: '',
+      method: 'post',
+      token,
+      coupon: couponRedux,
+      COD,
+    };
+    creatCashOrderUseMutation.mutate(options);
+    createCashOrderForUser(user.token).then((res) => {
+      console.log('USER CASH ORDER CREATED RES ', res);
+      // empty cart form redux, local Storage, reset coupon, reset COD, redirect
+    });
+  };
+
   const applyDiscountCoupon = () => {
     const options = {
       url: '/user/cart/coupon',
@@ -97,20 +114,6 @@ const Checkout = ({ userName, token }) => {
       },
     };
     applyCouponUseMutation.mutate(options);
-
-    // console.log('send coupon to backend', coupon);
-    // applyCoupon(user.token, coupon).then((res) => {
-    //   console.log('RES ON COUPON APPLIED', res.data);
-    //   if (res.data) {
-    //     setTotalAfterDiscount(res.data);
-    //     // update redux coupon applied
-    //   }
-    //   // error
-    //   if (res.data.err) {
-    //     setDiscountError(res.data.err);
-    //     // update redux coupon applied
-    //   }
-    // });
   };
 
   const showAddress = () => (
@@ -182,16 +185,28 @@ const Checkout = ({ userName, token }) => {
 
         <div className="row">
           <div className="col-md-6">
-            <button
-              className="btn btn-primary"
-              disabled={
-                !addressSaved || !getUserCartUseQuery.data?.products.length
-              }
-              // onClick={() => router.push(`/payment/${couponRedux}`)}
-              onClick={placeOrder}
-            >
-              Place Order
-            </button>
+            {COD ? (
+              <button
+                className="btn btn-primary"
+                disabled={
+                  !addressSaved || !getUserCartUseQuery.data?.products.length
+                }
+                onClick={createCashOrder}
+              >
+                Place Order
+              </button>
+            ) : (
+              <button
+                className="btn btn-primary"
+                disabled={
+                  !addressSaved || !getUserCartUseQuery.data?.products.length
+                }
+                // onClick={() => router.push(`/payment/${couponRedux}`)}
+                onClick={placeOrder}
+              >
+                Place Order
+              </button>
+            )}
           </div>
 
           <div className="col-md-6">
