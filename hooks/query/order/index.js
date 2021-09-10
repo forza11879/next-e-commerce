@@ -162,7 +162,7 @@ export const useMutationCreateOrder = () => {
           // Destroy cookie
           const removeStripeCookieOptions = {
             url: '/cookies',
-            token: token,
+            // token: token,
             method: 'post',
             data: { cookieName: 'appPaymentId' },
           };

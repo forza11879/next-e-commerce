@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import nookies from 'nookies';
+// import nookies from 'nookies';
 import { QueryClient } from 'react-query';
 import { dehydrate } from 'react-query/hydration';
 import Jumbotron from '@/components/cards/Jumbotron';
@@ -7,8 +7,8 @@ import NewArrivals from '@/components/home/NewArrivals';
 import BestSellers from '@/components/home/BestSellers';
 import CategoryList from '@/components/category/CategoryList';
 import SubCategoryList from '@/components/subcategory/SubCategoryList';
-import admin from '@/firebase/index';
-import { currentUser } from '@/Models/User/index';
+// import admin from '@/firebase/index';
+// import { currentUser } from '@/Models/User/index';
 import {
   useQueryProductByNewArrivals,
   useQueryProductByBestSellers,
@@ -89,7 +89,7 @@ const HomePage = ({ newArrivals, bestSellers }) => {
 export async function getServerSideProps(context) {
   // const { req, res } = context;
 
-  const { appToken } = nookies.get(context);
+  // const { appToken } = nookies.get(context);
 
   const newArrivals = {
     sort: 'createdAt',
@@ -104,8 +104,8 @@ export async function getServerSideProps(context) {
   };
 
   try {
-    const { email } = await admin.auth().verifyIdToken(appToken);
-    const { role } = await currentUser(email);
+    // const { email } = await admin.auth().verifyIdToken(appToken);
+    // const { role } = await currentUser(email);
 
     // Using Hydration
     const queryClient = new QueryClient();

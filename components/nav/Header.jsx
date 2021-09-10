@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import firebase from 'firebase';
+import { signIn, signOut, useSession } from 'next-auth/client';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
 import { Menu, Badge, Typography } from 'antd';
@@ -27,7 +28,10 @@ const { SubMenu, Item } = Menu;
 
 const Header = () => {
   const [current, setCurrent] = useState('home');
+  const [session, loading] = useSession();
+  console.log({ session, loading });
   const router = useRouter();
+  // console.log({ router });
 
   const dispatch = useDispatch();
   const user = useSelector(selectUser);
@@ -90,19 +94,47 @@ const Header = () => {
         </Link>
       </Item>
 
-      {!Boolean(user.email && user.token) && (
+      {/* {!Boolean(user.email && user.token) && (
+        <Item key="register" icon={<UserAddOutlined />} className="float-right">
+          <Link href="/register">Register</Link>
+        </Item>
+      )} */}
+
+      {!Boolean(loading) && !Boolean(session) && (
         <Item key="register" icon={<UserAddOutlined />} className="float-right">
           <Link href="/register">Register</Link>
         </Item>
       )}
 
-      {!Boolean(user.email && user.token) && (
+      {/* {!Boolean(user.email && user.token) && (
         <Item key="login" icon={<UserOutlined />} className="float-right">
           <Link href="/login">Login</Link>
         </Item>
-      )}
+      )} */}
+      {/* {!Boolean(user.email && user.token) && (
+        <Item key="login" icon={<UserOutlined />} className="float-right">
+          <Link href="/login">Login</Link>
+          <Link href="/api/auth/signin">
+            <a
+              onClick={(e) => {
+                e.preventDefault();
+                signIn('google');
+              }}
+            >
+              Sign In
+            </a>
+          </Link>
+        </Item>
+      )} */}
+      {!Boolean(loading) &&
+        !Boolean(session) &&
+        Boolean(router.pathname !== '/login') && (
+          <Item key="login" icon={<UserOutlined />} className="float-right">
+            <Link href="/login">Login</Link>
+          </Item>
+        )}
 
-      {Boolean(user.email && user.token) && (
+      {Boolean(session) && (
         <SubMenu
           icon={<SettingOutlined />}
           title={user.email && user.email.split('@')[0]}
@@ -119,8 +151,21 @@ const Header = () => {
               <Link href="/admin/dashboard">Dashboard</Link>
             </Item>
           )}
-          <Item icon={<LogoutOutlined />} onClick={logout}>
+          {/* <Item icon={<LogoutOutlined />} onClick={logout}>
             Logout
+          </Item> */}
+          <Item icon={<LogoutOutlined />}>
+            <Link href="/api/auth/signout">
+              <a
+                onClick={(e) => {
+                  e.preventDefault();
+                  signOut();
+                  logout();
+                }}
+              >
+                Sign Out
+              </a>
+            </Link>
           </Item>
         </SubMenu>
       )}

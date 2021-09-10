@@ -1,7 +1,9 @@
 import { useEffect } from 'react';
-import nookies from 'nookies';
-import admin from '@/firebase/index';
-import { currentUser } from '@/Models/User/index';
+// import nookies from 'nookies';
+import { useSession } from 'next-auth/client';
+// import { getSession, useSession } from 'next-auth/client';
+// import admin from '@/firebase/index';
+// import { currentUser } from '@/Models/User/index';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useSelector, useDispatch } from 'react-redux';
@@ -16,20 +18,19 @@ import ProductCardInCheckout from '@/components/cards/ProductCardInCheckout';
 import { useQueryUserCart } from '@/hooks/query/cart';
 import { useMutationRemoveStripeCookie } from '@/hooks/query/cookies';
 
-const Cart = ({ token, userName }) => {
+const Cart = () => {
+  const [session] = useSession();
   const dispatch = useDispatch();
   const cart = useSelector(selectCart);
   const user = useSelector(selectUser);
 
-  // console.log('after', cart);
-  // const [data, setName] = useQueryUserCart(cart, token);
-  const userCartUseQuery = useQueryUserCart(cart, token);
+  const userCartUseQuery = useQueryUserCart(cart);
   const removeStripeCookieUseMutation = useMutationRemoveStripeCookie();
   useEffect(() => {
     // Destroy cookie
     const removeStripeCookieOptions = {
       url: '/cookies',
-      token: token,
+      // token: token,
       method: 'post',
       data: { cookieName: 'appPaymentId' },
     };
@@ -107,7 +108,7 @@ const Cart = ({ token, userName }) => {
           <hr />
           Total: <b>${getTotal()}</b>
           <hr />
-          {user._id ? (
+          {session ? (
             <>
               <button
                 onClick={saveOrderToDb}
@@ -143,42 +144,47 @@ const Cart = ({ token, userName }) => {
   );
 };
 
-export async function getServerSideProps(context) {
-  // const { req, res } = context;
-  const { appToken } = nookies.get(context);
+// export async function getServerSideProps(context) {
+//   // const { req, res } = context;
 
-  try {
-    const { email } = await admin.auth().verifyIdToken(appToken);
-    const { name } = await currentUser(email);
+//   // const session = await getSession(context);
+//   // if (!session) {
+//   //   return {
+//   //     redirect: {
+//   //       destination: `/api/auth/signin?callbackUrl=${process.env.host}${context.resolvedUrl}`,
+//   //       permanent: false, // redirect is not permanent
+//   //     },
+//   //   };
+//   // }
 
-    // if (role === 'admin') isAdmin = true;
+//   try {
+//     // Using Hydration
+//     // const queryClient = new QueryClient();
+//     // await queryClient.prefetchQuery(productQueryKeys.products, () =>
+//     //   productListByCount(count)
+//     // );
 
-    // Using Hydration
-    // const queryClient = new QueryClient();
-    // await queryClient.prefetchQuery(productQueryKeys.products, () =>
-    //   productListByCount(count)
-    // );
-
-    return {
-      props: {
-        token: appToken,
-        userName: name,
-        // dehydratedState: dehydrate(queryClient),
-      }, // will be passed to the page component as props. always return an object with the props key
-    };
-  } catch (error) {
-    console.log('error FIREBASsE: ', error.errorInfo.message);
-    if (error) {
-      return {
-        // notFound: true,
-        redirect: {
-          destination: '/login',
-          permanent: false,
-          // statusCode - In some rare cases, you might need to assign a custom status code for older HTTP Clients to properly redirect. In these cases, you can use the statusCode property instead of the permanent property, but not both.
-        },
-      };
-    }
-  }
-}
+//     return {
+//       props: {
+//         // token: appToken,
+//         // userName: session.user.name,
+//         session,
+//         // dehydratedState: dehydrate(queryClient),
+//       }, // will be passed to the page component as props. always return an object with the props key
+//     };
+//   } catch (error) {
+//     console.log('error FIREBASsE: ', error.errorInfo.message);
+//     if (error) {
+//       return {
+//         // notFound: true,
+//         redirect: {
+//           destination: '/login',
+//           permanent: false,
+//           // statusCode - In some rare cases, you might need to assign a custom status code for older HTTP Clients to properly redirect. In these cases, you can use the statusCode property instead of the permanent property, but not both.
+//         },
+//       };
+//     }
+//   }
+// }
 
 export default Cart;

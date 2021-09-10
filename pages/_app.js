@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 // import { Router } from 'next/dist/client/router';
+import { Provider as NextAuthProvider } from 'next-auth/client';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { Hydrate } from 'react-query/hydration';
 import { ReactQueryDevtools } from 'react-query/devtools';
@@ -41,19 +42,21 @@ function MyApp({ Component, pageProps }) {
   }
   return (
     <>
-      <QueryClientProvider client={queryClientRef.current}>
-        <Hydrate state={pageProps.dehydratedState}>
-          <Provider store={store}>
-            <AuthComponent>
+      <NextAuthProvider session={pageProps.session}>
+        <QueryClientProvider client={queryClientRef.current}>
+          <Hydrate state={pageProps.dehydratedState}>
+            <Provider store={store}>
+              {/* <AuthComponent> */}
               <Header />
               <SideDrawer />
               <ToastContainer />
               <Component {...pageProps} />
               <ReactQueryDevtools initialIsOpen={false} />
-            </AuthComponent>
-          </Provider>
-        </Hydrate>
-      </QueryClientProvider>
+              {/* </AuthComponent> */}
+            </Provider>
+          </Hydrate>
+        </QueryClientProvider>
+      </NextAuthProvider>
     </>
   );
 }

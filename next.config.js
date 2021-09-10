@@ -6,6 +6,10 @@ module.exports = {
     api: process.env.API,
     stripeKey: process.env.STRIPE_KEY,
     stripeKeyPublic: process.env.STRIPE_KEY_PUBLIC,
+    googleId: process.env.GOOGLE_ID,
+    googleSecret: process.env.GOOGLE_SECRET,
+    mongoDbUrl: process.env.MONGODB_URL,
+    JwtSigningPrivateKey: process.env.JWT_SIGNING_PRIVATE_KEY,
   },
   images: {
     domains: ['res.cloudinary.com'],
@@ -14,4 +18,5 @@ module.exports = {
     // loader: 'cloudinary',
     // path: 'https://res.cloudinary.com/dhvi46rif/image/upload/',
   },
+  reactStrictMode: true,
 };

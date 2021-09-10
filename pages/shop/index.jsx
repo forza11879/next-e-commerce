@@ -1,18 +1,17 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import nookies from 'nookies';
 import { useDebounce } from 'use-debounce';
 import { useSelector, useDispatch } from 'react-redux';
 import { QueryClient, useQuery } from 'react-query';
 import { dehydrate } from 'react-query/hydration';
-import admin from '@/firebase/index';
+// import admin from '@/firebase/index';
 import { Menu, Slider, Checkbox, Radio } from 'antd';
 import {
   DollarOutlined,
   DownSquareOutlined,
   StarOutlined,
 } from '@ant-design/icons';
-import { currentUser } from '@/Models/User/index';
+// import { currentUser } from '@/Models/User/index';
 import {
   listAllByCountProduct,
   productBrand,
@@ -507,8 +506,8 @@ export async function getServerSideProps(context) {
   const count = 12;
 
   try {
-    const { email } = await admin.auth().verifyIdToken(appToken);
-    const { role } = await currentUser(email);
+    // const { email } = await admin.auth().verifyIdToken(appToken);
+    // const { role } = await currentUser(email);
 
     // Using Hydration
     const queryClient = new QueryClient();

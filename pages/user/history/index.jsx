@@ -52,7 +52,7 @@ const History = ({ token }) => {
   );
 
   const showEachOrders = () =>
-    userOrdersUseQuery.data.map((item, index) => (
+    userOrdersUseQuery.data.reverse().map((item, index) => (
       <div key={index} className="m-5 p-3 card">
         <ShowPaymentInfo order={item} />
         {showOrderInTable(item)}

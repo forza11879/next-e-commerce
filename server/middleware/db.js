@@ -14,6 +14,11 @@ export async function dbConnect() {
     useCreateIndex: true,
     useFindAndModify: false,
     useUnifiedTopology: true,
+    // writeConcern: {
+    //   w: 'majority',
+    //   j: true,
+    //   wtimeout: 2500,
+    // },
   };
 
   return await mongoose.connect(uri, options);

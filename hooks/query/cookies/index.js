@@ -40,7 +40,7 @@ export const useMutationRemoveStripeCookie = () => {
         url,
         method,
         data,
-        headers: { token },
+        // headers: { token },
       });
     },
     {
