@@ -4,17 +4,13 @@ import { Modal, Button } from 'antd';
 import { toast } from 'react-toastify';
 import { StarOutlined } from '@ant-design/icons';
 
-const RatingModal = ({ isUser, token, children }) => {
+const RatingModal = ({ isUser, children }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const router = useRouter();
   const { asPath } = router;
-  // console.log('asPath: ', asPath);
-  // console.log('router: ', router);
-  // console.log({ isUser });
-  // console.log({ token });
 
   const handleModal = () => {
-    if (isUser && token) {
+    if (isUser) {
       setModalVisible(true);
     } else {
       // router.push('/login');

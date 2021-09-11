@@ -217,7 +217,7 @@ export const useQueryProductStar = (slug, userId) =>
         return JSON.parse(data);
       }, []),
       // staleTime: Infinity,
-      enabled: Boolean(slug),
+      enabled: Boolean(userId),
       keepPreviousData: true,
       onError: (error) => {
         console.log('useQueryProductStar error: ', error);
@@ -587,13 +587,13 @@ export const useMutationUpdateProduct = () => {
 export const useMutationStarProduct = () => {
   const queryClient = useQueryClient();
   return useMutation(
-    async ({ url, method, token, data }) => {
+    async ({ url, method, data }) => {
       return await axios.request({
         baseURL,
         url,
         method,
         data,
-        headers: { token },
+        // headers: { token },
       });
     },
     {

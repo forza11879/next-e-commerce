@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import nookies from 'nookies';
+import { getSession } from 'next-auth/client';
+// import nookies from 'nookies';
 import { QueryClient } from 'react-query';
 import { dehydrate } from 'react-query/hydration';
-import admin from '@/firebase/index';
-import { currentUser } from '@/Models/User/index';
+// import admin from '@/firebase/index';
+// import { currentUser } from '@/Models/User/index';
 import { read, relatedProduct } from '@/Models/Product/index';
 import {
   useQueryProductStar,
@@ -14,7 +15,7 @@ import {
 import SingleProduct from '@/components/cards/SingleProduct';
 import ProductCard from '@/components/cards/ProductCard';
 
-const Product = ({ productId, userId, slug, isUser, token }) => {
+const Product = ({ productId, userId, slug, isUser }) => {
   const [star, setStar] = useState(0);
 
   const productSlugQuery = useQueryProductStar(slug, JSON.parse(userId));
@@ -29,7 +30,7 @@ const Product = ({ productId, userId, slug, isUser, token }) => {
       url: `/product/star/${productId}`,
       method: 'put',
       slug: slug,
-      token: token,
+      // token: token,
       data: { star: newRating, slug: slug },
     };
     mutationStarProduct.mutate(options);
@@ -40,7 +41,6 @@ const Product = ({ productId, userId, slug, isUser, token }) => {
       <div className="row pt-4">
         <SingleProduct
           isUser={isUser}
-          token={token}
           product={productSlugQuery.data}
           onStarClick={onStarClick}
         />
@@ -71,20 +71,23 @@ const Product = ({ productId, userId, slug, isUser, token }) => {
 
 export async function getServerSideProps(context) {
   // const { req, res } = context;
+  let userId;
+  let isUser = false;
+
   const {
     params: { slug },
   } = context;
 
-  const { appToken } = nookies.get(context);
-  let isUser = false;
-
   try {
-    const { email } = await admin.auth().verifyIdToken(appToken);
-    const user = await currentUser(email);
-    if (user) isUser = true;
+    const session = await getSession(context);
+    if (session) {
+      userId = session.user.id;
+      isUser = true;
+    } else {
+      userId = null;
+    }
+
     const product = await read(slug);
-    const related = await relatedProduct(product);
-    // console.log('related: ', related);
 
     // Using Hydration
     const queryClient = new QueryClient();
@@ -93,9 +96,11 @@ export async function getServerSideProps(context) {
       queryClient.prefetchQuery(
         productQueryKeys.productStar(slug),
         async () => {
-          const existingRatingObject = product.ratings.find(
-            (item) => item.postedBy.toString() === user._id.toString()
-          );
+          const existingRatingObject = product.ratings.find((item) => {
+            if (userId) {
+              return item.postedBy.toString() === userId.toString();
+            }
+          });
 
           if (existingRatingObject) {
             product.star = existingRatingObject.star;
@@ -119,9 +124,8 @@ export async function getServerSideProps(context) {
     return {
       props: {
         productId: JSON.parse(JSON.stringify(product._id)),
-        userId: JSON.stringify(user._id),
+        userId: JSON.stringify(userId),
         slug: slug,
-        token: appToken,
         isUser: isUser,
         dehydratedState: dehydrate(queryClient),
       }, // will be passed to the page component as props. always return an object with the props key

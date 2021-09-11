@@ -198,13 +198,13 @@ export const useMutationAddToWishList = () => {
   const queryClient = useQueryClient();
   const router = useRouter();
   return useMutation(
-    async ({ url, method, token, data }) => {
+    async ({ url, method, data }) => {
       return await axios.request({
         baseURL,
         url,
         method,
         data,
-        headers: { token },
+        // headers: { token },
       });
     },
     {

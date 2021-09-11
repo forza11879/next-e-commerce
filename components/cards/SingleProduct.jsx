@@ -18,7 +18,7 @@ import { useMutationAddToWishList } from '@/hooks/query/user';
 
 const { TabPane } = Tabs;
 
-const SingleProduct = ({ product, isUser, token, onStarClick }) => {
+const SingleProduct = ({ product, isUser, onStarClick }) => {
   const {
     title,
     description,
@@ -77,15 +77,10 @@ const SingleProduct = ({ product, isUser, token, onStarClick }) => {
     const options = {
       url: '/user/wishlist',
       method: 'post',
-      token,
+      // token,
       data: { productId: _id },
     };
     addToWishListUseMutation.mutate(options);
-    // addToWishlist(product._id, user.token).then((res) => {
-    //   console.log("ADDED TO WISHLIST", res.data);
-    //   toast.success("Added to wishlist");
-    //   history.push("/user/wishlist");
-    // });
   };
 
   return (
@@ -124,7 +119,7 @@ const SingleProduct = ({ product, isUser, token, onStarClick }) => {
             <a onClick={handleAddToWishlist}>
               <HeartOutlined className="text-info" /> <br /> Add to Wishlist
             </a>,
-            <RatingModal isUser={isUser} token={token}>
+            <RatingModal isUser={isUser}>
               <StarRating
                 name={_id}
                 numberOfStars={5}
